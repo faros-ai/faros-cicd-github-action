@@ -27,10 +27,11 @@ jobs:
           SOURCE: GitHub
           TIMESTAMP: ${{ github.event.head_commit.timestamp }}
         run: |
+          echo "COMMIT_MSG=$COMMIT_MSG"
           # Replace escape characters with space so curl can handle them
           # https://stackoverflow.com/questions/23816264/remove-all-special-characters-and-case-from-string-in-bash and https://stackoverflow.com/questions/3872427/how-to-send-line-break-with-curl
           COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
-          if [ $JOB_STATUS == cancelled ]; then STATUS=Canceled; elif [ $JOB_STATUS == failure ]; then STATUS=Failed; else STATUS="${JOB_STATUS^}"; fi
+          echo "COMMIT_MSG=$COMMIT_MSG"
           DATA='{
             "revisionEntries": [
               {
