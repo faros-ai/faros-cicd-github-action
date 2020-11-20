@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "faros-emit-cicd-info",
+  "version": "0.0.1",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "GitAction to emit CICD info to Faros",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -13,10 +13,7 @@
     "test": "jest",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
-  },
+  "repository": "https://github.com/faros-ai/emit-cicd-info-to-faros",
   "keywords": [
     "actions",
     "node",
@@ -25,7 +22,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.6"
+    "@actions/core": "^1.2.6",
+    "@types/json-bigint": "^1.0.0",
+    "axios": "^0.21.0",
+    "json-bigint": "^1.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
@@ -35,11 +35,11 @@
     "eslint": "^7.8.1",
     "eslint-plugin-github": "^4.1.1",
     "eslint-plugin-jest": "^23.20.0",
-    "jest": "^24.9.0",
+    "jest": "^26.4.2",
     "jest-circus": "^26.6.3",
     "js-yaml": "^3.14.0",
     "prettier": "2.1.2",
-    "ts-jest": "^24.3.0",
+    "ts-jest": "^26.3.0",
     "typescript": "^4.0.2"
   }
 }
