@@ -21,6 +21,7 @@ export interface Deployment {
   readonly appName: string;
   readonly appPlatform: string;
   readonly startedAt: BigInt;
+  readonly status: string;
   readonly buildID: string;
   readonly source: string;
 }
@@ -79,7 +80,7 @@ export class Emit {
             uid: data.uid,
             application: {name: data.appName, platform: data.appPlatform},
             startedAt: data.startedAt,
-            status: 'Queued',
+            status: data.status,
             build: {
               uid: data.buildID,
               source: 'GitHub'

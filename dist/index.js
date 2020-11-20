@@ -101,7 +101,7 @@ class Emit {
                             uid: data.uid,
                             application: { name: data.appName, platform: data.appPlatform },
                             startedAt: data.startedAt,
-                            status: 'Queued',
+                            status: data.status,
                             build: {
                                 uid: data.buildID,
                                 source: 'GitHub'
@@ -169,6 +169,7 @@ function run() {
             const apiKey = core.getInput('apiKey', { required: true });
             const startedAt = BigInt(core.getInput('startedAt', { required: true }));
             const endedAt = BigInt(core.getInput('endedAt'));
+            const status = core.getInput('status', { required: true });
             const url = core.getInput('serverUrl')
                 ? core.getInput('serverUrl')
                 : 'https://api.faros.ai/v1';
@@ -179,7 +180,7 @@ function run() {
             }
             const emit = new emit_1.Emit(apiKey, url);
             if (model == BUILD) {
-                const build = makeBuildInfo(startedAt, endedAt);
+                const build = makeBuildInfo(startedAt, endedAt, status);
                 yield emit.build(build);
             }
             else {
@@ -197,6 +198,7 @@ function run() {
                     appName,
                     appPlatform,
                     startedAt,
+                    status,
                     buildID,
                     source
                 });
@@ -207,7 +209,7 @@ function run() {
         }
     });
 }
-function makeBuildInfo(startedAt, endedAt) {
+function makeBuildInfo(startedAt, endedAt, status) {
     const repoName = getEnvVar('GITHUB_REPOSITORY');
     const splitRepo = repoName.split('/');
     const org = splitRepo[0];
@@ -217,14 +219,13 @@ function makeBuildInfo(startedAt, endedAt) {
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const name = `${repoName}_${workflow}`;
     const sha = getEnvVar('GITHUB_SHA');
-    const jobStatus = getEnvVar('JOB_STATUS');
-    let status;
-    if (jobStatus === 'cancelled')
-        status = 'Canceled';
-    else if (jobStatus === 'failure')
-        status = 'Failed';
+    let jobStatus;
+    if (status === 'cancelled')
+        jobStatus = 'Canceled';
+    else if (status === 'failure')
+        jobStatus = 'Failed';
     else
-        status = jobStatus;
+        jobStatus = status;
     return {
         uid: id,
         number,
@@ -234,7 +235,7 @@ function makeBuildInfo(startedAt, endedAt) {
         sha,
         startedAt,
         endedAt,
-        status
+        status: jobStatus
     };
 }
 function getEnvVar(name) {

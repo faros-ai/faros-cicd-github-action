@@ -10,6 +10,7 @@ async function run(): Promise<void> {
     const apiKey = core.getInput('apiKey', {required: true});
     const startedAt = BigInt(core.getInput('startedAt', {required: true}));
     const endedAt = BigInt(core.getInput('endedAt'));
+    const status = core.getInput('status', {required: true});
     const url = core.getInput('serverUrl')
       ? core.getInput('serverUrl')
       : 'https://api.faros.ai/v1';
@@ -23,7 +24,7 @@ async function run(): Promise<void> {
     }
     const emit = new Emit(apiKey, url);
     if (model == BUILD) {
-      const build = makeBuildInfo(startedAt, endedAt);
+      const build = makeBuildInfo(startedAt, endedAt, status);
       await emit.build(build);
     } else {
       const deployId = core.getInput('deploy-id', {required: true});
@@ -40,6 +41,7 @@ async function run(): Promise<void> {
         appName,
         appPlatform,
         startedAt,
+        status,
         buildID,
         source
       });
@@ -49,7 +51,11 @@ async function run(): Promise<void> {
   }
 }
 
-function makeBuildInfo(startedAt: BigInt, endedAt: BigInt): Build {
+function makeBuildInfo(
+  startedAt: BigInt,
+  endedAt: BigInt,
+  status: string
+): Build {
   const repoName = getEnvVar('GITHUB_REPOSITORY');
   const splitRepo = repoName.split('/');
   const org = splitRepo[0];
@@ -59,11 +65,10 @@ function makeBuildInfo(startedAt: BigInt, endedAt: BigInt): Build {
   const workflow = getEnvVar('GITHUB_WORKFLOW');
   const name = `${repoName}_${workflow}`;
   const sha = getEnvVar('GITHUB_SHA');
-  const jobStatus = getEnvVar('JOB_STATUS');
-  let status;
-  if (jobStatus === 'cancelled') status = 'Canceled';
-  else if (jobStatus === 'failure') status = 'Failed';
-  else status = jobStatus;
+  let jobStatus;
+  if (status === 'cancelled') jobStatus = 'Canceled';
+  else if (status === 'failure') jobStatus = 'Failed';
+  else jobStatus = status;
   return {
     uid: id,
     number,
@@ -73,7 +78,7 @@ function makeBuildInfo(startedAt: BigInt, endedAt: BigInt): Build {
     sha,
     startedAt,
     endedAt,
-    status
+    status: jobStatus
   };
 }
 

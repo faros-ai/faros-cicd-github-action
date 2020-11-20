@@ -16,9 +16,6 @@ describe('Emit to Faros action', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
-  // afterEach(() => {
-  //   process.env = Object.assign({}, env);
-  // });
 
   test('emits build info to faros', async () => {
     mocked(axios.request).mockResolvedValue({data: {revision: {uid: 1}}});
@@ -47,6 +44,7 @@ describe('Emit to Faros action', () => {
       appName: 'emitter',
       appPlatform: 'ECS',
       source: 'Spinnaker',
+      status: 'Created',
       startedAt: BigInt(1594938057000)
     });
     expect(axios.request).toBeCalledTimes(1);

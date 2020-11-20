@@ -11,6 +11,9 @@ inputs:
   startedAt:
     required: true
     description: 'CI/CD process start time'
+  status:
+    required: true
+    description: 'CI/CD job status'
   endedAt:
     required: false
     description: 'CI/CD process end time'
