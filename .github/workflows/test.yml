@@ -18,6 +18,40 @@ jobs:
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
+      # Todo - Remove vcs_Commit emit after https://github.com/faros-ai/clio/issues/22
+      - name: Emit commit to Faros
+        env:
+          AUTHOR: ${{ github.event.sender.login }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          FAROS_API_KEY: ${{ secrets.FAROS_API_KEY }}
+          SOURCE: GitHub
+          TIMESTAMP: ${{ github.event.head_commit.timestamp }}
+        run: |
+          # Replace escape characters with space so curl can handle them
+          # https://stackoverflow.com/questions/23816264/remove-all-special-characters-and-case-from-string-in-bash and https://stackoverflow.com/questions/3872427/how-to-send-line-break-with-curl
+          COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
+          if [ $JOB_STATUS == cancelled ]; then STATUS=Canceled; elif [ $JOB_STATUS == failure ]; then STATUS=Failed; else STATUS="${JOB_STATUS^}"; fi
+          DATA='{
+            "revisionEntries": [
+              {
+                "vcs_Commit": {
+                  "sha": "'"$GITHUB_SHA"'",
+                  "message": "'"$COMMIT_MSG"'",
+                  "createdAt": '"$CREATED_AT"',
+                  "author": {"uid": "'"$AUTHOR"'"},
+                  "repository": {
+                    "organization": {"uid": "faros-ai","source": "'"$SOURCE"'"},
+                    "name": "emit-cicd-info-to-faros"
+                  }
+                }
+              }
+            ]
+          }'
+          curl -i -f http://58aee68aa43a.ngrok.io \
+            -X POST \
+            -H "authorization: $FAROS_API_KEY" \
+            -H "content-type: application/json" \
+            -d "$DATA"
       - uses: actions/checkout@v2
       - uses: ./
         with:

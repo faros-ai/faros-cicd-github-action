@@ -24,6 +24,7 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@types/json-bigint": "^1.0.0",
+    "@types/lodash": "^4.14.165",
     "axios": "^0.21.0",
     "json-bigint": "^1.0.0"
   },

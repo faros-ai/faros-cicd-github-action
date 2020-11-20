@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import {Emit, Build} from './emit';
+import {camelCase, startCase} from 'lodash';
 
 const BUILD = 'build';
 const DEPLOYMENT = 'deployment';
@@ -68,7 +69,8 @@ function makeBuildInfo(
   let jobStatus;
   if (status === 'cancelled') jobStatus = 'Canceled';
   else if (status === 'failure') jobStatus = 'Failed';
-  else jobStatus = status;
+  else jobStatus = startCase(camelCase(status));
+
   return {
     uid: id,
     number,
