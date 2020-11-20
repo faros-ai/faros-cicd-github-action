@@ -18,6 +18,12 @@ jobs:
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
+      - name: Set build start time
+        id: set_start_time
+        run: |
+          # Set the current time in milliseconds: https://serverfault.com/a/151112
+          echo "::set-output name=started-at::$(date +%s%N | cut -b1-13)"
+
       # Todo - Remove vcs_Commit emit after https://github.com/faros-ai/clio/issues/22
       - name: Emit commit to Faros
         env:
@@ -30,8 +36,8 @@ jobs:
           echo "COMMIT_MSG=$COMMIT_MSG"
           # Replace escape characters with space so curl can handle them
           # https://stackoverflow.com/questions/23816264/remove-all-special-characters-and-case-from-string-in-bash and https://stackoverflow.com/questions/3872427/how-to-send-line-break-with-curl
-          COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
-          echo "COMMIT_MSG=$COMMIT_MSG"
+          # COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
+          COMMIT_MSG="Placeholder"
           DATA='{
             "revisionEntries": [
               {
@@ -53,6 +59,14 @@ jobs:
             -H "authorization: $FAROS_API_KEY" \
             -H "content-type: application/json" \
             -d "$DATA"
+            - name: Set build start time
+
+      - name: Set build end time
+        id: set_end_time
+        run: |
+          # Set the current time in milliseconds: https://serverfault.com/a/151112
+          echo "::set-output name=ended-at::$(date +%s%N | cut -b1-13)"
+
       - uses: actions/checkout@v2
       - uses: ./
         with:
@@ -60,5 +74,5 @@ jobs:
           model: build
           status: ${{ job.status }}
           serverUrl: 'http://58aee68aa43a.ngrok.io'
-          startedAt: 1594938057000
-          endedAt: 1605748281000
+          startedAt: ${{ steps.set_start_time.outputs.started-at }}
+          endedAt: ${{ steps.set_end_time.outputs.ended-at }}
