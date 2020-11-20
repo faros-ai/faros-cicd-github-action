@@ -21,9 +21,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          apiKey: $ {{ secrets.FAROS_API_KEY }}
+          apiKey: ${{ secrets.FAROS_API_KEY }}
           model: build
-          status: $ {{ job.status }}
+          status: ${{ job.status }}
           serverUrl: 'http://58aee68aa43a.ngrok.io'
           startedAt: 1594938057000
           endedAt: 1605748281000
