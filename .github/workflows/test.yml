@@ -33,11 +33,10 @@ jobs:
           SOURCE: GitHub
           TIMESTAMP: ${{ github.event.head_commit.timestamp }}
         run: |
-          echo "COMMIT_MSG=$COMMIT_MSG"
           # Replace escape characters with space so curl can handle them
           # https://stackoverflow.com/questions/23816264/remove-all-special-characters-and-case-from-string-in-bash and https://stackoverflow.com/questions/3872427/how-to-send-line-break-with-curl
-          # COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
-          COMMIT_MSG="Placeholder"
+          COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
+          CREATED_AT=$(date -d "$TIMESTAMP" +%s%N | cut -b1-13)
           DATA='{
             "revisionEntries": [
               {
