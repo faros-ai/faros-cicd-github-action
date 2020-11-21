@@ -53,7 +53,7 @@ jobs:
               }
             ]
           }'
-          curl -i -f http://58aee68aa43a.ngrok.io \
+          curl -i -f http://58aee68aa43a.ngrok.io/revisions \
             -X POST \
             -H "authorization: $FAROS_API_KEY" \
             -H "content-type: application/json" \
