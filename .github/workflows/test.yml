@@ -75,3 +75,15 @@ jobs:
           serverUrl: 'http://58aee68aa43a.ngrok.io'
           startedAt: ${{ steps.set_start_time.outputs.started-at }}
           endedAt: ${{ steps.set_end_time.outputs.ended-at }}
+
+      - uses: ./
+        with:
+          apiKey: ${{ secrets.FAROS_API_KEY }}
+          model: deployment
+          status: Queued
+          deploy-id: d-PNRQKY5O7
+          deploy-app-name: Poseidon
+          deploy-app-platform: ECS
+          deploy-platform: CodeDeploy
+          serverUrl: 'http://58aee68aa43a.ngrok.io'
+          startedAt: ${{ steps.set_start_time.outputs.started-at }}

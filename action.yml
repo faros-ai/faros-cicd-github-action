@@ -31,7 +31,7 @@ inputs:
     description: 'The platform application is being deployed to such as ECS/K8s'
   serverUrl:
     required: false
-    description: 'Faros API Server Url if not the default Faros cloud server'
+    description: 'Faros API Server Url if not the default Faros cloud server: https://api.faros.ai/v1'
 
 runs:
   using: 'node12'
