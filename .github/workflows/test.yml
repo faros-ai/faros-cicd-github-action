@@ -58,7 +58,6 @@ jobs:
             -H "authorization: $FAROS_API_KEY" \
             -H "content-type: application/json" \
             -d "$DATA"
-            - name: Set build start time
 
       - name: Set build end time
         id: set_end_time
