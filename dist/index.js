@@ -167,11 +167,11 @@ const MODEL_TYPES = [BUILD, DEPLOYMENT];
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const apiKey = core.getInput('apiKey', { required: true });
-            const startedAt = BigInt(core.getInput('startedAt', { required: true }));
-            const endedAt = BigInt(core.getInput('endedAt'));
+            const apiKey = core.getInput('api-key', { required: true });
+            const startedAt = BigInt(core.getInput('started-at', { required: true }));
+            const endedAt = BigInt(core.getInput('ended-at'));
             const status = core.getInput('status', { required: true });
-            const url = core.getInput('serverUrl')
+            const url = core.getInput('server-url')
                 ? core.getInput('serverUrl')
                 : 'https://api.faros.ai/v1';
             const model = core.getInput('model', { required: true });
