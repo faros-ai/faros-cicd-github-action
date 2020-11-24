@@ -9,9 +9,10 @@ context variables to Faros API
 - name: Emit build info to Faros
   uses: faros-ai/faros-emit-cicd-info@v1
   with:
-    apiKey: apiKey
-    startedAt: 1594938057000
-    endedAt: 1594948057000
+    api-key: apiKey
+    model: build
+    started-at: 1594938057000
+    ended-at: 1594948057000
 ```
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.

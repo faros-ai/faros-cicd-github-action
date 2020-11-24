@@ -30,7 +30,7 @@ module.exports = {
       'parent',
       'top'
     ],
-    'simple-import-sort/sort': 'error'
+    'simple-import-sort/imports': 'error'
   },
   overrides: [
     {
@@ -40,4 +40,4 @@ module.exports = {
       }
     }
   ]
-}
+};

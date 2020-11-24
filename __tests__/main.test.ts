@@ -1,16 +1,14 @@
-import axios from 'axios';
-import {Emit} from '../src/emit';
-import {getEnvVar} from '../src/main';
-import {mocked} from 'ts-jest/utils';
-import * as process from 'process';
 import * as core from '@actions/core';
+import axios from 'axios';
 import * as cp from 'child_process';
 import * as path from 'path';
+import * as process from 'process';
+import {mocked} from 'ts-jest/utils';
+
+import {Emit} from '../src/emit';
 
 jest.mock('axios');
 jest.mock('@actions/core');
-
-const env = Object.assign({}, process.env);
 
 describe('Emit to Faros action', () => {
   beforeEach(() => {

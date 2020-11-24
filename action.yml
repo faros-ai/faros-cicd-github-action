@@ -2,19 +2,19 @@ name: 'faros-emit-cicd-info'
 description: 'Emit CI/CD information for builds and deployments from Github workflow context variables'
 author: 'Faros AI, Inc.'
 inputs:
-  apiKey:
+  api-key:
     required: true
     description: 'Faros API Key'
   model:
     required: true
     description: 'Which CI/CD model the data is for. Can be either build or deployment'
-  startedAt:
+  started-at:
     required: true
     description: 'CI/CD process start time'
   status:
     required: true
     description: 'CI/CD job status'
-  endedAt:
+  ended-at:
     required: false
     description: 'CI/CD process end time'
   deploy-id:
@@ -29,7 +29,7 @@ inputs:
   deploy-app-platform:
     required: false
     description: 'The platform application is being deployed to such as ECS/K8s'
-  serverUrl:
+  server-url:
     required: false
     description: 'Faros API Server Url if not the default Faros cloud server: https://api.faros.ai/v1'
 

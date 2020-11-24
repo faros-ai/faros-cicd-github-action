@@ -66,23 +66,26 @@ jobs:
           echo "::set-output name=ended-at::$(date +%s%N | cut -b1-13)"
 
       - uses: actions/checkout@v2
-      - uses: ./
-        with:
-          apiKey: ${{ secrets.FAROS_API_KEY }}
-          model: build
-          status: ${{ job.status }}
-          serverUrl: 'http://58aee68aa43a.ngrok.io'
-          startedAt: ${{ steps.set_start_time.outputs.started-at }}
-          endedAt: ${{ steps.set_end_time.outputs.ended-at }}
 
       - uses: ./
+        id: emit-build-info
         with:
-          apiKey: ${{ secrets.FAROS_API_KEY }}
+          api-key: ${{ secrets.FAROS_API_KEY }}
+          model: build
+          status: ${{ job.status }}
+          server-url: 'http://0c8b41cee9db.ngrok.io'
+          started-at: ${{ steps.set_start_time.outputs.started-at }}
+          ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+
+      - uses: ./
+        id: emit-deployment-info
+        with:
+          api-key: ${{ secrets.FAROS_API_KEY }}
           model: deployment
           status: Queued
-          deploy-id: d-PNRQKY5O7
-          deploy-app-name: Poseidon
+          deploy-id: test-deployment
+          deploy-app-name: Emitter
           deploy-app-platform: ECS
           deploy-platform: CodeDeploy
-          serverUrl: 'http://58aee68aa43a.ngrok.io'
-          startedAt: ${{ steps.set_start_time.outputs.started-at }}
+          server-url: 'http://0c8b41cee9db.ngrok.io'
+          started-at: ${{ steps.set_start_time.outputs.started-at }}
