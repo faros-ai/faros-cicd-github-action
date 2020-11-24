@@ -69,7 +69,8 @@ export class Emit {
         }
       ]
     };
-    await this.emit(revisionEntries);
+    // await this.emit(revisionEntries);
+    core.info(`${revisionEntries}`);
   }
 
   async deployment(data: Deployment): Promise<void> {
@@ -93,6 +94,7 @@ export class Emit {
         }
       ]
     };
-    await this.emit(revisionEntries);
+    // await this.emit(revisionEntries);
+    core.info(`${revisionEntries}`);
   }
 }
