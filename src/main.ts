@@ -14,7 +14,7 @@ async function run(): Promise<void> {
     const endedAt = BigInt(core.getInput('ended-at'));
     const status = core.getInput('status', {required: true});
     const url = core.getInput('server-url')
-      ? core.getInput('serverUrl')
+      ? core.getInput('server-url')
       : 'https://api.faros.ai/v1';
 
     const model = core.getInput('model', {required: true});
