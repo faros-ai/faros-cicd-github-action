@@ -53,7 +53,7 @@ jobs:
               }
             ]
           }'
-          curl -i -f http://0c8b41cee9db.ngrok.io/revisions \
+          curl -i -f https://api.faros.ai/v1/revisions \
             -X POST \
             -H "authorization: $FAROS_API_KEY" \
             -H "content-type: application/json" \
@@ -73,7 +73,6 @@ jobs:
           api-key: ${{ secrets.FAROS_API_KEY }}
           model: build
           status: ${{ job.status }}
-          server-url: 'http://0c8b41cee9db.ngrok.io'
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
 
@@ -87,5 +86,4 @@ jobs:
           deploy-app-name: Emitter
           deploy-app-platform: ECS
           deploy-platform: CodeDeploy
-          server-url: 'http://0c8b41cee9db.ngrok.io'
           started-at: ${{ steps.set_start_time.outputs.started-at }}

@@ -17,11 +17,6 @@ async function run(): Promise<void> {
       ? core.getInput('server-url')
       : 'https://api.faros.ai/v1';
 
-    core.info(`Server url: ${url}`);
-    if (!url) {
-      throw new Error(`Url not found: ${url}`);
-    }
-
     const model = core.getInput('model', {required: true});
     if (!MODEL_TYPES.includes(model)) {
       throw new Error(

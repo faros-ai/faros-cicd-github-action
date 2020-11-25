@@ -69,7 +69,6 @@ export class Emit {
         }
       ]
     };
-    core.info(`${revisionEntries}`);
     await this.emit(revisionEntries);
   }
 
@@ -94,7 +93,6 @@ export class Emit {
         }
       ]
     };
-    core.info(`${revisionEntries}`);
     await this.emit(revisionEntries);
   }
 }
