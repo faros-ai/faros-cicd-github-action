@@ -89,7 +89,6 @@ class Emit {
                     }
                 ]
             };
-            core.info(`${revisionEntries}`);
             yield this.emit(revisionEntries);
         });
     }
@@ -115,7 +114,6 @@ class Emit {
                     }
                 ]
             };
-            core.info(`${revisionEntries}`);
             yield this.emit(revisionEntries);
         });
     }
@@ -176,10 +174,6 @@ function run() {
             const url = core.getInput('server-url')
                 ? core.getInput('server-url')
                 : 'https://api.faros.ai/v1';
-            core.info(`Server url: ${url}`);
-            if (!url) {
-                throw new Error(`Url not found: ${url}`);
-            }
             const model = core.getInput('model', { required: true });
             if (!MODEL_TYPES.includes(model)) {
                 throw new Error(`Unsupported model type: ${model}. Supported models are:
