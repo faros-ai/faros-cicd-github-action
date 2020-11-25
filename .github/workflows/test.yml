@@ -82,7 +82,7 @@ jobs:
           api-key: ${{ secrets.FAROS_API_KEY }}
           model: deployment
           status: Success
-          deploy-id: ${{ format('emitter-deployment-{0}', env.GITHUB_RUN_NUMBER) }}
+          deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
           deploy-app-name: Emitter
           deploy-app-platform: ECS
           deploy-platform: CodeDeploy
