@@ -1,4 +1,4 @@
-## Faros CI/CD Emitter
+## Faros CI/CD Github Action
 
 A GitHub Action to emit CI/CD information for builds and deployments from a GitHub workflow
 context variables to Faros API.
