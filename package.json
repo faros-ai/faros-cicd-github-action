@@ -1,8 +1,8 @@
 {
-  "name": "faros-emit-cicd-info",
+  "name": "faros-cicd-github-action",
   "version": "0.0.1",
   "private": true,
-  "description": "GitAction to emit CICD info to Faros",
+  "description": "Faros CI/CD Github Action",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@types/json-bigint": "^1.0.0",
-    "@types/lodash": "^4.14.165",
+    "@types/lodash": "^4.14.167",
     "axios": "^0.21.0",
     "json-bigint": "^1.0.0"
   },
