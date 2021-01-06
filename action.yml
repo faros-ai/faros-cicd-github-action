@@ -1,5 +1,5 @@
-name: 'faros-emit-cicd-info'
-description: 'Emit CI/CD information for builds and deployments from Github workflow context variables'
+name: 'faros-cicd-github-action'
+description: 'Faros CI/CD Github Action'
 author: 'Faros AI, Inc.'
 inputs:
   api-key:
