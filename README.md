@@ -11,6 +11,7 @@ context variables to Faros API.
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     model: build
+    status: success
     started-at: 1594938057000
     ended-at: 1594948057000
 ```
