@@ -9,7 +9,7 @@ context variables to Faros API.
 - name: Emit build info to Faros
   uses: faros-ai/faros-emit-cicd-info@v1
   with:
-    api-key: apiKey
+    api-key: ${{ secrets.FAROS_API_KEY }}
     model: build
     started-at: 1594938057000
     ended-at: 1594948057000
