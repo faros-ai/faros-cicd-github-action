@@ -20,7 +20,7 @@ See [action.yml](action.yml) for the full documentation for this action's inputs
 ## Authentication
 
 > :clipboard: NOTE: Running the action requires a valid Faros account and
-> apiKey. To setup Faros see the [getting started guide](https://docs.faros.ai/#/?id=installation)
+> API key. To setup Faros see the [getting started guide.](https://docs.faros.ai/#/?id=installation)
 
 ## License Summary
 
