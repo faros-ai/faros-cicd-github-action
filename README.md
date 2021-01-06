@@ -7,7 +7,7 @@ context variables to Faros API.
 
 ```yaml
 - name: Emit build info to Faros
-  uses: faros-ai/faros-emit-cicd-info@v1
+  uses: faros-ai/faros-cicd-github-action@v1
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     model: build
