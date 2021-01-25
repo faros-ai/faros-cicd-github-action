@@ -24,9 +24,22 @@ async function run(): Promise<void> {
           ${MODEL_TYPES.join(',')}`
       );
     }
-    const emit = new Emit(apiKey, url);
+    const graph = core.getInput('graph') || 'default';
+    const emit = new Emit(apiKey, url, graph);
     if (model == BUILD) {
-      const build = makeBuildInfo(startedAt, endedAt, status);
+      const commitMsg = core.getInput('commit-msg', {required: true});
+      const commitAuthor = core.getInput('commit-author', {required: true});
+      const commitCreatedAt = BigInt(
+        core.getInput('commit-created-at', {required: true})
+      );
+      const build = makeBuildInfo(
+        startedAt,
+        endedAt,
+        commitMsg,
+        commitAuthor,
+        commitCreatedAt,
+        status
+      );
       await emit.build(build);
     } else {
       const deployId = core.getInput('deploy-id', {required: true});
@@ -56,6 +69,9 @@ async function run(): Promise<void> {
 function makeBuildInfo(
   startedAt: BigInt,
   endedAt: BigInt,
+  commitMsg: string,
+  commitAuthor: string,
+  commitCreatedAt: BigInt,
   status: string
 ): Build {
   const repoName = getEnvVar('GITHUB_REPOSITORY');
@@ -78,10 +94,15 @@ function makeBuildInfo(
     name,
     org,
     repo,
-    sha,
     startedAt,
     endedAt,
-    status: jobStatus
+    status: jobStatus,
+    commit: {
+      sha,
+      message: commitMsg,
+      author: commitAuthor,
+      createdAt: commitCreatedAt
+    }
   };
 }
 
