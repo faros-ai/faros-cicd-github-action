@@ -68,7 +68,7 @@ jobs:
           commit-author: ${{ github.event.sender.login }}
           commit-created-at: ${{ env.CREATED_AT }}
           server-url: https://dev.api.faros.ai
-          graph: chris
+          graph: unit-test
 
       - uses: ./
         id: emit-deployment-info
@@ -83,4 +83,4 @@ jobs:
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
           server-url: https://dev.api.faros.ai
-          graph: chris
+          graph: unit-test
