@@ -108,7 +108,7 @@ class Emit {
                             status: data.status,
                             build: {
                                 uid: data.buildID,
-                                source: 'GitHub'
+                                job: { uid: data.buildID, source: 'GitHub' }
                             },
                             source: data.source
                         }

@@ -63,7 +63,7 @@ export class Emit {
       sha: data.commit.sha,
       repository: {
         name: data.repo,
-        organization: { uid: data.org, source: 'GitHub' }
+        organization: {uid: data.org, source: 'GitHub'}
       }
     };
     const revisionEntries = {
@@ -107,7 +107,7 @@ export class Emit {
             status: data.status,
             build: {
               uid: data.buildID,
-              source: 'GitHub'
+              job: {uid: data.buildID, source: 'GitHub'}
             },
             source: data.source
           }
