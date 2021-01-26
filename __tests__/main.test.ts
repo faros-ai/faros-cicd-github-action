@@ -26,7 +26,7 @@ describe('Emit to Faros action', () => {
       name: 'emit-action-flow',
       startedAt: BigInt(1594938057000),
       endedAt: BigInt(1594939057000),
-      status: 'Failed',
+      status: 'Failed'
     });
     expect(axios.request).toBeCalledTimes(1);
     expect(core.setOutput).toHaveBeenNthCalledWith(1, 'revision-id', 1);
