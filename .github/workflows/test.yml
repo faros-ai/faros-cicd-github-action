@@ -36,6 +36,7 @@ jobs:
           # https://stackoverflow.com/questions/23816264/remove-all-special-characters-and-case-from-string-in-bash and https://stackoverflow.com/questions/3872427/how-to-send-line-break-with-curl
           COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
           CREATED_AT=$(date -d "$TIMESTAMP" +%s%N | cut -b1-13)
+          echo "COMMIT_MSG=${COMMIT_MSG}"
           echo "COMMIT_MSG=${COMMIT_MSG}" >> $GITHUB_ENV
           echo "CREATED_AT=${CREATED_AT}" >> $GITHUB_ENV
 
