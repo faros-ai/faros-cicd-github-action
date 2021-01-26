@@ -42,7 +42,6 @@ export class Emit {
     private readonly graph: string
   ) {}
   private async emit(data: any): Promise<void> {
-    core.info(JSONbigNative.stringify(data, null, 2));
     const {data: result} = await axios.request({
       method: 'post',
       url: `${this.serverUrl}/graphs/${this.graph}/revisions`,

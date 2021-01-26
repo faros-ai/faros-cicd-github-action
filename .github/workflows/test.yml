@@ -70,15 +70,17 @@ jobs:
           server-url: https://dev.api.faros.ai
           graph: chris
 
-      #- uses: ./
-        #id: emit-deployment-info
-        #with:
-          #api-key: ${{ secrets.FAROS_API_KEY }}
-          #model: deployment
-          #status: Success
-          #deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
-          #deploy-app-name: Emitter
-          #deploy-app-platform: ECS
-          #deploy-platform: CodeDeploy
-          #started-at: ${{ steps.set_start_time.outputs.started-at }}
-          #ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+      - uses: ./
+        id: emit-deployment-info
+        with:
+          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
+          model: deployment
+          status: Success
+          deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
+          deploy-app-name: Emitter
+          deploy-app-platform: ECS
+          deploy-platform: CodeDeploy
+          started-at: ${{ steps.set_start_time.outputs.started-at }}
+          ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          server-url: https://dev.api.faros.ai
+          graph: chris

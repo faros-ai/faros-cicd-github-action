@@ -53,7 +53,6 @@ class Emit {
     }
     emit(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            core.info(json_bigint_1.default.stringify(data, null, 2));
             const { data: result } = yield axios_1.default.request({
                 method: 'post',
                 url: `${this.serverUrl}/graphs/${this.graph}/revisions`,
