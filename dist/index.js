@@ -53,6 +53,7 @@ class Emit {
     }
     emit(data) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.info(json_bigint_1.default.stringify(data, null, 2));
             const { data: result } = yield axios_1.default.request({
                 method: 'post',
                 url: `${this.serverUrl}/graphs/${this.graph}/revisions`,
@@ -73,7 +74,10 @@ class Emit {
             const buildKey = { uid: data.uid, job };
             const commitKey = {
                 sha: data.commit.sha,
-                repository: { organization: { uid: data.org, source: 'GitHub' } }
+                repository: {
+                    name: data.repo,
+                    organization: { uid: data.org, source: 'GitHub' }
+                }
             };
             const revisionEntries = {
                 origin: REVISION_ORIGIN,
