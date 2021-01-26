@@ -28,6 +28,7 @@ jobs:
 
       - name: Set event params
         id: set_event_params
+        if: github.event_name != 'pull_request'
         env:
           COMMIT_MSG: ${{ github.event.head_commit.message }}
           TIMESTAMP: ${{ github.event.head_commit.timestamp }}
@@ -36,7 +37,16 @@ jobs:
           # https://stackoverflow.com/questions/23816264/remove-all-special-characters-and-case-from-string-in-bash and https://stackoverflow.com/questions/3872427/how-to-send-line-break-with-curl
           COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
           CREATED_AT=$(date -d "$TIMESTAMP" +%s%N | cut -b1-13)
-          echo "COMMIT_MSG=${COMMIT_MSG}"
+          echo "COMMIT_MSG=${COMMIT_MSG}" >> $GITHUB_ENV
+          echo "CREATED_AT=${CREATED_AT}" >> $GITHUB_ENV
+
+      # Pull requests do not have github.event.head_commit
+      - name: Set pull request event params
+        id: set_pr_event_params
+        if: github.event_name == 'pull_request'
+        run:
+          COMMIT_MSG="pull request"
+          CREATED_AT=$(date +%s%N | cut -b1-13)
           echo "COMMIT_MSG=${COMMIT_MSG}" >> $GITHUB_ENV
           echo "CREATED_AT=${CREATED_AT}" >> $GITHUB_ENV
 
