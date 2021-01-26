@@ -68,7 +68,7 @@ jobs:
       - uses: ./
         id: emit-build-info
         with:
-          api-key: ${{ secrets.DEV_FAROS_API_KEY }}
+          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           model: build
           status: ${{ job.status }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
