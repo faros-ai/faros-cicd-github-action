@@ -24,40 +24,18 @@ jobs:
           # Set the current time in milliseconds: https://serverfault.com/a/151112
           echo "::set-output name=started-at::$(date +%s%N | cut -b1-13)"
 
-      # Todo - Remove vcs_Commit emit after https://github.com/faros-ai/clio/issues/22
-      - name: Emit commit to Faros
+      - name: Set event params
+        id: set_event_params
         env:
-          AUTHOR: ${{ github.event.sender.login }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
-          FAROS_API_KEY: ${{ secrets.FAROS_API_KEY }}
-          SOURCE: GitHub
           TIMESTAMP: ${{ github.event.head_commit.timestamp }}
         run: |
           # Replace escape characters with space so curl can handle them
           # https://stackoverflow.com/questions/23816264/remove-all-special-characters-and-case-from-string-in-bash and https://stackoverflow.com/questions/3872427/how-to-send-line-break-with-curl
           COMMIT_MSG="${COMMIT_MSG//[$'\n'$'\r'$'\t'$'\v']/ }"
           CREATED_AT=$(date -d "$TIMESTAMP" +%s%N | cut -b1-13)
-          DATA='{
-            "revisionEntries": [
-              {
-                "vcs_Commit": {
-                  "sha": "'"$GITHUB_SHA"'",
-                  "message": "'"$COMMIT_MSG"'",
-                  "createdAt": '"$CREATED_AT"',
-                  "author": {"uid": "'"$AUTHOR"'"},
-                  "repository": {
-                    "organization": {"uid": "faros-ai","source": "'"$SOURCE"'"},
-                    "name": "emit-cicd-info-to-faros"
-                  }
-                }
-              }
-            ]
-          }'
-          curl -i -f https://api.faros.ai/v1/revisions \
-            -X POST \
-            -H "authorization: $FAROS_API_KEY" \
-            -H "content-type: application/json" \
-            -d "$DATA"
+          echo "COMMIT_MSG=${COMMIT_MSG}" >> $GITHUB_ENV
+          echo "CREATED_AT=${CREATED_AT}" >> $GITHUB_ENV
 
       - name: Set build end time
         id: set_end_time
@@ -75,16 +53,21 @@ jobs:
           status: ${{ job.status }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          commit-msg: ${{ env.COMMIT_MSG }}
+          commit-author: ${{ github.event.sender.login }}
+          commit-created-at: ${{ env.CREATED_AT }}
+          server-url: https://dev.api.faros.ai
+          graph: chris
 
-      - uses: ./
-        id: emit-deployment-info
-        with:
-          api-key: ${{ secrets.FAROS_API_KEY }}
-          model: deployment
-          status: Success
-          deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
-          deploy-app-name: Emitter
-          deploy-app-platform: ECS
-          deploy-platform: CodeDeploy
-          started-at: ${{ steps.set_start_time.outputs.started-at }}
-          ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+      #- uses: ./
+        #id: emit-deployment-info
+        #with:
+          #api-key: ${{ secrets.FAROS_API_KEY }}
+          #model: deployment
+          #status: Success
+          #deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
+          #deploy-app-name: Emitter
+          #deploy-app-platform: ECS
+          #deploy-platform: CodeDeploy
+          #started-at: ${{ steps.set_start_time.outputs.started-at }}
+          #ended-at: ${{ steps.set_end_time.outputs.ended-at }}
