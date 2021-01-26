@@ -27,12 +27,6 @@ describe('Emit to Faros action', () => {
       startedAt: BigInt(1594938057000),
       endedAt: BigInt(1594939057000),
       status: 'Failed',
-      commit: {
-        sha: 'f4c36eb0687e45f22b1e8b3044bf0cae7b8349fe',
-        message: 'Commit message',
-        author: 'Commit author',
-        createdAt: BigInt(1594939057000)
-      }
     });
     expect(axios.request).toBeCalledTimes(1);
     expect(core.setOutput).toHaveBeenNthCalledWith(1, 'revision-id', 1);
