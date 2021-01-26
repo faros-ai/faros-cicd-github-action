@@ -27,17 +27,9 @@ async function run(): Promise<void> {
     const graph = core.getInput('graph') || 'default';
     const emit = new Emit(apiKey, url, graph);
     if (model == BUILD) {
-      const commitMsg = core.getInput('commit-msg', {required: true});
-      const commitAuthor = core.getInput('commit-author', {required: true});
-      const commitCreatedAt = BigInt(
-        core.getInput('commit-created-at', {required: true})
-      );
       const build = makeBuildInfo(
         startedAt,
         endedAt,
-        commitMsg,
-        commitAuthor,
-        commitCreatedAt,
         status
       );
       await emit.build(build);
@@ -69,9 +61,6 @@ async function run(): Promise<void> {
 function makeBuildInfo(
   startedAt: BigInt,
   endedAt: BigInt,
-  commitMsg: string,
-  commitAuthor: string,
-  commitCreatedAt: BigInt,
   status: string
 ): Build {
   const repoName = getEnvVar('GITHUB_REPOSITORY');
@@ -82,7 +71,6 @@ function makeBuildInfo(
   const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
   const workflow = getEnvVar('GITHUB_WORKFLOW');
   const name = `${repoName}_${workflow}`;
-  const sha = getEnvVar('GITHUB_SHA');
   let jobStatus;
   if (status === 'cancelled') jobStatus = 'Canceled';
   else if (status === 'failure') jobStatus = 'Failed';
@@ -96,13 +84,7 @@ function makeBuildInfo(
     repo,
     startedAt,
     endedAt,
-    status: jobStatus,
-    commit: {
-      sha,
-      message: commitMsg,
-      author: commitAuthor,
-      createdAt: commitCreatedAt
-    }
+    status: jobStatus
   };
 }
 

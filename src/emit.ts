@@ -6,13 +6,6 @@ JSONbigNative({useNativeBigInt: true});
 
 const REVISION_ORIGIN = 'faros-cicd-github-actions';
 
-export interface Commit {
-  sha: string;
-  message: string;
-  author: string;
-  createdAt: BigInt;
-}
-
 export interface Build {
   readonly uid: string;
   readonly number: number;
@@ -22,7 +15,6 @@ export interface Build {
   readonly startedAt: BigInt;
   readonly endedAt: BigInt;
   readonly status: string;
-  readonly commit: Commit;
 }
 
 export interface Deployment {
@@ -59,18 +51,11 @@ export class Emit {
   async build(data: Build): Promise<void> {
     const job = {uid: data.uid, source: 'GitHub'};
     const buildKey = {uid: data.uid, job};
-    const commitKey = {
-      sha: data.commit.sha,
-      repository: {
-        name: data.repo,
-        organization: {uid: data.org, source: 'GitHub'}
-      }
-    };
     const revisionEntries = {
       origin: REVISION_ORIGIN,
       entries: [
         {
-          cicd_BuildCommitAssociation: {build: buildKey, commit: commitKey}
+          cicd_BuildCommitAssociation: {build: buildKey}
         },
         {
           cicd_Build: {
@@ -80,14 +65,6 @@ export class Emit {
             startedAt: data.startedAt,
             endedAt: data.endedAt,
             status: data.status
-          }
-        },
-        {
-          vcs_Commit: {
-            ...commitKey,
-            message: data.commit.message,
-            createdAt: data.commit.createdAt,
-            author: {uid: data.commit.author}
           }
         }
       ]

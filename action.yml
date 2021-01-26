@@ -17,15 +17,6 @@ inputs:
   ended-at:
     required: false
     description: 'CI/CD process end time'
-  commit-msg:
-    required: false
-    description: 'Git commit message that triggered the CI/CD build'
-  commit-author:
-    required: false
-    description: 'Git commit author'
-  commit-created-at:
-    required: false
-    description: 'Git commit timestamp'
   deploy-id:
     required: false
     description: 'The deployment id of the deployment info from source service'
