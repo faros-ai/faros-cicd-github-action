@@ -75,7 +75,7 @@ class Emit {
                 origin: REVISION_ORIGIN,
                 entries: [
                     {
-                        cicd_BuildCommitAssociation: { build: buildKey }
+                        cicd_BuildCommitAssociation: { build: buildKey, commit: null }
                     },
                     {
                         cicd_Build: Object.assign(Object.assign({}, buildKey), { number: data.number, name: data.name, startedAt: data.startedAt, endedAt: data.endedAt, status: data.status })
