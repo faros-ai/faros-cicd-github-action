@@ -61,7 +61,10 @@ export class Emit {
     const buildKey = {uid: data.uid, job};
     const commitKey = {
       sha: data.commit.sha,
-      repository: {organization: {uid: data.org, source: 'GitHub'}}
+      repository: {
+        name: data.repo,
+        organization: { uid: data.org, source: 'GitHub' }
+      }
     };
     const revisionEntries = {
       origin: REVISION_ORIGIN,
