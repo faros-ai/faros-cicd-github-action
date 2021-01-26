@@ -27,11 +27,7 @@ async function run(): Promise<void> {
     const graph = core.getInput('graph') || 'default';
     const emit = new Emit(apiKey, url, graph);
     if (model == BUILD) {
-      const build = makeBuildInfo(
-        startedAt,
-        endedAt,
-        status
-      );
+      const build = makeBuildInfo(startedAt, endedAt, status);
       await emit.build(build);
     } else {
       const deployId = core.getInput('deploy-id', {required: true});

@@ -71,24 +71,14 @@ class Emit {
         return __awaiter(this, void 0, void 0, function* () {
             const job = { uid: data.uid, source: 'GitHub' };
             const buildKey = { uid: data.uid, job };
-            const commitKey = {
-                sha: data.commit.sha,
-                repository: {
-                    name: data.repo,
-                    organization: { uid: data.org, source: 'GitHub' }
-                }
-            };
             const revisionEntries = {
                 origin: REVISION_ORIGIN,
                 entries: [
                     {
-                        cicd_BuildCommitAssociation: { build: buildKey, commit: commitKey }
+                        cicd_BuildCommitAssociation: { build: buildKey }
                     },
                     {
                         cicd_Build: Object.assign(Object.assign({}, buildKey), { number: data.number, name: data.name, startedAt: data.startedAt, endedAt: data.endedAt, status: data.status })
-                    },
-                    {
-                        vcs_Commit: Object.assign(Object.assign({}, commitKey), { message: data.commit.message, createdAt: data.commit.createdAt, author: { uid: data.commit.author } })
                     }
                 ]
             };
@@ -186,10 +176,7 @@ function run() {
             const graph = core.getInput('graph') || 'default';
             const emit = new emit_1.Emit(apiKey, url, graph);
             if (model == BUILD) {
-                const commitMsg = core.getInput('commit-msg', { required: true });
-                const commitAuthor = core.getInput('commit-author', { required: true });
-                const commitCreatedAt = BigInt(core.getInput('commit-created-at', { required: true }));
-                const build = makeBuildInfo(startedAt, endedAt, commitMsg, commitAuthor, commitCreatedAt, status);
+                const build = makeBuildInfo(startedAt, endedAt, status);
                 yield emit.build(build);
             }
             else {
@@ -218,7 +205,7 @@ function run() {
         }
     });
 }
-function makeBuildInfo(startedAt, endedAt, commitMsg, commitAuthor, commitCreatedAt, status) {
+function makeBuildInfo(startedAt, endedAt, status) {
     const repoName = getEnvVar('GITHUB_REPOSITORY');
     const splitRepo = repoName.split('/');
     const org = splitRepo[0];
@@ -227,7 +214,6 @@ function makeBuildInfo(startedAt, endedAt, commitMsg, commitAuthor, commitCreate
     const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const name = `${repoName}_${workflow}`;
-    const sha = getEnvVar('GITHUB_SHA');
     let jobStatus;
     if (status === 'cancelled')
         jobStatus = 'Canceled';
@@ -243,13 +229,7 @@ function makeBuildInfo(startedAt, endedAt, commitMsg, commitAuthor, commitCreate
         repo,
         startedAt,
         endedAt,
-        status: jobStatus,
-        commit: {
-            sha,
-            message: commitMsg,
-            author: commitAuthor,
-            createdAt: commitCreatedAt
-        }
+        status: jobStatus
     };
 }
 function getEnvVar(name) {
