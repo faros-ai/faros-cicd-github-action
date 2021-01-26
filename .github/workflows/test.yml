@@ -18,6 +18,8 @@ jobs:
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Set build start time
         id: set_start_time
         run: |
@@ -42,8 +44,6 @@ jobs:
         run: |
           # Set the current time in milliseconds: https://serverfault.com/a/151112
           echo "::set-output name=ended-at::$(date +%s%N | cut -b1-13)"
-
-      - uses: actions/checkout@v2
 
       - uses: ./
         id: emit-build-info
