@@ -23,7 +23,7 @@ jobs:
       - name: Debug
         id: debug
         env:
-          FAROS_API_KEY: ${{ secrets.DEV_FAROS_API_KEY }}
+          FAROS_API_KEY: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
         run: |
           curl -X GET https://dev.api.faros.ai/graphs/chris/models \
             -H "Authorization: $FAROS_API_KEY"
