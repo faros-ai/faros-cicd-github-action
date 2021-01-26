@@ -44,7 +44,7 @@ jobs:
       - name: Set pull request event params
         id: set_pr_event_params
         if: github.event_name == 'pull_request'
-        run:
+        run: |
           COMMIT_MSG="pull request"
           CREATED_AT=$(date +%s%N | cut -b1-13)
           echo "COMMIT_MSG=${COMMIT_MSG}" >> $GITHUB_ENV
