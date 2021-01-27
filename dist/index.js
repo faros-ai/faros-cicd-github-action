@@ -46,16 +46,16 @@ const json_bigint_1 = __importDefault(__webpack_require__(5031));
 json_bigint_1.default({ useNativeBigInt: true });
 const REVISION_ORIGIN = 'faros-cicd-github-actions';
 class Emit {
-    constructor(apiKey, serverUrl, graph) {
+    constructor(apiKey, apiUrl, graph) {
         this.apiKey = apiKey;
-        this.serverUrl = serverUrl;
+        this.apiUrl = apiUrl;
         this.graph = graph;
     }
     emit(data) {
         return __awaiter(this, void 0, void 0, function* () {
             const { data: result } = yield axios_1.default.request({
                 method: 'post',
-                url: `${this.serverUrl}/graphs/${this.graph}/revisions`,
+                url: `${this.apiUrl}/graphs/${this.graph}/revisions`,
                 headers: {
                     Authorization: this.apiKey,
                     'Content-Type': 'application/json'
@@ -165,8 +165,8 @@ function run() {
             const startedAt = BigInt(core.getInput('started-at', { required: true }));
             const endedAt = BigInt(core.getInput('ended-at'));
             const status = core.getInput('status', { required: true });
-            const url = core.getInput('server-url')
-                ? core.getInput('server-url')
+            const url = core.getInput('api-url')
+                ? core.getInput('api-url')
                 : 'https://api.faros.ai/v1';
             const model = core.getInput('model', { required: true });
             if (!MODEL_TYPES.includes(model)) {

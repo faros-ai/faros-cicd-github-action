@@ -30,13 +30,13 @@ export interface Deployment {
 export class Emit {
   constructor(
     private readonly apiKey: string,
-    private readonly serverUrl: string,
+    private readonly apiUrl: string,
     private readonly graph: string
   ) {}
   private async emit(data: any): Promise<void> {
     const {data: result} = await axios.request({
       method: 'post',
-      url: `${this.serverUrl}/graphs/${this.graph}/revisions`,
+      url: `${this.apiUrl}/graphs/${this.graph}/revisions`,
       headers: {
         Authorization: this.apiKey,
         'Content-Type': 'application/json'

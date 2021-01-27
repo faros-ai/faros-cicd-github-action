@@ -12,9 +12,9 @@ async function run(): Promise<void> {
     const apiKey = core.getInput('api-key', {required: true});
     const startedAt = BigInt(core.getInput('started-at', {required: true}));
     const endedAt = BigInt(core.getInput('ended-at'));
-    const status = core.getInput('status', {required: true});
-    const url = core.getInput('server-url')
-      ? core.getInput('server-url')
+    const status = core.getInput('status', { required: true });
+    const url = core.getInput('api-url')
+      ? core.getInput('api-url')
       : 'https://api.faros.ai/v1';
 
     const model = core.getInput('model', {required: true});

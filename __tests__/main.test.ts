@@ -17,7 +17,7 @@ describe('Emit to Faros action', () => {
 
   test('emits build info to faros', async () => {
     mocked(axios.request).mockResolvedValue({data: {revision: {uid: 1}}});
-    const emit = new Emit('apiKey', 'server', 'default');
+    const emit = new Emit('apiKey', 'apiUrl', 'default');
     await emit.build({
       uid: 'randomId',
       number: 100,
@@ -33,8 +33,8 @@ describe('Emit to Faros action', () => {
   });
 
   test('emits deployment info to faros', async () => {
-    mocked(axios.request).mockResolvedValue({data: {revision: {uid: 2}}});
-    const emit = new Emit('apiKey', 'server', 'default');
+    mocked(axios.request).mockResolvedValue({ data: { revision: { uid: 2 } } });
+    const emit = new Emit('apiKey', 'apiUrl', 'default');
     await emit.deployment({
       uid: 'deployment1',
       buildID: 'buildID1',

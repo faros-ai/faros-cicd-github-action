@@ -40,7 +40,7 @@ jobs:
           status: ${{ job.status }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          server-url: https://dev.api.faros.ai
+          api-url: https://dev.api.faros.ai
           graph: unit-test
 
       - uses: ./
@@ -55,5 +55,5 @@ jobs:
           deploy-platform: CodeDeploy
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          server-url: https://dev.api.faros.ai
+          api-url: https://dev.api.faros.ai
           graph: unit-test
