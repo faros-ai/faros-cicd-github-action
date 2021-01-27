@@ -44,7 +44,7 @@ const core = __importStar(__webpack_require__(2186));
 const axios_1 = __importDefault(__webpack_require__(6545));
 const json_bigint_1 = __importDefault(__webpack_require__(5031));
 json_bigint_1.default({ useNativeBigInt: true });
-const REVISION_ORIGIN = 'faros-cicd-github-actions';
+const REVISION_ORIGIN = 'faros-cicd-github-action';
 class Emit {
     constructor(apiKey, apiUrl, graph) {
         this.apiKey = apiKey;
@@ -165,9 +165,7 @@ function run() {
             const startedAt = BigInt(core.getInput('started-at', { required: true }));
             const endedAt = BigInt(core.getInput('ended-at'));
             const status = core.getInput('status', { required: true });
-            const url = core.getInput('api-url')
-                ? core.getInput('api-url')
-                : 'https://api.faros.ai/v1';
+            const url = core.getInput('api-url', { required: true });
             const model = core.getInput('model', { required: true });
             if (!MODEL_TYPES.includes(model)) {
                 throw new Error(`Unsupported model type: ${model}. Supported models are:

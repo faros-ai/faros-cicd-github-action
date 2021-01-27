@@ -2,6 +2,9 @@ name: 'faros-cicd-github-action'
 description: 'Faros CI/CD Github Action'
 author: 'Faros AI, Inc.'
 inputs:
+  api-url:
+    required: true
+    description: 'Faros API URL, e.g. https://api.faros.ai'
   api-key:
     required: true
     description: 'Faros API Key'
@@ -29,12 +32,9 @@ inputs:
   deploy-app-platform:
     required: false
     description: 'The platform application is being deployed to such as ECS/K8s'
-  api-url:
-    required: false
-    description: 'Faros API Server Url if not the default Faros cloud server: https://api.faros.ai/v1'
   graph:
     required: false
-    description: 'Graph name to append to the Faros API Server Url'
+    description: "Graph name to use when invoking Faros API. Uses 'default' graph if no name is provided"
 
 runs:
   using: 'node12'

@@ -4,7 +4,7 @@ import JSONbigNative from 'json-bigint';
 
 JSONbigNative({useNativeBigInt: true});
 
-const REVISION_ORIGIN = 'faros-cicd-github-actions';
+const REVISION_ORIGIN = 'faros-cicd-github-action';
 
 export interface Build {
   readonly uid: string;
