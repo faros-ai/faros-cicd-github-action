@@ -17,6 +17,8 @@ jobs:
           npm run all
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
+    env:
+      FAROS_API_URL: https://dev.api.faros.ai
     steps:
       - uses: actions/checkout@v2
 
@@ -40,7 +42,7 @@ jobs:
           status: ${{ job.status }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          api-url: https://dev.api.faros.ai
+          api-url: ${{ env.FAROS_API_URL }}
           graph: unit-test
 
       - uses: ./
@@ -55,5 +57,5 @@ jobs:
           deploy-platform: CodeDeploy
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          api-url: https://dev.api.faros.ai
+          api-url: ${{ env.FAROS_API_URL }}
           graph: unit-test
