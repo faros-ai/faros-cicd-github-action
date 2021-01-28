@@ -12,6 +12,7 @@ export interface Build {
   readonly name: string;
   readonly org: string;
   readonly repo: string;
+  readonly sha: string;
   readonly startedAt: BigInt;
   readonly endedAt: BigInt;
   readonly status: string;
@@ -51,11 +52,18 @@ export class Emit {
   async build(data: Build): Promise<void> {
     const job = {uid: data.uid, source: 'GitHub'};
     const buildKey = {uid: data.uid, job};
+    const commitKey = {
+      sha: data.sha,
+      repository: {
+        name: data.repo,
+        organization: {uid: data.org, source: 'GitHub'}
+      }
+    };
     const revisionEntries = {
       origin: REVISION_ORIGIN,
       entries: [
         {
-          cicd_BuildCommitAssociation: {build: buildKey, commit: null}
+          cicd_BuildCommitAssociation: {build: buildKey, commit: commitKey}
         },
         {
           cicd_Build: {
