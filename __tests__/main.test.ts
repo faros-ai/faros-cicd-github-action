@@ -17,11 +17,10 @@ describe('Emit to Faros action', () => {
 
   test('emits build info to faros', async () => {
     mocked(axios.request).mockResolvedValue({data: {revision: {uid: 1}}});
-    const emit = new Emit('apiKey', 'server');
+    const emit = new Emit('apiKey', 'apiUrl', 'default');
     await emit.build({
       uid: 'randomId',
       number: 100,
-      sha: 'f4c36eb0687e45f22b1e8b3044bf0cae7b8349fe',
       org: 'faros-ai',
       repo: 'emitter',
       name: 'emit-action-flow',
@@ -35,7 +34,7 @@ describe('Emit to Faros action', () => {
 
   test('emits deployment info to faros', async () => {
     mocked(axios.request).mockResolvedValue({data: {revision: {uid: 2}}});
-    const emit = new Emit('apiKey', 'server');
+    const emit = new Emit('apiKey', 'apiUrl', 'default');
     await emit.deployment({
       uid: 'deployment1',
       buildID: 'buildID1',

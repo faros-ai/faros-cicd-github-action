@@ -4,13 +4,14 @@ import JSONbigNative from 'json-bigint';
 
 JSONbigNative({useNativeBigInt: true});
 
+const REVISION_ORIGIN = 'faros-cicd-github-action';
+
 export interface Build {
   readonly uid: string;
   readonly number: number;
   readonly name: string;
   readonly org: string;
   readonly repo: string;
-  readonly sha: string;
   readonly startedAt: BigInt;
   readonly endedAt: BigInt;
   readonly status: string;
@@ -29,12 +30,13 @@ export interface Deployment {
 export class Emit {
   constructor(
     private readonly apiKey: string,
-    private readonly serverUrl: string
+    private readonly apiUrl: string,
+    private readonly graph: string
   ) {}
   private async emit(data: any): Promise<void> {
     const {data: result} = await axios.request({
       method: 'post',
-      url: this.serverUrl + '/revisions',
+      url: `${this.apiUrl}/graphs/${this.graph}/revisions`,
       headers: {
         Authorization: this.apiKey,
         'Content-Type': 'application/json'
@@ -47,24 +49,22 @@ export class Emit {
   }
 
   async build(data: Build): Promise<void> {
+    const job = {uid: data.uid, source: 'GitHub'};
+    const buildKey = {uid: data.uid, job};
     const revisionEntries = {
-      revisionEntries: [
+      origin: REVISION_ORIGIN,
+      entries: [
+        {
+          cicd_BuildCommitAssociation: {build: buildKey, commit: null}
+        },
         {
           cicd_Build: {
-            uid: data.uid,
+            ...buildKey,
             number: data.number,
             name: data.name,
-            commit: {
-              repository: {
-                name: data.repo,
-                organization: {uid: data.org, source: 'GitHub'}
-              },
-              sha: data.sha
-            },
             startedAt: data.startedAt,
             endedAt: data.endedAt,
-            status: data.status,
-            source: 'GitHub'
+            status: data.status
           }
         }
       ]
@@ -74,7 +74,8 @@ export class Emit {
 
   async deployment(data: Deployment): Promise<void> {
     const revisionEntries = {
-      revisionEntries: [
+      origin: REVISION_ORIGIN,
+      entries: [
         {
           cicd_Deployment: {
             uid: data.uid,
@@ -83,7 +84,7 @@ export class Emit {
             status: data.status,
             build: {
               uid: data.buildID,
-              source: 'GitHub'
+              job: {uid: data.buildID, source: 'GitHub'}
             },
             source: data.source
           }

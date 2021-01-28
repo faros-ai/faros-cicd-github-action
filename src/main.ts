@@ -13,9 +13,7 @@ async function run(): Promise<void> {
     const startedAt = BigInt(core.getInput('started-at', {required: true}));
     const endedAt = BigInt(core.getInput('ended-at'));
     const status = core.getInput('status', {required: true});
-    const url = core.getInput('server-url')
-      ? core.getInput('server-url')
-      : 'https://api.faros.ai/v1';
+    const url = core.getInput('api-url', {required: true});
 
     const model = core.getInput('model', {required: true});
     if (!MODEL_TYPES.includes(model)) {
@@ -24,7 +22,8 @@ async function run(): Promise<void> {
           ${MODEL_TYPES.join(',')}`
       );
     }
-    const emit = new Emit(apiKey, url);
+    const graph = core.getInput('graph') || 'default';
+    const emit = new Emit(apiKey, url, graph);
     if (model == BUILD) {
       const build = makeBuildInfo(startedAt, endedAt, status);
       await emit.build(build);
@@ -66,7 +65,6 @@ function makeBuildInfo(
   const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
   const workflow = getEnvVar('GITHUB_WORKFLOW');
   const name = `${repoName}_${workflow}`;
-  const sha = getEnvVar('GITHUB_SHA');
   let jobStatus;
   if (status === 'cancelled') jobStatus = 'Canceled';
   else if (status === 'failure') jobStatus = 'Failed';
@@ -78,7 +76,6 @@ function makeBuildInfo(
     name,
     org,
     repo,
-    sha,
     startedAt,
     endedAt,
     status: jobStatus
