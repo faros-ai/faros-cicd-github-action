@@ -65,6 +65,7 @@ function makeBuildInfo(
   const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
   const workflow = getEnvVar('GITHUB_WORKFLOW');
   const name = `${repoName}_${workflow}`;
+  const sha = getEnvVar('GITHUB_SHA');
   let jobStatus;
   if (status === 'cancelled') jobStatus = 'Canceled';
   else if (status === 'failure') jobStatus = 'Failed';
@@ -76,6 +77,7 @@ function makeBuildInfo(
     name,
     org,
     repo,
+    sha,
     startedAt,
     endedAt,
     status: jobStatus

@@ -24,6 +24,7 @@ describe('Emit to Faros action', () => {
       org: 'faros-ai',
       repo: 'emitter',
       name: 'emit-action-flow',
+      sha: 'sha',
       startedAt: BigInt(1594938057000),
       endedAt: BigInt(1594939057000),
       status: 'Failed'

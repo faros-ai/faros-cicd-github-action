@@ -45,6 +45,7 @@ const axios_1 = __importDefault(__nccwpck_require__(6545));
 const json_bigint_1 = __importDefault(__nccwpck_require__(5031));
 json_bigint_1.default({ useNativeBigInt: true });
 const REVISION_ORIGIN = 'faros-cicd-github-action';
+const SOURCE = 'GitHub';
 class Emit {
     constructor(apiKey, apiUrl, graph) {
         this.apiKey = apiKey;
@@ -69,13 +70,20 @@ class Emit {
     }
     build(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const job = { uid: data.uid, source: 'GitHub' };
+            const job = { uid: data.uid, source: SOURCE };
             const buildKey = { uid: data.uid, job };
+            const commitKey = {
+                sha: data.sha,
+                repository: {
+                    name: data.repo,
+                    organization: { uid: data.org, source: SOURCE }
+                }
+            };
             const revisionEntries = {
                 origin: REVISION_ORIGIN,
                 entries: [
                     {
-                        cicd_BuildCommitAssociation: { build: buildKey, commit: null }
+                        cicd_BuildCommitAssociation: { build: buildKey, commit: commitKey }
                     },
                     {
                         cicd_Build: Object.assign(Object.assign({}, buildKey), { number: data.number, name: data.name, startedAt: data.startedAt, endedAt: data.endedAt, status: data.status })
@@ -98,7 +106,7 @@ class Emit {
                             status: data.status,
                             build: {
                                 uid: data.buildID,
-                                job: { uid: data.buildID, source: 'GitHub' }
+                                job: { uid: data.buildID, source: SOURCE }
                             },
                             source: data.source
                         }
@@ -212,6 +220,7 @@ function makeBuildInfo(startedAt, endedAt, status) {
     const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const name = `${repoName}_${workflow}`;
+    const sha = getEnvVar('GITHUB_SHA');
     let jobStatus;
     if (status === 'cancelled')
         jobStatus = 'Canceled';
@@ -225,6 +234,7 @@ function makeBuildInfo(startedAt, endedAt, status) {
         name,
         org,
         repo,
+        sha,
         startedAt,
         endedAt,
         status: jobStatus
