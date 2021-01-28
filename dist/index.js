@@ -71,11 +71,18 @@ class Emit {
         return __awaiter(this, void 0, void 0, function* () {
             const job = { uid: data.uid, source: 'GitHub' };
             const buildKey = { uid: data.uid, job };
+            const commitKey = {
+                sha: data.sha,
+                repository: {
+                    name: data.repo,
+                    organization: { uid: data.org, source: 'GitHub' }
+                }
+            };
             const revisionEntries = {
                 origin: REVISION_ORIGIN,
                 entries: [
                     {
-                        cicd_BuildCommitAssociation: { build: buildKey, commit: null }
+                        cicd_BuildCommitAssociation: { build: buildKey, commit: commitKey }
                     },
                     {
                         cicd_Build: Object.assign(Object.assign({}, buildKey), { number: data.number, name: data.name, startedAt: data.startedAt, endedAt: data.endedAt, status: data.status })
@@ -212,6 +219,7 @@ function makeBuildInfo(startedAt, endedAt, status) {
     const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const name = `${repoName}_${workflow}`;
+    const sha = getEnvVar('GITHUB_SHA');
     let jobStatus;
     if (status === 'cancelled')
         jobStatus = 'Canceled';
@@ -225,6 +233,7 @@ function makeBuildInfo(startedAt, endedAt, status) {
         name,
         org,
         repo,
+        sha,
         startedAt,
         endedAt,
         status: jobStatus
