@@ -5,6 +5,7 @@ import JSONbigNative from 'json-bigint';
 JSONbigNative({useNativeBigInt: true});
 
 const REVISION_ORIGIN = 'faros-cicd-github-action';
+const SOURCE = 'GitHub';
 
 export interface Build {
   readonly uid: string;
@@ -50,13 +51,13 @@ export class Emit {
   }
 
   async build(data: Build): Promise<void> {
-    const job = {uid: data.uid, source: 'GitHub'};
+    const job = {uid: data.uid, source: SOURCE};
     const buildKey = {uid: data.uid, job};
     const commitKey = {
       sha: data.sha,
       repository: {
         name: data.repo,
-        organization: {uid: data.org, source: 'GitHub'}
+        organization: {uid: data.org, source: SOURCE}
       }
     };
     const revisionEntries = {
@@ -92,7 +93,7 @@ export class Emit {
             status: data.status,
             build: {
               uid: data.buildID,
-              job: {uid: data.buildID, source: 'GitHub'}
+              job: {uid: data.buildID, source: SOURCE}
             },
             source: data.source
           }

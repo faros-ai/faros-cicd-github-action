@@ -45,6 +45,7 @@ const axios_1 = __importDefault(__nccwpck_require__(6545));
 const json_bigint_1 = __importDefault(__nccwpck_require__(5031));
 json_bigint_1.default({ useNativeBigInt: true });
 const REVISION_ORIGIN = 'faros-cicd-github-action';
+const SOURCE = 'GitHub';
 class Emit {
     constructor(apiKey, apiUrl, graph) {
         this.apiKey = apiKey;
@@ -69,13 +70,13 @@ class Emit {
     }
     build(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const job = { uid: data.uid, source: 'GitHub' };
+            const job = { uid: data.uid, source: SOURCE };
             const buildKey = { uid: data.uid, job };
             const commitKey = {
                 sha: data.sha,
                 repository: {
                     name: data.repo,
-                    organization: { uid: data.org, source: 'GitHub' }
+                    organization: { uid: data.org, source: SOURCE }
                 }
             };
             const revisionEntries = {
@@ -105,7 +106,7 @@ class Emit {
                             status: data.status,
                             build: {
                                 uid: data.buildID,
-                                job: { uid: data.buildID, source: 'GitHub' }
+                                job: { uid: data.buildID, source: SOURCE }
                             },
                             source: data.source
                         }
