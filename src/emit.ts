@@ -5,7 +5,12 @@ import JSONbigNative from 'json-bigint';
 JSONbigNative({useNativeBigInt: true});
 
 const REVISION_ORIGIN = 'faros-cicd-github-action';
-const SOURCE = 'GitHub';
+const BUILD_SOURCE = 'GitHub';
+
+export interface Status {
+  category: string;
+  detail: string;
+}
 
 export interface Build {
   readonly uid: string;
@@ -16,17 +21,22 @@ export interface Build {
   readonly sha: string;
   readonly startedAt: BigInt;
   readonly endedAt: BigInt;
-  readonly status: string;
+  readonly status: Status;
+  readonly workflowName: string;
+  readonly serverUrl: string;
 }
 
 export interface Deployment {
   readonly uid: string;
   readonly appName: string;
   readonly appPlatform: string;
+  readonly buildId: string;
+  readonly buildPipelineId: string;
+  readonly buildOrgId: string;
+  readonly buildPlatform: string;
+  readonly deployPlatform: string;
   readonly startedAt: BigInt;
-  readonly status: string;
-  readonly buildID: string;
-  readonly source: string;
+  readonly status: Status;
 }
 
 export class Emit {
@@ -50,30 +60,44 @@ export class Emit {
     core.setOutput('revision-id', revId);
   }
 
-  async build(data: Build): Promise<void> {
-    const job = {uid: data.uid, source: SOURCE};
-    const buildKey = {uid: data.uid, job};
+  async build(build: Build): Promise<void> {
+    const orgKey = {uid: build.org.toLowerCase(), source: BUILD_SOURCE};
+    const pipelineId = `${build.org}/${build.repo}/${build.workflowName}`.toLowerCase();
+    const pipelineKey = {uid: pipelineId, organization: orgKey};
+    const buildKey = {uid: build.uid, pipeline: pipelineKey};
     const commitKey = {
-      sha: data.sha,
-      repository: {
-        name: data.repo,
-        organization: {uid: data.org, source: SOURCE}
-      }
+      sha: build.sha,
+      repository: {name: build.repo.toLowerCase(), organization: orgKey}
     };
     const revisionEntries = {
       origin: REVISION_ORIGIN,
       entries: [
+        {
+          cicd_Organization: {
+            ...orgKey,
+            name: build.org,
+            url: `${build.serverUrl}/${build.org}`
+          }
+        },
         {
           cicd_BuildCommitAssociation: {build: buildKey, commit: commitKey}
         },
         {
           cicd_Build: {
             ...buildKey,
-            number: data.number,
-            name: data.name,
-            startedAt: data.startedAt,
-            endedAt: data.endedAt,
-            status: data.status
+            number: build.number,
+            name: build.name,
+            startedAt: build.startedAt,
+            endedAt: build.endedAt,
+            status: build.status,
+            url: `${build.serverUrl}/repos/${build.org}/repo/${build.repo}/actions/runs/${build.uid}`
+          }
+        },
+        {
+          cicd_Pipeline: {
+            ...pipelineKey,
+            name: build.workflowName
+            // url: 'get workflow url', // todo - get from workflowID
           }
         }
       ]
@@ -92,10 +116,13 @@ export class Emit {
             startedAt: data.startedAt,
             status: data.status,
             build: {
-              uid: data.buildID,
-              job: {uid: data.buildID, source: SOURCE}
+              uid: data.buildId,
+              pipeline: {
+                uid: data.buildPipelineId,
+                organization: {uid: data.buildOrgId, source: data.buildPlatform}
+              }
             },
-            source: data.source
+            source: data.deployPlatform
           }
         },
         {

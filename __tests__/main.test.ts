@@ -4,6 +4,9 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import * as process from 'process';
 import {mocked} from 'ts-jest/utils';
+import JSONbigNative from 'json-bigint';
+
+JSONbigNative({useNativeBigInt: true});
 
 import {Emit} from '../src/emit';
 
@@ -21,15 +24,81 @@ describe('Emit to Faros action', () => {
     await emit.build({
       uid: 'randomId',
       number: 100,
-      org: 'faros-ai',
-      repo: 'emitter',
+      org: 'Faros-ai',
+      repo: 'Emitter',
       name: 'emit-action-flow',
       sha: 'sha',
       startedAt: BigInt(1594938057000),
       endedAt: BigInt(1594939057000),
-      status: 'Failed'
+      status: {category: 'Failed', detail: 'failure'},
+      workflowName: 'TestAction',
+      serverUrl: 'https://github.com'
     });
+
+    const data = {
+      origin: 'faros-cicd-github-action',
+      entries: [
+        {
+          cicd_Organization: {
+            uid: 'faros-ai',
+            source: 'GitHub',
+            name: 'Faros-ai',
+            url: 'https://github.com/Faros-ai'
+          }
+        },
+        {
+          cicd_BuildCommitAssociation: {
+            build: {
+              uid: 'randomId',
+              pipeline: {
+                uid: 'faros-ai/emitter/testaction',
+                organization: {uid: 'faros-ai', source: 'GitHub'}
+              }
+            },
+            commit: {
+              sha: 'sha',
+              repository: {
+                name: 'emitter',
+                organization: {uid: 'faros-ai', source: 'GitHub'}
+              }
+            }
+          }
+        },
+        {
+          cicd_Build: {
+            uid: 'randomId',
+            pipeline: {
+              uid: 'faros-ai/emitter/testaction',
+              organization: {uid: 'faros-ai', source: 'GitHub'}
+            },
+            number: 100,
+            name: 'emit-action-flow',
+            startedAt: BigInt(1594938057000),
+            endedAt: BigInt(1594939057000),
+            status: {category: 'Failed', detail: 'failure'},
+            url:
+              'https://github.com/repos/Faros-ai/repo/Emitter/actions/runs/randomId'
+          }
+        },
+        {
+          cicd_Pipeline: {
+            uid: 'faros-ai/emitter/testaction',
+            organization: {uid: 'faros-ai', source: 'GitHub'},
+            name: 'TestAction'
+          }
+        }
+      ]
+    };
     expect(axios.request).toBeCalledTimes(1);
+    expect(axios.request).toHaveBeenNthCalledWith(1, {
+      method: 'post',
+      url: `apiUrl/graphs/default/revisions`,
+      headers: {
+        Authorization: 'apiKey',
+        'Content-Type': 'application/json'
+      },
+      data: JSONbigNative.stringify(data)
+    });
     expect(core.setOutput).toHaveBeenNthCalledWith(1, 'revision-id', 1);
   });
 
@@ -38,32 +107,104 @@ describe('Emit to Faros action', () => {
     const emit = new Emit('apiKey', 'apiUrl', 'default');
     await emit.deployment({
       uid: 'deployment1',
-      buildID: 'buildID1',
       appName: 'emitter',
       appPlatform: 'ECS',
-      source: 'Spinnaker',
-      status: 'Created',
+      deployPlatform: 'Spinnaker',
+      buildId: 'buildID1',
+      buildOrgId: 'faros-ai',
+      buildPipelineId: 'emit-action-flow',
+      buildPlatform: 'GitHub',
+      status: {category: 'Queued', detail: 'Created'},
       startedAt: BigInt(1594938057000)
     });
     expect(axios.request).toBeCalledTimes(1);
+    const data = {
+      origin: 'faros-cicd-github-action',
+      entries: [
+        {
+          cicd_Deployment: {
+            uid: 'deployment1',
+            application: {name: 'emitter', platform: 'ECS'},
+            startedAt: BigInt(1594938057000),
+            status: {category: 'Queued', detail: 'Created'},
+            build: {
+              uid: 'buildID1',
+              pipeline: {
+                uid: 'emit-action-flow',
+                organization: {uid: 'faros-ai', source: 'GitHub'}
+              }
+            },
+            source: 'Spinnaker'
+          }
+        },
+        {
+          compute_Application: {name: 'emitter', platform: 'ECS'}
+        }
+      ]
+    };
+    expect(axios.request).toHaveBeenNthCalledWith(1, {
+      method: 'post',
+      url: `apiUrl/graphs/default/revisions`,
+      headers: {
+        Authorization: 'apiKey',
+        'Content-Type': 'application/json'
+      },
+      data: JSONbigNative.stringify(data)
+    });
     expect(core.setOutput).toHaveBeenNthCalledWith(1, 'revision-id', 2);
   });
-  // For local testing only shows how the runner will run a javascript action. Update with correct values
-  test.skip('test runs', () => {
-    process.env['INPUT_APIKEY'] = 'apiKey';
-    process.env['INPUT_STARTEDAT'] = '1594938057000';
-    process.env['INPUT_ENDEDAT'] = '1605748281000';
+
+  // For local testing only shows how the runner will run a javascript action.
+  // Update with correct values for apiKey and apiUrl
+  test.skip('test run emit build', () => {
+    process.env['INPUT_API-KEY'] = 'apiKey';
+    process.env['INPUT_API-URL'] = 'apiUrl';
+    process.env['INPUT_STARTED-AT'] = '1594938057000';
+    process.env['INPUT_ENDED-AT'] = '1605748281000';
+    process.env['INPUT_GRAPH'] = 'unit-test';
     process.env['INPUT_MODEL'] = 'build';
-    process.env['GITHUB_REPOSITORY'] = 'faros-ai/emit-cicd-info-to-faros';
+    process.env['INPUT_STATUS'] = 'Success';
+    process.env['GITHUB_REPOSITORY'] = 'faros-ai/faros-cicd-github-action';
     process.env['GITHUB_RUN_ID'] = '71882192';
     process.env['GITHUB_RUN_NUMBER'] = '10';
-    process.env['GITHUB_WORKFLOW'] = 'CI/CD Pipeline';
+    process.env['GITHUB_WORKFLOW'] = 'CI/CD';
+    process.env['GITHUB_SERVER_URL'] = 'https://github.com';
     process.env['GITHUB_SHA'] = 'f4c36eb0687e45f22b1e8b3044bf0cae7b8349fe';
-    process.env['JOB_STATUS'] = 'Success';
+
+    const np = process.execPath;
     const ip = path.join(__dirname, '..', 'lib', 'main.js');
-    const options: cp.ExecSyncOptions = {
+    const options: cp.ExecFileSyncOptions = {
       env: process.env
     };
-    console.log(cp.execSync(`node ${ip}`, options).toString());
+    console.log(cp.execFileSync(np, [ip], options).toString());
+  });
+
+  // For local testing only shows how the runner will run a javascript action.
+  // Update with correct values for apiKey and apiUrl
+  test.skip('test run emit deployment', () => {
+    process.env['INPUT_API-KEY'] = 'apiKey';
+    process.env['INPUT_API-URL'] = 'apiUrl';
+    process.env['INPUT_DEPLOY-ID'] = 'deployID';
+    process.env['INPUT_DEPLOY-APP-NAME'] = 'emitter';
+    process.env['INPUT_DEPLOY-APP-PLATFORM'] = 'ECS';
+    process.env['INPUT_DEPLOY-PLATFORM'] = 'Spinnaker';
+    process.env['INPUT_BUILD-ID'] = '71882192';
+    process.env['INPUT_BUILD-PIPELINE-ID'] = 'CI/CD';
+    process.env['INPUT_BUILD-ORG-ID'] = 'faros-ai';
+    process.env['INPUT_BUILD-PLATFORM'] = 'GitHub';
+    process.env['INPUT_STARTED-AT'] = '1594938057000';
+    process.env['INPUT_ENDED-AT'] = '1605748281000';
+    process.env['INPUT_GRAPH'] = 'unit-test';
+    process.env['INPUT_MODEL'] = 'deployment';
+    process.env['INPUT_STATUS'] = 'Success';
+    process.env['GITHUB_REPOSITORY'] = 'faros-ai/faros-cicd-github-action';
+    process.env['GITHUB_WORKFLOW'] = 'CI/CD';
+
+    const np = process.execPath;
+    const ip = path.join(__dirname, '..', 'lib', 'main.js');
+    const options: cp.ExecFileSyncOptions = {
+      env: process.env
+    };
+    console.log(cp.execFileSync(np, [ip], options).toString());
   });
 });

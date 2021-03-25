@@ -25,13 +25,25 @@ inputs:
     description: 'The deployment id of the deployment info from source service'
   deploy-platform:
     required: false
-    description: 'The deployment platform such as CodeDeploy, Spinnaker'
+    description: 'The deployment platform, e.g. CodeDeploy, Spinnaker'
   deploy-app-name:
     required: false
     description: 'The name of the application for deployment info'
   deploy-app-platform:
     required: false
-    description: 'The platform application is being deployed to such as ECS/K8s'
+    description: 'The platform application is being deployed, e.g. ECS/K8s'
+  build-build-id:
+    required: false
+    description: 'The build id of build used to trigger the deployment from source service'
+  build-pipeline-id:
+    required: false
+    description: 'The pipeline id of the build system pipeline from source service'
+  build-org-id:
+    required: false
+    description: 'The organization id of the build system pipeline from source service'
+  build-platform:
+    required: false
+    description: 'The build source system used, e.g GitHub, Jenkins'
   graph:
     required: false
     description: "Graph name to use when invoking Faros API. Uses 'default' graph if no name is provided"

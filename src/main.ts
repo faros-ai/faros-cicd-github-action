@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
-import {camelCase, startCase} from 'lodash';
 
-import {Build, Emit} from './emit';
+import {Build, Emit, Status} from './emit';
 
 const BUILD = 'build';
 const DEPLOYMENT = 'deployment';
@@ -10,10 +9,10 @@ const MODEL_TYPES = [BUILD, DEPLOYMENT];
 async function run(): Promise<void> {
   try {
     const apiKey = core.getInput('api-key', {required: true});
+    const url = core.getInput('api-url', {required: true});
     const startedAt = BigInt(core.getInput('started-at', {required: true}));
     const endedAt = BigInt(core.getInput('ended-at'));
     const status = core.getInput('status', {required: true});
-    const url = core.getInput('api-url', {required: true});
 
     const model = core.getInput('model', {required: true});
     if (!MODEL_TYPES.includes(model)) {
@@ -23,8 +22,9 @@ async function run(): Promise<void> {
       );
     }
     const graph = core.getInput('graph') || 'default';
+
     const emit = new Emit(apiKey, url, graph);
-    if (model == BUILD) {
+    if (model === BUILD) {
       const build = makeBuildInfo(startedAt, endedAt, status);
       await emit.build(build);
     } else {
@@ -33,18 +33,34 @@ async function run(): Promise<void> {
       const appPlatform = core.getInput('deploy-app-platform', {
         required: true
       });
-      const source = core.getInput('deploy-platform', {
+      const deployPlatform = core.getInput('deploy-platform', {
         required: true
       });
-      const buildID = getEnvVar('GITHUB_RUN_ID');
+      const buildOrgId = core.getInput('build-org-id', {
+        required: true
+      });
+      const pipelineId = core.getInput('build-pipeline-id', {
+        required: true
+      });
+
+      const buildPlatform = core.getInput('build-platform', {
+        required: true
+      });
+      const buildId = core.getInput('build-id', {
+        required: true
+      });
+
       await emit.deployment({
         uid: deployId,
+        buildOrgId,
         appName,
         appPlatform,
         startedAt,
-        status,
-        buildID,
-        source
+        status: {category: 'Queued', detail: status},
+        buildId,
+        buildPipelineId: pipelineId,
+        buildPlatform,
+        deployPlatform
       });
     }
   } catch (error) {
@@ -63,13 +79,10 @@ function makeBuildInfo(
   const repo = splitRepo[1];
   const id = getEnvVar('GITHUB_RUN_ID');
   const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
-  const workflow = getEnvVar('GITHUB_WORKFLOW');
-  const name = `${repoName}_${workflow}`;
+  const workflowName = getEnvVar('GITHUB_WORKFLOW');
+  const serverUrl = getEnvVar('GITHUB_SERVER_URL');
+  const name = `${repoName}_${workflowName}`;
   const sha = getEnvVar('GITHUB_SHA');
-  let jobStatus;
-  if (status === 'cancelled') jobStatus = 'Canceled';
-  else if (status === 'failure') jobStatus = 'Failed';
-  else jobStatus = startCase(camelCase(status));
 
   return {
     uid: id,
@@ -80,8 +93,26 @@ function makeBuildInfo(
     sha,
     startedAt,
     endedAt,
-    status: jobStatus
+    status: toBuildStatus(status),
+    workflowName,
+    serverUrl
   };
+}
+
+function toBuildStatus(status: string): Status {
+  if (!status) {
+    return {category: 'Unknown', detail: 'undefined'};
+  }
+  switch (status.toLowerCase()) {
+    case 'cancelled':
+      return {category: 'Canceled', detail: status};
+    case 'failure':
+      return {category: 'Failed', detail: status};
+    case 'success':
+      return {category: 'Success', detail: status};
+    default:
+      return {category: 'Unknown', detail: status};
+  }
 }
 
 export function getEnvVar(name: string): string {
