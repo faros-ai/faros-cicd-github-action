@@ -22,7 +22,8 @@ export interface Build {
   readonly startedAt: BigInt;
   readonly endedAt: BigInt;
   readonly status: Status;
-  readonly workflowName: string;
+  readonly pipelineId: string;
+  readonly pipelineName: string;
   readonly serverUrl: string;
 }
 
@@ -62,8 +63,7 @@ export class Emit {
 
   async build(build: Build): Promise<void> {
     const orgKey = {uid: build.org.toLowerCase(), source: BUILD_SOURCE};
-    const pipelineId = `${build.org}/${build.repo}/${build.workflowName}`.toLowerCase();
-    const pipelineKey = {uid: pipelineId, organization: orgKey};
+    const pipelineKey = {uid: build.pipelineId, organization: orgKey};
     const buildKey = {uid: build.uid, pipeline: pipelineKey};
     const commitKey = {
       sha: build.sha,
@@ -96,12 +96,16 @@ export class Emit {
         {
           cicd_Pipeline: {
             ...pipelineKey,
-            name: build.workflowName
+            name: build.pipelineName
             // url: 'get workflow url', // todo - get from workflowID
           }
         }
       ]
     };
+    core.setOutput('pipeline-id', pipelineKey.uid);
+    core.setOutput('build-id', buildKey.uid);
+    core.setOutput('org-id', orgKey.uid)
+    core.setOutput('org-source', orgKey.source)
     await this.emit(revisionEntries);
   }
 

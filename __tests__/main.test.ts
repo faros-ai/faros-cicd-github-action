@@ -1,10 +1,10 @@
 import * as core from '@actions/core';
 import axios from 'axios';
 import * as cp from 'child_process';
+import JSONbigNative from 'json-bigint';
 import * as path from 'path';
 import * as process from 'process';
 import {mocked} from 'ts-jest/utils';
-import JSONbigNative from 'json-bigint';
 
 JSONbigNative({useNativeBigInt: true});
 
@@ -24,14 +24,15 @@ describe('Emit to Faros action', () => {
     await emit.build({
       uid: 'randomId',
       number: 100,
-      org: 'Faros-ai',
-      repo: 'Emitter',
-      name: 'emit-action-flow',
+      org: 'faros-ai',
+      repo: 'faros-cicd-github-action',
+      name: 'faros-cicd-github-action-build-100',
       sha: 'sha',
       startedAt: BigInt(1594938057000),
       endedAt: BigInt(1594939057000),
       status: {category: 'Failed', detail: 'failure'},
-      workflowName: 'TestAction',
+      pipelineName: 'TestAction',
+      pipelineId: 'faros-ai/emitter/testaction',
       serverUrl: 'https://github.com'
     });
 
@@ -42,8 +43,8 @@ describe('Emit to Faros action', () => {
           cicd_Organization: {
             uid: 'faros-ai',
             source: 'GitHub',
-            name: 'Faros-ai',
-            url: 'https://github.com/Faros-ai'
+            name: 'faros-ai',
+            url: 'https://github.com/faros-ai'
           }
         },
         {
@@ -58,7 +59,7 @@ describe('Emit to Faros action', () => {
             commit: {
               sha: 'sha',
               repository: {
-                name: 'emitter',
+                name: 'faros-cicd-github-action',
                 organization: {uid: 'faros-ai', source: 'GitHub'}
               }
             }
@@ -72,12 +73,12 @@ describe('Emit to Faros action', () => {
               organization: {uid: 'faros-ai', source: 'GitHub'}
             },
             number: 100,
-            name: 'emit-action-flow',
+            name: 'faros-cicd-github-action-build-100',
             startedAt: BigInt(1594938057000),
             endedAt: BigInt(1594939057000),
             status: {category: 'Failed', detail: 'failure'},
             url:
-              'https://github.com/repos/Faros-ai/repo/Emitter/actions/runs/randomId'
+              'https://github.com/repos/faros-ai/repo/faros-cicd-github-action/actions/runs/randomId'
           }
         },
         {
@@ -99,7 +100,11 @@ describe('Emit to Faros action', () => {
       },
       data: JSONbigNative.stringify(data)
     });
-    expect(core.setOutput).toHaveBeenNthCalledWith(1, 'revision-id', 1);
+    expect(core.setOutput).toHaveBeenNthCalledWith(1, 'pipeline-id', 'faros-ai/emitter/testaction');
+    expect(core.setOutput).toHaveBeenNthCalledWith(2, 'build-id', 'randomId');
+    expect(core.setOutput).toHaveBeenNthCalledWith(3, 'org-id', 'faros-ai')
+    expect(core.setOutput).toHaveBeenNthCalledWith(4, 'org-source', 'GitHub')
+    expect(core.setOutput).toHaveBeenNthCalledWith(5  , 'revision-id', 1);
   });
 
   test('emits deployment info to faros', async () => {

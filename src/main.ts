@@ -13,6 +13,7 @@ async function run(): Promise<void> {
     const startedAt = BigInt(core.getInput('started-at', {required: true}));
     const endedAt = BigInt(core.getInput('ended-at'));
     const status = core.getInput('status', {required: true});
+    const pipelineId = core.getInput('build-pipeline-id');
 
     const model = core.getInput('model', {required: true});
     if (!MODEL_TYPES.includes(model)) {
@@ -25,7 +26,7 @@ async function run(): Promise<void> {
 
     const emit = new Emit(apiKey, url, graph);
     if (model === BUILD) {
-      const build = makeBuildInfo(startedAt, endedAt, status);
+      const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
       await emit.build(build);
     } else {
       const deployId = core.getInput('deploy-id', {required: true});
@@ -71,7 +72,8 @@ async function run(): Promise<void> {
 function makeBuildInfo(
   startedAt: BigInt,
   endedAt: BigInt,
-  status: string
+  status: string,
+  pipelineId?: string
 ): Build {
   const repoName = getEnvVar('GITHUB_REPOSITORY');
   const splitRepo = repoName.split('/');
@@ -80,6 +82,10 @@ function makeBuildInfo(
   const id = getEnvVar('GITHUB_RUN_ID');
   const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
   const workflowName = getEnvVar('GITHUB_WORKFLOW');
+  const pipeline = pipelineId
+    ? pipelineId
+    : `${org}/${repo}/${workflowName}`.toLowerCase();
+
   const serverUrl = getEnvVar('GITHUB_SERVER_URL');
   const name = `${repoName}_${workflowName}`;
   const sha = getEnvVar('GITHUB_SHA');
@@ -94,7 +100,8 @@ function makeBuildInfo(
     startedAt,
     endedAt,
     status: toBuildStatus(status),
-    workflowName,
+    pipelineName: workflowName,
+    pipelineId: pipeline,
     serverUrl
   };
 }
