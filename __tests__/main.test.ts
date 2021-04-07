@@ -100,11 +100,15 @@ describe('Emit to Faros action', () => {
       },
       data: JSONbigNative.stringify(data)
     });
-    expect(core.setOutput).toHaveBeenNthCalledWith(1, 'pipeline-id', 'faros-ai/emitter/testaction');
+    expect(core.setOutput).toHaveBeenNthCalledWith(
+      1,
+      'pipeline-id',
+      'faros-ai/emitter/testaction'
+    );
     expect(core.setOutput).toHaveBeenNthCalledWith(2, 'build-id', 'randomId');
-    expect(core.setOutput).toHaveBeenNthCalledWith(3, 'org-id', 'faros-ai')
-    expect(core.setOutput).toHaveBeenNthCalledWith(4, 'org-source', 'GitHub')
-    expect(core.setOutput).toHaveBeenNthCalledWith(5  , 'revision-id', 1);
+    expect(core.setOutput).toHaveBeenNthCalledWith(3, 'org-id', 'faros-ai');
+    expect(core.setOutput).toHaveBeenNthCalledWith(4, 'org-source', 'GitHub');
+    expect(core.setOutput).toHaveBeenNthCalledWith(5, 'revision-id', 1);
   });
 
   test('emits deployment info to faros', async () => {
@@ -163,7 +167,7 @@ describe('Emit to Faros action', () => {
   // Update with correct values for apiKey and apiUrl
   test.skip('test run emit build', () => {
     process.env['INPUT_API-KEY'] = 'apiKey';
-    process.env['INPUT_API-URL'] = 'apiUrl';
+    process.env['INPUT_API-URL'] = 'http://localhost:8080';
     process.env['INPUT_STARTED-AT'] = '1594938057000';
     process.env['INPUT_ENDED-AT'] = '1605748281000';
     process.env['INPUT_GRAPH'] = 'unit-test';
@@ -188,13 +192,14 @@ describe('Emit to Faros action', () => {
   // Update with correct values for apiKey and apiUrl
   test.skip('test run emit deployment', () => {
     process.env['INPUT_API-KEY'] = 'apiKey';
-    process.env['INPUT_API-URL'] = 'apiUrl';
+    process.env['INPUT_API-URL'] = 'http://localhost:8080';
     process.env['INPUT_DEPLOY-ID'] = 'deployID';
     process.env['INPUT_DEPLOY-APP-NAME'] = 'emitter';
     process.env['INPUT_DEPLOY-APP-PLATFORM'] = 'ECS';
     process.env['INPUT_DEPLOY-PLATFORM'] = 'Spinnaker';
     process.env['INPUT_BUILD-ID'] = '71882192';
-    process.env['INPUT_BUILD-PIPELINE-ID'] = 'CI/CD';
+    process.env['INPUT_BUILD-PIPELINE-ID'] =
+      'faros-ai/faros-cicd-github-action/ci/cd';
     process.env['INPUT_BUILD-ORG-ID'] = 'faros-ai';
     process.env['INPUT_BUILD-PLATFORM'] = 'GitHub';
     process.env['INPUT_STARTED-AT'] = '1594938057000';

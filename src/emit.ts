@@ -104,8 +104,8 @@ export class Emit {
     };
     core.setOutput('pipeline-id', pipelineKey.uid);
     core.setOutput('build-id', buildKey.uid);
-    core.setOutput('org-id', orgKey.uid)
-    core.setOutput('org-source', orgKey.source)
+    core.setOutput('org-id', orgKey.uid);
+    core.setOutput('org-source', orgKey.source);
     await this.emit(revisionEntries);
   }
 

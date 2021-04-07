@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 
-import {Build, Emit, Status} from './emit';
+import {Build, Deployment, Emit, Status} from './emit';
 
 const BUILD = 'build';
 const DEPLOYMENT = 'deployment';
@@ -29,40 +29,8 @@ async function run(): Promise<void> {
       const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
       await emit.build(build);
     } else {
-      const deployId = core.getInput('deploy-id', {required: true});
-      const appName = core.getInput('deploy-app-name', {required: true});
-      const appPlatform = core.getInput('deploy-app-platform', {
-        required: true
-      });
-      const deployPlatform = core.getInput('deploy-platform', {
-        required: true
-      });
-      const buildOrgId = core.getInput('build-org-id', {
-        required: true
-      });
-      const pipelineId = core.getInput('build-pipeline-id', {
-        required: true
-      });
-
-      const buildPlatform = core.getInput('build-platform', {
-        required: true
-      });
-      const buildId = core.getInput('build-id', {
-        required: true
-      });
-
-      await emit.deployment({
-        uid: deployId,
-        buildOrgId,
-        appName,
-        appPlatform,
-        startedAt,
-        status: {category: 'Queued', detail: status},
-        buildId,
-        buildPipelineId: pipelineId,
-        buildPlatform,
-        deployPlatform
-      });
+      const deployment = makeDeploymentInfo(startedAt);
+      await emit.deployment(deployment);
     }
   } catch (error) {
     core.setFailed(error.message);
@@ -103,6 +71,42 @@ function makeBuildInfo(
     pipelineName: workflowName,
     pipelineId: pipeline,
     serverUrl
+  };
+}
+
+function makeDeploymentInfo(startedAt: BigInt): Deployment {
+  const deployId = core.getInput('deploy-id', {required: true});
+  const appName = core.getInput('deploy-app-name', {required: true});
+  const appPlatform = core.getInput('deploy-app-platform', {
+    required: true
+  });
+  const deployPlatform = core.getInput('deploy-platform', {
+    required: true
+  });
+  const buildOrgId = core.getInput('build-org-id', {
+    required: true
+  });
+  const pipelineId = core.getInput('build-pipeline-id', {
+    required: true
+  });
+
+  const buildPlatform = core.getInput('build-platform', {
+    required: true
+  });
+  const buildId = core.getInput('build-id', {
+    required: true
+  });
+  return {
+    uid: deployId,
+    buildOrgId,
+    appName,
+    appPlatform,
+    startedAt,
+    status: {category: 'Queued', detail: status},
+    buildId,
+    buildPipelineId: pipelineId,
+    buildPlatform,
+    deployPlatform
   };
 }
 
