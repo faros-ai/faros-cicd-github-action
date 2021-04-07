@@ -22,16 +22,28 @@ inputs:
     description: 'CI/CD process end time'
   deploy-id:
     required: false
-    description: 'The deployment id of the deployment info from source service'
+    description: 'The deployment id of the deployment from the source system'
   deploy-platform:
     required: false
-    description: 'The deployment platform such as CodeDeploy, Spinnaker'
+    description: 'The deployment platform, e.g. CodeDeploy, Spinnaker'
   deploy-app-name:
     required: false
     description: 'The name of the application for deployment info'
   deploy-app-platform:
     required: false
-    description: 'The platform application is being deployed to such as ECS/K8s'
+    description: 'The platform the application is being deployed on, e.g. ECS, K8s'
+  build-id:
+    required: false
+    description: 'The build id of build used to trigger the deployment from the source system'
+  build-pipeline-id:
+    required: false
+    description: 'The pipeline id of the build system pipeline from the source system'
+  build-org-id:
+    required: false
+    description: 'The organization id of the build system pipeline from the source system'
+  build-platform:
+    required: false
+    description: 'The build source system used, e.g GitHub, Jenkins'
   graph:
     required: false
     description: "Graph name to use when invoking Faros API. Uses 'default' graph if no name is provided"
