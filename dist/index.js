@@ -197,7 +197,7 @@ function run() {
                 yield emit.build(build);
             }
             else {
-                const deployment = makeDeploymentInfo(startedAt);
+                const deployment = makeDeploymentInfo(startedAt, status);
                 yield emit.deployment(deployment);
             }
         }
@@ -235,7 +235,7 @@ function makeBuildInfo(startedAt, endedAt, status, pipelineId) {
         serverUrl
     };
 }
-function makeDeploymentInfo(startedAt) {
+function makeDeploymentInfo(startedAt, status) {
     const deployId = core.getInput('deploy-id', { required: true });
     const appName = core.getInput('deploy-app-name', { required: true });
     const appPlatform = core.getInput('deploy-app-platform', {
@@ -262,7 +262,7 @@ function makeDeploymentInfo(startedAt) {
         appName,
         appPlatform,
         startedAt,
-        status: { category: 'Queued', detail: status },
+        status: { category: status, detail: status },
         buildId,
         buildPipelineId: pipelineId,
         buildPlatform,

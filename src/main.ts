@@ -29,7 +29,7 @@ async function run(): Promise<void> {
       const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
       await emit.build(build);
     } else {
-      const deployment = makeDeploymentInfo(startedAt);
+      const deployment = makeDeploymentInfo(startedAt, status);
       await emit.deployment(deployment);
     }
   } catch (error) {
@@ -74,7 +74,7 @@ function makeBuildInfo(
   };
 }
 
-function makeDeploymentInfo(startedAt: BigInt): Deployment {
+function makeDeploymentInfo(startedAt: BigInt, status: string): Deployment {
   const deployId = core.getInput('deploy-id', {required: true});
   const appName = core.getInput('deploy-app-name', {required: true});
   const appPlatform = core.getInput('deploy-app-platform', {
@@ -102,7 +102,7 @@ function makeDeploymentInfo(startedAt: BigInt): Deployment {
     appName,
     appPlatform,
     startedAt,
-    status: {category: 'Queued', detail: status},
+    status: {category: status, detail: status},
     buildId,
     buildPipelineId: pipelineId,
     buildPlatform,
