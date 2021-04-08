@@ -111,6 +111,7 @@ class Emit {
                             uid: data.uid,
                             application: { name: data.appName, platform: data.appPlatform },
                             startedAt: data.startedAt,
+                            endedAt: data.endedAt,
                             status: data.status,
                             build: {
                                 uid: data.buildId,
@@ -197,7 +198,7 @@ function run() {
                 yield emit.build(build);
             }
             else {
-                const deployment = makeDeploymentInfo(startedAt, status);
+                const deployment = makeDeploymentInfo(startedAt, status, endedAt);
                 yield emit.deployment(deployment);
             }
         }
@@ -235,7 +236,7 @@ function makeBuildInfo(startedAt, endedAt, status, pipelineId) {
         serverUrl
     };
 }
-function makeDeploymentInfo(startedAt, status) {
+function makeDeploymentInfo(startedAt, status, endedAt) {
     const deployId = core.getInput('deploy-id', { required: true });
     const appName = core.getInput('deploy-app-name', { required: true });
     const appPlatform = core.getInput('deploy-app-platform', {
@@ -262,6 +263,7 @@ function makeDeploymentInfo(startedAt, status) {
         appName,
         appPlatform,
         startedAt,
+        endedAt,
         status: { category: status, detail: status },
         buildId,
         buildPipelineId: pipelineId,
@@ -281,7 +283,7 @@ function toBuildStatus(status) {
         case 'success':
             return { category: 'Success', detail: status };
         default:
-            return { category: 'Unknown', detail: status };
+            return { category: 'Custom', detail: status };
     }
 }
 function getEnvVar(name) {
