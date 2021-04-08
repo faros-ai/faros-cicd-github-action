@@ -72,7 +72,6 @@ class Emit {
         return __awaiter(this, void 0, void 0, function* () {
             const orgKey = { uid: build.org.toLowerCase(), source: BUILD_SOURCE };
             const pipelineKey = { uid: build.pipelineId, organization: orgKey };
-            core.info(`Pipeline Key ${JSON.stringify(pipelineKey)}`);
             const buildKey = { uid: build.uid, pipeline: pipelineKey };
             const commitKey = {
                 sha: build.sha,
@@ -186,7 +185,6 @@ function run() {
             const endedAt = BigInt(core.getInput('ended-at'));
             const status = core.getInput('status', { required: true });
             const pipelineId = core.getInput('build-pipeline-id');
-            core.info(`PipelineId ${pipelineId}`);
             const model = core.getInput('model', { required: true });
             if (!MODEL_TYPES.includes(model)) {
                 throw new Error(`Unsupported model type: ${model}. Supported models are:

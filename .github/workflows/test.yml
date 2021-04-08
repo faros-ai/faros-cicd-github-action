@@ -38,28 +38,29 @@ jobs:
         id: emit-build-info
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
+          api-url: ${{ env.FAROS_API_URL }}
+          graph: unit-test
           model: build
           status: ${{ job.status }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          api-url: ${{ env.FAROS_API_URL }}
-          graph: unit-test
           build-pipeline-id: 'faros-cicd-github-action-test-workflow'
 
       - uses: ./
         id: emit-deployment-info
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
+          api-url: ${{ env.FAROS_API_URL }}
+          graph: unit-test
           model: deployment
           status: Success
           deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
           deploy-app-name: Emitter
           deploy-app-platform: ECS
           deploy-platform: CodeDeploy
+          build-id: ${{ steps.emit-build-info.outputs.build-id }}
+          build-pipeline-id: ${{ steps.emit-build-info.outputs.pipeline-id }}
+          build-org-id: ${{ steps.emit-build-info.outputs.org-id }}
+          build-platform: ${{ steps.emit-build-info.outputs.org-source }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          api-url: ${{ env.FAROS_API_URL }}
-          graph: unit-test
-          build-pipeline-id: 'faros-cicd-github-action-test-workflow'
-          build-org-id: 'faros-ai'
-          build-platform: GitHub

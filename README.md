@@ -12,11 +12,12 @@ context variables to Faros API.
   uses: faros-ai/faros-cicd-github-action@v1
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
+    api-url: ${{ env.FAROS_API_URL }}
     model: build
+    build-pipeline-id: build-deploy-workflow
     status: success
     started-at: 1594938057000
     ended-at: 1594948057000
-    build-pipeline-id: build-deploy-workflow
 ```
 
 > :clipboard: Note: Whilst the build-pipeline-id is optional, it is recommended to provide one to uniquely identify this workflow in Faros since multiple GitHub workflows can have the same name. If the build-pipeline-id is not provided it will be generated from the workflow name in the lowercase format GITHUB_ORG/REPO/GITHUB_WORKFLOW_NAME.
@@ -28,13 +29,17 @@ context variables to Faros API.
   uses: faros-ai/faros-cicd-github-action@v1
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
+    api-url: ${{ env.FAROS_API_URL }}
     model: deploy
-    started-at: 1594938057000
-    ended-at: 1594948057000
+    deploy-id: deploymentId
+    deploy-app-name: Emitter
+    deploy-app-platform: ECS
+    deploy-platform: CodeDeploy
     build-id: buildId
     build-pipeline-id: build-deploy-workflow
     build-org-id: faros-ai
     build-platform: GitHub
+    started-at: 1594938057000
 ```
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
