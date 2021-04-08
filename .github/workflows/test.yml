@@ -44,6 +44,7 @@ jobs:
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
           api-url: ${{ env.FAROS_API_URL }}
           graph: unit-test
+          build-pipeline-id: 'faros-cicd-github-action-test-workflow'
 
       - uses: ./
         id: emit-deployment-info
@@ -59,3 +60,6 @@ jobs:
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
           api-url: ${{ env.FAROS_API_URL }}
           graph: unit-test
+          build-pipeline-id: 'faros-cicd-github-action-test-workflow'
+          build-org-id: 'faros-ai'
+          build-platform: GitHub
