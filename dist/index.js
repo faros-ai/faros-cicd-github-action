@@ -71,8 +71,8 @@ class Emit {
     build(build) {
         return __awaiter(this, void 0, void 0, function* () {
             const orgKey = { uid: build.org.toLowerCase(), source: BUILD_SOURCE };
-            const pipelineId = `${build.org}/${build.repo}/${build.workflowName}`.toLowerCase();
-            const pipelineKey = { uid: pipelineId, organization: orgKey };
+            const pipelineKey = { uid: build.pipelineId, organization: orgKey };
+            core.info(`Pipeline Key ${JSON.stringify(pipelineKey)}`);
             const buildKey = { uid: build.uid, pipeline: pipelineKey };
             const commitKey = {
                 sha: build.sha,
@@ -91,10 +91,14 @@ class Emit {
                         cicd_Build: Object.assign(Object.assign({}, buildKey), { number: build.number, name: build.name, startedAt: build.startedAt, endedAt: build.endedAt, status: build.status, url: `${build.serverUrl}/repos/${build.org}/repo/${build.repo}/actions/runs/${build.uid}` })
                     },
                     {
-                        cicd_Pipeline: Object.assign(Object.assign({}, pipelineKey), { name: build.workflowName })
+                        cicd_Pipeline: Object.assign(Object.assign({}, pipelineKey), { name: build.pipelineName })
                     }
                 ]
             };
+            core.setOutput('pipeline-id', pipelineKey.uid);
+            core.setOutput('build-id', buildKey.uid);
+            core.setOutput('org-id', orgKey.uid);
+            core.setOutput('org-source', orgKey.source);
             yield this.emit(revisionEntries);
         });
     }
@@ -181,6 +185,8 @@ function run() {
             const startedAt = BigInt(core.getInput('started-at', { required: true }));
             const endedAt = BigInt(core.getInput('ended-at'));
             const status = core.getInput('status', { required: true });
+            const pipelineId = core.getInput('build-pipeline-id');
+            core.info(`PipelineId ${pipelineId}`);
             const model = core.getInput('model', { required: true });
             if (!MODEL_TYPES.includes(model)) {
                 throw new Error(`Unsupported model type: ${model}. Supported models are:
@@ -189,42 +195,12 @@ function run() {
             const graph = core.getInput('graph') || 'default';
             const emit = new emit_1.Emit(apiKey, url, graph);
             if (model === BUILD) {
-                const build = makeBuildInfo(startedAt, endedAt, status);
+                const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
                 yield emit.build(build);
             }
             else {
-                const deployId = core.getInput('deploy-id', { required: true });
-                const appName = core.getInput('deploy-app-name', { required: true });
-                const appPlatform = core.getInput('deploy-app-platform', {
-                    required: true
-                });
-                const deployPlatform = core.getInput('deploy-platform', {
-                    required: true
-                });
-                const buildOrgId = core.getInput('build-org-id', {
-                    required: true
-                });
-                const pipelineId = core.getInput('build-pipeline-id', {
-                    required: true
-                });
-                const buildPlatform = core.getInput('build-platform', {
-                    required: true
-                });
-                const buildId = core.getInput('build-id', {
-                    required: true
-                });
-                yield emit.deployment({
-                    uid: deployId,
-                    buildOrgId,
-                    appName,
-                    appPlatform,
-                    startedAt,
-                    status: { category: 'Queued', detail: status },
-                    buildId,
-                    buildPipelineId: pipelineId,
-                    buildPlatform,
-                    deployPlatform
-                });
+                const deployment = makeDeploymentInfo(startedAt);
+                yield emit.deployment(deployment);
             }
         }
         catch (error) {
@@ -232,7 +208,7 @@ function run() {
         }
     });
 }
-function makeBuildInfo(startedAt, endedAt, status) {
+function makeBuildInfo(startedAt, endedAt, status, pipelineId) {
     const repoName = getEnvVar('GITHUB_REPOSITORY');
     const splitRepo = repoName.split('/');
     const org = splitRepo[0];
@@ -240,6 +216,9 @@ function makeBuildInfo(startedAt, endedAt, status) {
     const id = getEnvVar('GITHUB_RUN_ID');
     const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
     const workflowName = getEnvVar('GITHUB_WORKFLOW');
+    const pipeline = pipelineId
+        ? pipelineId
+        : `${org}/${repo}/${workflowName}`.toLowerCase();
     const serverUrl = getEnvVar('GITHUB_SERVER_URL');
     const name = `${repoName}_${workflowName}`;
     const sha = getEnvVar('GITHUB_SHA');
@@ -253,8 +232,43 @@ function makeBuildInfo(startedAt, endedAt, status) {
         startedAt,
         endedAt,
         status: toBuildStatus(status),
-        workflowName,
+        pipelineName: workflowName,
+        pipelineId: pipeline,
         serverUrl
+    };
+}
+function makeDeploymentInfo(startedAt) {
+    const deployId = core.getInput('deploy-id', { required: true });
+    const appName = core.getInput('deploy-app-name', { required: true });
+    const appPlatform = core.getInput('deploy-app-platform', {
+        required: true
+    });
+    const deployPlatform = core.getInput('deploy-platform', {
+        required: true
+    });
+    const buildOrgId = core.getInput('build-org-id', {
+        required: true
+    });
+    const pipelineId = core.getInput('build-pipeline-id', {
+        required: true
+    });
+    const buildPlatform = core.getInput('build-platform', {
+        required: true
+    });
+    const buildId = core.getInput('build-id', {
+        required: true
+    });
+    return {
+        uid: deployId,
+        buildOrgId,
+        appName,
+        appPlatform,
+        startedAt,
+        status: { category: 'Queued', detail: status },
+        buildId,
+        buildPipelineId: pipelineId,
+        buildPlatform,
+        deployPlatform
     };
 }
 function toBuildStatus(status) {

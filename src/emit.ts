@@ -64,6 +64,7 @@ export class Emit {
   async build(build: Build): Promise<void> {
     const orgKey = {uid: build.org.toLowerCase(), source: BUILD_SOURCE};
     const pipelineKey = {uid: build.pipelineId, organization: orgKey};
+    core.info(`Pipeline Key ${JSON.stringify(pipelineKey)}`);
     const buildKey = {uid: build.uid, pipeline: pipelineKey};
     const commitKey = {
       sha: build.sha,

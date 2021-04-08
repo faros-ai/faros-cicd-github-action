@@ -14,6 +14,7 @@ async function run(): Promise<void> {
     const endedAt = BigInt(core.getInput('ended-at'));
     const status = core.getInput('status', {required: true});
     const pipelineId = core.getInput('build-pipeline-id');
+    core.info(`PipelineId ${pipelineId}`);
 
     const model = core.getInput('model', {required: true});
     if (!MODEL_TYPES.includes(model)) {
