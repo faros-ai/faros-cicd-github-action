@@ -64,7 +64,7 @@ $ npm run package
 $ git add dist
 ```
 
-Then check-in the changes to
+Then commit the changes, and open a PR
 
 ## License Summary
 
