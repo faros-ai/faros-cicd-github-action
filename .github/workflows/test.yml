@@ -61,6 +61,6 @@ jobs:
           build-id: ${{ steps.emit-build-info.outputs.build-id }}
           build-pipeline-id: ${{ steps.emit-build-info.outputs.pipeline-id }}
           build-org-id: ${{ steps.emit-build-info.outputs.org-id }}
-          build-platform: ${{ steps.emit-build-info.outputs.org-source }}
+          build-source: ${{ steps.emit-build-info.outputs.org-source }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}

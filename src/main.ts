@@ -94,7 +94,7 @@ function makeDeploymentInfo(
     required: true
   });
 
-  const buildPlatform = core.getInput('build-platform', {
+  const buildSource = core.getInput('build-source', {
     required: true
   });
   const buildId = core.getInput('build-id', {
@@ -110,7 +110,7 @@ function makeDeploymentInfo(
     status: {category: status, detail: status},
     buildId,
     buildPipelineId: pipelineId,
-    buildPlatform,
+    buildSource,
     deployPlatform
   };
 }

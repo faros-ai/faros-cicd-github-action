@@ -117,7 +117,7 @@ class Emit {
                                 uid: data.buildId,
                                 pipeline: {
                                     uid: data.buildPipelineId,
-                                    organization: { uid: data.buildOrgId, source: data.buildPlatform }
+                                    organization: { uid: data.buildOrgId, source: data.buildSource }
                                 }
                             },
                             source: data.deployPlatform
@@ -251,7 +251,7 @@ function makeDeploymentInfo(startedAt, status, endedAt) {
     const pipelineId = core.getInput('build-pipeline-id', {
         required: true
     });
-    const buildPlatform = core.getInput('build-platform', {
+    const buildSource = core.getInput('build-source', {
         required: true
     });
     const buildId = core.getInput('build-id', {
@@ -267,7 +267,7 @@ function makeDeploymentInfo(startedAt, status, endedAt) {
         status: { category: status, detail: status },
         buildId,
         buildPipelineId: pipelineId,
-        buildPlatform,
+        buildSource,
         deployPlatform
     };
 }

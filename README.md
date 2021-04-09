@@ -18,8 +18,8 @@ To report a build event to Faros specify build in the `model` parameter and the 
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
     model: build
-    build-pipeline-id: build-deploy-workflow
-    status: Success
+    build-pipeline-id: build-deploy-workflow # unique id to identify the workflow running the build
+    status: Success                          # possible values - Success, Failure, Cancelled otherwise defaults to Custom
     started-at: 1594938057000
     ended-at: 1594948069000
 ```
@@ -28,7 +28,7 @@ To report a build event to Faros specify build in the `model` parameter and the 
 
 ### Report a Deployment Event To Faros CI/CD Deployment Model
 
-To report a build event to Faros specify `deploy` in the `model` parameter and the deployment details. To ensure the build is correctly linked to the build, provide the build model keys, i.e. `build-id, build-pipeline-id, build-org-id, build-platform`.
+To report a build event to Faros specify `deploy` in the `model` parameter and the deployment details. To ensure the build is correctly linked to the build, provide the build model keys, i.e. `build-id, build-pipeline-id, build-org-id, build-source`.
 
 ```yaml
 - name: Emit deployment info to Faros
@@ -38,36 +38,18 @@ To report a build event to Faros specify `deploy` in the `model` parameter and t
     api-url: ${{ env.FAROS_API_URL }}
     model: deploy
     deploy-id: deploymentId
-    deploy-app-name: Emitter
-    deploy-app-platform: ECS
-    deploy-platform: CodeDeploy
-    build-id: buildId
+    deploy-app-name: Emitter                 # name of the application being deployed
+    deploy-app-platform: ECS                 # platform application is deployed on
+    deploy-platform: CodeDeploy              # system used to orchestrate the deployment
+    build-id: build-id
     build-pipeline-id: build-deploy-workflow
     build-org-id: faros-ai
-    build-platform: GitHub
+    build-source: GitHub
     started-at: 1594938057000
+    status: Queued                           # possible values - Canceled, Failed, Queued, Running, Success
 ```
 
-> :clipboard: Note: If you have both the report build and report deployment steps in the same workflow you can use the outputs from the report build step as the inputs for the deployment step build parameters. For example if the build step had an id `report-build-info`
-
-```yaml
-- name: Emit deployment info to Faros
-  uses: faros-ai/faros-cicd-github-action@v1
-  with:
-    api-key: ${{ secrets.FAROS_API_KEY }}
-    api-url: ${{ env.FAROS_API_URL }}
-    model: deploy
-    deploy-id: deploymentId
-    deploy-app-name: Emitter
-    deploy-app-platform: ECS
-    deploy-platform: CodeDeploy
-    build-id: ${{ steps.report-build-info.outputs.build-id }}
-    build-pipeline-id: ${{ steps.report-build-info.outputs.pipeline-id }}
-    build-org-id: ${{ steps.report-build-info.outputs.org-id }}
-    build-platform: ${{ steps.report-build-info.outputs.org-source }}
-    status: Queued
-    started-at: 1594938057000
-```
+> :clipboard: Note: If you have both the report build and report deployment steps in the same workflow you can use the outputs from the report build step as the inputs for the deployment step build parameters.
 
 ## Authentication
 

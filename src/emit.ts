@@ -34,7 +34,7 @@ export interface Deployment {
   readonly buildId: string;
   readonly buildPipelineId: string;
   readonly buildOrgId: string;
-  readonly buildPlatform: string;
+  readonly buildSource: string;
   readonly deployPlatform: string;
   readonly startedAt: BigInt;
   readonly endedAt?: BigInt;
@@ -125,7 +125,7 @@ export class Emit {
               uid: data.buildId,
               pipeline: {
                 uid: data.buildPipelineId,
-                organization: {uid: data.buildOrgId, source: data.buildPlatform}
+                organization: {uid: data.buildOrgId, source: data.buildSource}
               }
             },
             source: data.deployPlatform
