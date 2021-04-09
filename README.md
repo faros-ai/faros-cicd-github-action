@@ -12,7 +12,7 @@ See [action.yml](action.yml) for the full documentation for this action's inputs
 To report a build event to Faros specify build in the `model` parameter and the build details.
 
 ```yaml
-- name: Emit build info to Faros
+- name: Report build info to Faros
   uses: faros-ai/faros-cicd-github-action@v1
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
@@ -31,14 +31,14 @@ To report a build event to Faros specify build in the `model` parameter and the 
 To report a build event to Faros specify `deploy` in the `model` parameter and the deployment details. To ensure the build is correctly linked to the build, provide the build model keys, i.e. `build-id, build-pipeline-id, build-org-id, build-source`.
 
 ```yaml
-- name: Emit deployment info to Faros
+- name: Report deployment info to Faros
   uses: faros-ai/faros-cicd-github-action@v1
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
     model: deploy
     deploy-id: deploymentId
-    deploy-app-name: Emitter                 # name of the application being deployed
+    deploy-app-name: MyService               # name of the application being deployed
     deploy-app-platform: ECS                 # platform application is deployed on
     deploy-platform: CodeDeploy              # system used to orchestrate the deployment
     build-id: build-id
