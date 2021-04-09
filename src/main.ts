@@ -29,7 +29,7 @@ async function run(): Promise<void> {
       const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
       await emit.build(build);
     } else {
-      const deployment = makeDeploymentInfo(startedAt);
+      const deployment = makeDeploymentInfo(startedAt, status, endedAt);
       await emit.deployment(deployment);
     }
   } catch (error) {
@@ -74,7 +74,11 @@ function makeBuildInfo(
   };
 }
 
-function makeDeploymentInfo(startedAt: BigInt): Deployment {
+function makeDeploymentInfo(
+  startedAt: BigInt,
+  status: string,
+  endedAt?: BigInt
+): Deployment {
   const deployId = core.getInput('deploy-id', {required: true});
   const appName = core.getInput('deploy-app-name', {required: true});
   const appPlatform = core.getInput('deploy-app-platform', {
@@ -90,7 +94,7 @@ function makeDeploymentInfo(startedAt: BigInt): Deployment {
     required: true
   });
 
-  const buildPlatform = core.getInput('build-platform', {
+  const buildSource = core.getInput('build-source', {
     required: true
   });
   const buildId = core.getInput('build-id', {
@@ -102,10 +106,11 @@ function makeDeploymentInfo(startedAt: BigInt): Deployment {
     appName,
     appPlatform,
     startedAt,
-    status: {category: 'Queued', detail: status},
+    endedAt,
+    status: {category: status, detail: status},
     buildId,
     buildPipelineId: pipelineId,
-    buildPlatform,
+    buildSource,
     deployPlatform
   };
 }
@@ -122,7 +127,7 @@ function toBuildStatus(status: string): Status {
     case 'success':
       return {category: 'Success', detail: status};
     default:
-      return {category: 'Unknown', detail: status};
+      return {category: 'Custom', detail: status};
   }
 }
 

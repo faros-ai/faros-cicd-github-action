@@ -34,9 +34,10 @@ export interface Deployment {
   readonly buildId: string;
   readonly buildPipelineId: string;
   readonly buildOrgId: string;
-  readonly buildPlatform: string;
+  readonly buildSource: string;
   readonly deployPlatform: string;
   readonly startedAt: BigInt;
+  readonly endedAt?: BigInt;
   readonly status: Status;
 }
 
@@ -118,12 +119,13 @@ export class Emit {
             uid: data.uid,
             application: {name: data.appName, platform: data.appPlatform},
             startedAt: data.startedAt,
+            endedAt: data.endedAt,
             status: data.status,
             build: {
               uid: data.buildId,
               pipeline: {
                 uid: data.buildPipelineId,
-                organization: {uid: data.buildOrgId, source: data.buildPlatform}
+                organization: {uid: data.buildOrgId, source: data.buildSource}
               }
             },
             source: data.deployPlatform

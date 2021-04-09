@@ -16,19 +16,19 @@ inputs:
     description: 'CI/CD process start time'
   status:
     required: true
-    description: 'CI/CD job status'
+    description: 'CI/CD build/deployment status'
   ended-at:
     required: false
     description: 'CI/CD process end time'
   deploy-id:
     required: false
-    description: 'The deployment id of the deployment from the source system'
+    description: 'The deployment id of the deployment from the source system. Required for deployment events'
   deploy-platform:
     required: false
     description: 'The deployment platform, e.g. CodeDeploy, Spinnaker'
   deploy-app-name:
     required: false
-    description: 'The name of the application for deployment info'
+    description: 'The name of the application being deployed'
   deploy-app-platform:
     required: false
     description: 'The platform the application is being deployed on, e.g. ECS, K8s'
@@ -37,17 +37,27 @@ inputs:
     description: 'The build id of build used to trigger the deployment from the source system'
   build-pipeline-id:
     required: false
-    description: 'The pipeline id of the build system pipeline from the source system'
+    description: 'The pipeline id of the build system pipeline from the source system. For build events, uses GITHUB_ORG/REPO/GITHUB_WORKFLOW_NAME if not supplied'
   build-org-id:
     required: false
     description: 'The organization id of the build system pipeline from the source system'
-  build-platform:
+  build-source:
     required: false
     description: 'The build source system used, e.g GitHub, Jenkins'
   graph:
     required: false
     description: "Graph name to use when invoking Faros API. Uses 'default' graph if no name is provided"
-
+outputs:
+  build-id:
+    description: 'The build id for the build event'
+  org-id:
+    description: 'The organization id of the build system pipeline when reporting a build event'
+  org-source:
+    description: 'The build source system when reporting a build event'
+  pipeline-id:
+    description: 'The pipeline id of the build event when reporting a build event'
+  revision-id:
+    description: 'The revision the build or deployment event information was upload to in Faros'
 runs:
   using: 'node12'
   main: 'dist/index.js'

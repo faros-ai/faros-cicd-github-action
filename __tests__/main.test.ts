@@ -122,7 +122,7 @@ describe('Emit to Faros action', () => {
       buildId: 'buildID1',
       buildOrgId: 'faros-ai',
       buildPipelineId: 'emit-action-flow',
-      buildPlatform: 'GitHub',
+      buildSource: 'GitHub',
       status: {category: 'Queued', detail: 'Created'},
       startedAt: BigInt(1594938057000)
     });
@@ -201,7 +201,7 @@ describe('Emit to Faros action', () => {
     process.env['INPUT_BUILD-PIPELINE-ID'] =
       'faros-ai/faros-cicd-github-action/ci/cd';
     process.env['INPUT_BUILD-ORG-ID'] = 'faros-ai';
-    process.env['INPUT_BUILD-PLATFORM'] = 'GitHub';
+    process.env['INPUT_BUILD-SOURCE'] = 'GitHub';
     process.env['INPUT_STARTED-AT'] = '1594938057000';
     process.env['INPUT_ENDED-AT'] = '1605748281000';
     process.env['INPUT_GRAPH'] = 'unit-test';
