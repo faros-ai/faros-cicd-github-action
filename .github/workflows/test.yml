@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FAROS_API_URL: https://dev.api.faros.ai
+      GRAPH_NAME: faros-cicd-github-action-test
     steps:
       - uses: actions/checkout@v2
 
@@ -39,7 +40,7 @@ jobs:
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
-          graph: unit-test
+          graph: ${{ env.GRAPH_NAME }}
           model: build
           status: ${{ job.status }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
@@ -51,7 +52,7 @@ jobs:
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
-          graph: unit-test
+          graph: ${{ env.GRAPH_NAME }}
           model: deployment
           status: Success
           deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
@@ -64,3 +65,13 @@ jobs:
           build-source: ${{ steps.emit-build-info.outputs.org-source }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+
+      - name: Delete test graph
+        env:
+          FAROS_API_KEY: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}"
+          GRAPH: ${{ env.GRAPH_NAME }}
+          API_URL: ${{ env.FAROS_API_URL }}
+        run: |
+          curl -i -f $API_URL/graphs/$GRAPH \
+            -X DELETE
+            -H "Authorization: $FAROS_API_KEY"

@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
-import axios from 'axios';
+import axios, {AxiosInstance} from 'axios';
+import {loadModelsSync} from 'faros-canonical-models';
 import JSONbigNative from 'json-bigint';
 
 JSONbigNative({useNativeBigInt: true});
@@ -42,17 +43,23 @@ export interface Deployment {
 }
 
 export class Emit {
+  private readonly client: AxiosInstance;
   constructor(
     private readonly apiKey: string,
     private readonly apiUrl: string,
     private readonly graph: string
-  ) {}
+  ) {
+    this.client = axios.create({
+      baseURL: `${this.apiUrl}/graphs/${this.graph}`,
+      headers: {authorization: this.apiKey}
+    });
+  }
   private async emit(data: any): Promise<void> {
-    const {data: result} = await axios.request({
+    await this.uploadModels();
+    const {data: result} = await this.client.request({
       method: 'post',
-      url: `${this.apiUrl}/graphs/${this.graph}/revisions`,
+      url: `/revisions`,
       headers: {
-        Authorization: this.apiKey,
         'Content-Type': 'application/json'
       },
       data: JSONbigNative.stringify(data)
@@ -137,5 +144,20 @@ export class Emit {
       ]
     };
     await this.emit(revisionEntries);
+  }
+
+  /**
+   * Creates the graph if it doesn't exist and imports the CI/CD models
+   */
+  private async uploadModels(): Promise<void> {
+    // Create graph if it doesn't exist
+    await this.client.put('/');
+    // Create or update models
+    await this.client.request({
+      method: 'post',
+      url: '/models',
+      headers: {'content-type': 'application/graphql'},
+      data: loadModelsSync(['cicd', 'cicd-vcs', 'compute', 'vcs'])
+    });
   }
 }

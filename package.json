@@ -25,6 +25,7 @@
     "@actions/core": "^1.2.6",
     "@types/json-bigint": "^1.0.0",
     "axios": "^0.21.1",
+    "faros-canonical-models": "^0.4.1",
     "json-bigint": "^1.0.0"
   },
   "devDependencies": {
