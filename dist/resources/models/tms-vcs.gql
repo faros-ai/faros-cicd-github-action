@@ -1,0 +1,6 @@
+# This model was extracted from the TMS schema to
+# remove its dependency on the VCS schema.
+type tms_TaskPullRequestAssociation @model(key: ["task", "pullRequest"]) {
+  task: tms_Task @reference(back: "pullRequests")
+  pullRequest: vcs_PullRequest @reference(back: "tasks")
+}

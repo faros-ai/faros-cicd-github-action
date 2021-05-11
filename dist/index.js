@@ -46,6 +46,7 @@ const json_bigint_1 = __importDefault(__nccwpck_require__(5031));
 json_bigint_1.default({ useNativeBigInt: true });
 const REVISION_ORIGIN = 'faros-cicd-github-action';
 const BUILD_SOURCE = 'GitHub';
+const models = faros_canonical_models_1.loadModelsSync(['cicd', 'cicd-vcs', 'compute', 'vcs']);
 class Emit {
     constructor(apiKey, apiUrl, graph) {
         this.apiKey = apiKey;
@@ -147,7 +148,7 @@ class Emit {
                 method: 'post',
                 url: '/models',
                 headers: { 'content-type': 'application/graphql' },
-                data: faros_canonical_models_1.loadModelsSync(['cicd', 'cicd-vcs', 'compute', 'vcs'])
+                data: models
             });
         });
     }

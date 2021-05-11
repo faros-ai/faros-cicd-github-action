@@ -1,0 +1,6 @@
+# This model was extracted from the Compute schema to
+# remove its dependency on the VCS schema.
+type compute_ApplicationSource @model(key: ["application", "repository"]) {
+  application: compute_Application @reference(back: "sources")
+  repository: vcs_Repository @reference(back: "applicationSources")
+}

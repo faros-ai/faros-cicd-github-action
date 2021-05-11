@@ -1,0 +1,52 @@
+type cloud_iam_User @model(key: ["uid"]) {
+  uid: ID
+  createdAt: Time
+  updatedAt: Time
+  name: String
+  userId: String
+  identity: identity_Identity @reference(back: "cloudIamUsers")
+  tags: [cloud_iam_Tag]
+  attachedPolicies: [cloud_iam_Policy]
+  permissionsBoundary: cloud_iam_Policy
+}
+
+type cloud_iam_Group @model(key: ["uid"]) {
+  uid: ID
+  createdAt: Time
+  updatedAt: Time
+  name: String
+  groupId: String
+  tags: [cloud_iam_Tag]
+  attachedPolicies: [cloud_iam_Policy]
+  permissionsBoundary: cloud_iam_Policy
+}
+
+type cloud_iam_GroupMembership @model(key: ["user", "group"]) {
+  user: cloud_iam_User @reference(back: "memberships")
+  group: cloud_iam_Group @reference(back: "memberships")
+}
+
+# TODO: consider connecting role with Org + Account / Project either in this model or with a separate one
+type cloud_iam_Role @model(key: ["uid"]) {
+  uid: ID
+  createdAt: Time
+  updatedAt: Time
+  name: String
+  roleId: String
+  description: String
+  title: String
+  permissions: [String]
+  tags: [cloud_iam_Tag]
+  attachedPolicies: [cloud_iam_Policy]
+  permissionsBoundary: cloud_iam_Policy
+}
+
+type cloud_iam_Policy {
+  name: String
+  document: String
+}
+
+type cloud_iam_Tag {
+  key: String
+  value: String
+}

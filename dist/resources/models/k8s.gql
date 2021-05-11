@@ -1,0 +1,159 @@
+type k8s_Cluster @model(key: ["uid"]) {
+  uid: ID
+  name: String
+  # Optional as native kubeConfig getCluster does not provide creationDate
+  createdAt: Timestamp
+  region: String
+  status: k8s_ClusterStatus
+  server: String
+  platform: String
+  platformVersion: String
+  k8sVersion: String
+}
+
+type k8s_Namespace @model(key: ["cluster", "name"]) {
+  name: String
+  createdAt: Timestamp
+  uid: UUID
+  labels: [k8s_Label]
+  status: k8s_NamespaceStatus
+  cluster: k8s_Cluster @reference(back: "namespaces")
+}
+
+type k8s_Label {
+  key: String
+  value: String
+}
+
+type k8s_K8Node @model(key: ["cluster", "name"]) {
+  name: String
+  createdAt: Timestamp
+  uid: UUID
+  internalIP: IP
+  externalIP: IP
+  operatingSystem: String
+  osImage: String
+  kernelVersion: String
+  labels: [k8s_Label]
+  status: k8s_NodeStatus
+  pool: k8s_NodePool @reference(back: "k8Nodes")
+  cluster: k8s_Cluster @reference(back: "k8Nodes")
+}
+
+type k8s_NodePool @model(key: ["cluster", "name"]) {
+  name: String
+  instanceType: String
+  imageType: String
+  diskSizeGb: Long
+  status: k8s_NodePoolStatus
+  initialNodeCount: Int
+  maxNodeCount: Int
+  minNodeCount: Int
+  cluster: k8s_Cluster @reference(back: "nodePools")
+}
+
+type k8s_Pod @model(key: ["namespace", "name"]) {
+  uid: UUID
+  name: String
+  podIP: IP
+  status: k8s_PodStatus
+  createdAt: Timestamp
+  startedAt: Timestamp
+  qosClass: k8s_QoSClass
+  labels: [k8s_Label]
+  k8sNode: k8s_K8Node @reference(back: "pods")
+  namespace: k8s_Namespace @reference(back: "pods")
+}
+
+type k8s_Port {
+  appProtocol: String
+  name: String
+  nodePort: Int
+  port: Int
+  protocol: String
+  targetPort: String
+}
+
+type k8s_Container @model(key: ["pod", "containerID"]) {
+  containerID: ID
+  image: String
+  imageID: String
+  name: String
+  ready: Boolean
+  restartCount: Int
+  started: Boolean
+  commit: vcs_Commit @reference(back: "containers")
+  pod: k8s_Pod @reference(back: "containers")
+}
+
+type k8s_Service @model(key: ["namespace", "name"]) {
+  name: String
+  createdAt: Timestamp
+  clusterIP: IP
+  type: k8s_ServiceType
+  selector: [k8s_Label]
+  externalTrafficPolicy: String
+  ports: [k8s_Port]
+  selectedPods: [String]
+  sessionAffinity: String
+  labels: [k8s_Label]
+  uid: UUID
+  namespace: k8s_Namespace @reference(back: "services")
+}
+
+enum k8s_QoSClass {
+  BestEffort
+  Burstable
+  Guaranteed
+}
+
+enum k8s_ServiceType {
+  ClusterIP
+  ExternalName
+  LoadBalancer
+  NodePort
+}
+
+enum k8s_NamespaceStatus {
+  Active
+  Terminating
+}
+
+enum k8s_ClusterStatus {
+  Active
+  Creating
+  Degraded
+  Deleting
+  Error
+  Failed
+  Provisioning
+  Reconciling
+  Running
+  StatusUnspecified
+  Stopping
+  Updating
+}
+
+enum k8s_NodePoolStatus {
+  Active
+  Error
+  Provisioning
+  Reconciling
+  Running
+  RunningWithError
+  StatusUnspecified
+}
+
+enum k8s_NodeStatus {
+  Ready
+  NotReady
+  Unknown
+}
+
+enum k8s_PodStatus {
+  Failed
+  Pending
+  Running
+  Succeeded
+  Unknown
+}

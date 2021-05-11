@@ -1,0 +1,183 @@
+"Test suite definition"
+type qa_TestSuite @model(key: ["uid", "source"]) {
+  uid: ID
+  name: String
+  description: String
+  source: String
+  tags: [String]
+  type: qa_TestType
+
+  "Task associated with this test suite"
+  task: tms_Task @reference(back: "testSuite", unique: true)
+}
+
+"Many-to-many association between test suite and test case definitions"
+type qa_TestSuiteTestCaseAssociation @model(key: ["testSuite", "testCase"]) {
+  testSuite: qa_TestSuite @reference(back: "testCases")
+  testCase: qa_TestCase @reference(back: "testSuites")
+}
+
+"Test case definition"
+type qa_TestCase @model(key: ["uid", "source"]) {
+  uid: ID
+  name: String
+  description: String
+  source: String
+  before: [qa_TestCaseCondition]
+  after: [qa_TestCaseCondition]
+  tags: [String]
+  type: qa_TestType
+
+  "Task associated with this test case"
+  task: tms_Task @reference(back: "testCase", unique: true)
+}
+
+"Test case condition"
+type qa_TestCaseCondition {
+  description: String
+  condition: String
+}
+
+"Test case step definition"
+type qa_TestCaseStep @model(key: ["uid", "testCase"]) {
+  uid: ID
+  name: String
+  description: String
+  data: String
+  result: String
+  testCase: qa_TestCase @reference(back: "testSteps")
+}
+
+"Test case(s) execution information"
+type qa_TestExecution @model(key: ["uid", "source"]) {
+  uid: ID
+  name: String
+  description: String
+  source: String
+  startedAt: Timestamp
+  endedAt: Timestamp
+  status: qa_TestStatus
+  environments: [String]
+  testCaseResultsStats: qa_TestExecutionStats
+
+  "Test suite covered by this test execution"
+  suite: qa_TestSuite @reference(back: "testExecutions")
+
+  "Task used to track this test execution"
+  task: tms_Task @reference(back: "testExecution", unique: true)
+
+  "Build that produced this test execution"
+  build: cicd_Build @reference(back: "testExecutions")
+}
+
+"Test execution stats by test case result status"
+type qa_TestExecutionStats {
+  failure: Int
+  success: Int
+  skipped: Int
+  unknown: Int
+  custom: Int
+  total: Int
+}
+
+"Test case execution result"
+type qa_TestCaseResult @model(key: ["uid", "testExecution"]) {
+  uid: ID
+  description: String
+  startedAt: Timestamp
+  endedAt: Timestamp
+  status: qa_TestStatus
+
+  "Test case that produced this result"
+  testCase: qa_TestCase @reference(back: "testCaseResults")
+
+  "Test execution that contains this test result"
+  testExecution: qa_TestExecution @reference(back: "testCaseResults")
+}
+
+"Association between defect tasks and test case execution results"
+type tms_TaskTestCaseResultAssociation @model(key: ["defect", "testCaseResult"]) {
+  defect: tms_Task @reference(back: "testCaseResults")
+  testCaseResult: qa_TestCaseResult @reference(back: "defects")
+}
+
+"Test step execution result"
+type qa_TestCaseStepResult @model(key: ["uid", "testResult"]) {
+  uid: ID
+  status: qa_TestStatus
+
+  "Test case step that produced this result"
+  testStep: qa_TestCaseStep @reference(back: "testStepResults")
+
+  "Test case result that contains this test step result"
+  testResult: qa_TestCaseResult @reference(back: "testStepResults")
+}
+
+"The type of test definition"
+type qa_TestType {
+  category: qa_TestTypeCategory
+  detail: String
+}
+
+"Test type category"
+enum qa_TestTypeCategory {
+  Functional
+  Integration
+  Manual
+  Performance
+  Regression
+  Security
+  Unit
+  Custom
+}
+
+"Test execution status"
+type qa_TestStatus {
+  category: qa_TestStatusCategory
+  detail: String
+}
+
+"Test execution status category"
+enum qa_TestStatusCategory {
+  Failure
+  Success
+  Skipped
+  Unknown
+  Custom
+}
+
+enum qa_CodeQualityCategory {
+  Duplications
+  Maintainability
+  Reliability
+  Security
+  SecurityReview
+  Custom
+}
+
+enum qa_CodeQualityMetricType {
+  Bool
+  Float
+  Int
+  Percent
+  String
+}
+
+type qa_CodeQualityMeasure {
+  category: qa_CodeQualityCategory
+  name: String
+  type: qa_CodeQualityMetricType
+  value: String
+}
+
+type qa_CodeQuality @model(key: ["uid"]) {
+  uid: ID
+  bugs: qa_CodeQualityMeasure
+  codeSmells: qa_CodeQualityMeasure
+  duplications: qa_CodeQualityMeasure
+  duplicatedBlocks: qa_CodeQualityMeasure
+  securityHotspots: qa_CodeQualityMeasure
+  vulnerabilities: qa_CodeQualityMeasure
+  pullRequest: vcs_PullRequest @reference(back: "codeQuality")
+  repository: vcs_Repository @reference(back: "codeQuality")
+}

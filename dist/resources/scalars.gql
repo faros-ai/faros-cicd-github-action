@@ -1,0 +1,6 @@
+scalar IP
+scalar Long @representation(entry: "long")
+scalar Time
+scalar Timestamp
+  @representation(entry: { type: "long", logicalType: "timestamp-millis" })
+scalar UUID

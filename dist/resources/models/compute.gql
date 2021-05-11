@@ -1,0 +1,83 @@
+type compute_Application @model(key: ["name", "platform"]) {
+  name: String
+  platform: String
+}
+
+type compute_Tag {
+  key: String
+  value: String
+}
+
+type compute_Instance @model(key: ["uid", "source"]) {
+  uid: ID
+  type: String
+  state: compute_InstanceState
+  tags: [compute_Tag]
+  region: String
+  launchedAt: Timestamp
+  source: String
+}
+
+type compute_Volume @model(key: ["uid", "source"]) {
+  uid: ID
+  type: String
+  state: compute_VolumeState
+  size: Int
+  iops: Int
+  encrypted: Boolean
+  region: String
+  createdAt: Timestamp
+  source: String
+}
+
+type compute_VolumeAttachment @model(key: ["volume", "instance"]) {
+  volume: compute_Volume @reference(back: "attachments")
+  instance: compute_Instance @reference(back: "attachments")
+  state: compute_VolumeAttachmentState
+  device: String
+  attachedAt: Timestamp
+}
+
+type compute_VolumeState {
+  category: compute_VolumeStateCategory
+  detail: String
+}
+
+enum compute_VolumeStateCategory {
+  Creating
+  Available
+  InUse
+  Deleting
+  Deleted
+  Error
+  Custom
+}
+
+type compute_InstanceState {
+  category: compute_InstanceStateCategory
+  detail: String
+}
+
+enum compute_InstanceStateCategory {
+  Pending
+  Running
+  Terminating
+  Terminated
+  Suspending
+  Suspended
+  Custom
+}
+
+type compute_VolumeAttachmentState {
+  category: compute_VolumeAttachmentStateCategory
+  detail: String
+}
+
+enum compute_VolumeAttachmentStateCategory {
+  Attaching
+  Attached
+  Detaching
+  Detached
+  Busy
+  Custom
+}
