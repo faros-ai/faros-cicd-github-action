@@ -65,13 +65,3 @@ jobs:
           build-source: ${{ steps.emit-build-info.outputs.org-source }}
           started-at: ${{ steps.set_start_time.outputs.started-at }}
           ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-
-      - name: Delete test graph
-        env:
-          FAROS_API_KEY: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}"
-          GRAPH: ${{ env.GRAPH_NAME }}
-          API_URL: ${{ env.FAROS_API_URL }}
-        run: |
-          curl -i -f $API_URL/graphs/$GRAPH \
-            -X DELETE
-            -H "Authorization: $FAROS_API_KEY"

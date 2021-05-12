@@ -16,6 +16,7 @@ const scalarspath = path.join(RESOURCES_PATH, '..', 'resources', 'scalars.gql');
 
 const scalars = fs.readFileSync(scalarspath, 'utf-8');
 const NAMESPACES_PATH = path.join(RESOURCES_PATH, 'models');
+// const models = ['cicd', 'cicd-vcs', 'compute', 'vcs'];
 
 export interface Status {
   category: string;
