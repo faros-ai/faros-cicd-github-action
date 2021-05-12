@@ -1,12 +1,21 @@
 import * as core from '@actions/core';
 import axios, {AxiosInstance} from 'axios';
-import {loadModelsSync} from 'faros-canonical-models';
+// import {loadModelsSync} from 'faros-canonical-models';
+import fs from 'fs-extra';
 import JSONbigNative from 'json-bigint';
+import path from 'path';
 
 JSONbigNative({useNativeBigInt: true});
 
 const REVISION_ORIGIN = 'faros-cicd-github-action';
 const BUILD_SOURCE = 'GitHub';
+const canonicalPath = require.resolve('faros-canonical-models');
+const realPath = path.dirname(canonicalPath);
+const RESOURCES_PATH = path.join(realPath, '..', 'resources');
+const scalarspath = path.join(RESOURCES_PATH, '..', 'resources', 'scalars.gql');
+
+const scalars = fs.readFileSync(scalarspath, 'utf-8');
+const NAMESPACES_PATH = path.join(RESOURCES_PATH, 'models');
 
 export interface Status {
   category: string;
@@ -150,6 +159,13 @@ export class Emit {
    * Creates the graph if it doesn't exist and imports the CI/CD models
    */
   private async uploadModels(): Promise<void> {
+    const testFile = fs.readFileSync(
+      path.join(__dirname, '..', 'resources', 'lpl.gql'),
+      'utf-8'
+    );
+    console.log(testFile);
+    console.log(scalars);
+    console.log(NAMESPACES_PATH);
     // Create graph if it doesn't exist
     await this.client.put('/');
     // Create or update models
@@ -157,7 +173,7 @@ export class Emit {
       method: 'post',
       url: '/models',
       headers: {'content-type': 'application/graphql'},
-      data: loadModelsSync(['cicd', 'cicd-vcs', 'compute', 'vcs'])
+      data: testFile
     });
   }
 }

@@ -1,0 +1,6 @@
+# This model was extracted from the cicd schema to remove that repo's
+# dependency on the vcs schema and enable releases that are not vcs based
+type cicd_ReleaseTagAssociation @model(key: ["release", "tag"]) {
+  release: cicd_Release @reference(back: "vcsTags")
+  tag: vcs_Tag @reference(back: "releases")
+}
