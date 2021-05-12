@@ -7,11 +7,10 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist/",
-    "copy-models": "copyfiles -u 2 \"node_modules/faros-canonical-models/resources/**/*.gql\" dist/",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "package": "ncc build --source-map --license licenses.txt && npm run copy-models ",
+    "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
@@ -27,12 +26,14 @@
     "@actions/core": "^1.2.6",
     "axios": "^0.21.1",
     "faros-canonical-models": "^0.4.1",
-    "json-bigint": "^1.0.0"
+    "json-bigint": "^1.0.0",
+    "verror": "^1.10.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/json-bigint": "^1.0.0",
     "@types/node": "^14.14.37",
+    "@types/verror": "^1.10.4",
     "@typescript-eslint/parser": "^4.17.0",
     "@vercel/ncc": "^0.28.5",
     "copyfiles": "^2.4.1",

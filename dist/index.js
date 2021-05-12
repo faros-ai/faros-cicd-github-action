@@ -41,12 +41,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Emit = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const axios_1 = __importDefault(__nccwpck_require__(6545));
-const faros_canonical_models_1 = __nccwpck_require__(4865);
+// import {loadModelsSync} from 'faros-canonical-models';
+const fs_1 = __importDefault(__nccwpck_require__(5747));
 const json_bigint_1 = __importDefault(__nccwpck_require__(5031));
+const path_1 = __importDefault(__nccwpck_require__(5622));
+const verror_1 = __importDefault(__nccwpck_require__(1692));
 json_bigint_1.default({ useNativeBigInt: true });
 const REVISION_ORIGIN = 'faros-cicd-github-action';
 const BUILD_SOURCE = 'GitHub';
-const models = faros_canonical_models_1.loadModelsSync(['cicd', 'cicd-vcs', 'compute', 'vcs']);
+const RESOURCES_PATH = path_1.default.join(path_1.default.dirname(__nccwpck_require__.ab + "index1.js"), '..', 'resources');
+const NAMESPACES_PATH = path_1.default.join(RESOURCES_PATH, 'models');
+const models = ['cicd', 'cicd-vcs', 'compute', 'vcs'];
 class Emit {
     constructor(apiKey, apiUrl, graph) {
         this.apiKey = apiKey;
@@ -141,6 +146,24 @@ class Emit {
      */
     uploadModels() {
         return __awaiter(this, void 0, void 0, function* () {
+            const scalars = fs_1.default.readFileSync(path_1.default.join(RESOURCES_PATH, 'scalars.gql'), 'utf-8');
+            const namespaces = [scalars];
+            for (const model of models) {
+                const filepath = path_1.default.join(NAMESPACES_PATH, `${model}.gql`);
+                if (!fs_1.default.existsSync(filepath)) {
+                    throw new verror_1.default('Unknown model: %s.', model);
+                }
+                try {
+                    namespaces.push(fs_1.default.readFileSync(filepath, 'utf8'));
+                }
+                catch (err) {
+                    if (err.code !== 'ENOENT') {
+                        throw err;
+                    }
+                    throw new verror_1.default(err, 'Failed to read file at %s', filepath);
+                }
+            }
+            const data = namespaces.join('\n');
             // Create graph if it doesn't exist
             yield this.client.put('/');
             // Create or update models
@@ -148,7 +171,7 @@ class Emit {
                 method: 'post',
                 url: '/models',
                 headers: { 'content-type': 'application/graphql' },
-                data: models
+                data: data
             });
         });
     }
@@ -7028,62 +7051,6 @@ function dumpException(ex)
 
 	return (ret);
 }
-
-
-/***/ }),
-
-/***/ 4865:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.loadAllModelsSync = exports.loadModelsSync = void 0;
-const fs_1 = __importDefault(__nccwpck_require__(5747));
-const path_1 = __importDefault(__nccwpck_require__(5622));
-const verror_1 = __importDefault(__nccwpck_require__(1692));
-const RESOURCES_PATH = path_1.default.join(__dirname, '..', 'resources');
-const NAMESPACES_PATH = path_1.default.join(RESOURCES_PATH, 'models');
-const validNamespaces = fs_1.default.readdirSync(NAMESPACES_PATH)
-    .map((namespace) => namespace.replace('.gql', ''))
-    .filter((namespace) => namespace !== 'scalars');
-const scalars = fs_1.default.readFileSync(path_1.default.join(RESOURCES_PATH, 'scalars.gql'), 'utf-8');
-/**
- * Loads model definitions into a string. Only models in the given namespaces
- * are loaded, e.g., input ['tms', 'vcs'] would load models: 'tms_Project',
- * 'tms_Task', 'vcs_Organization', 'vcs_Repository', etc.
- */
-function loadModelsSync(namespaces) {
-    if (!namespaces.length) {
-        throw new verror_1.default('Received empty list of namespaces. ' +
-            'Valid namespaces: %s', validNamespaces);
-    }
-    const models = [scalars];
-    for (const namespace of namespaces) {
-        const filepath = path_1.default.join(NAMESPACES_PATH, `${namespace}.gql`);
-        if (!fs_1.default.existsSync(filepath)) {
-            throw new verror_1.default('Unknown namespace: %s. Valid namespaces: %s', namespace, validNamespaces);
-        }
-        try {
-            models.push(fs_1.default.readFileSync(filepath, 'utf8'));
-        }
-        catch (err) {
-            if (err.code !== 'ENOENT') {
-                throw err;
-            }
-            throw new verror_1.default(err, 'Failed to read file at %s', filepath);
-        }
-    }
-    return models.join('\n');
-}
-exports.loadModelsSync = loadModelsSync;
-function loadAllModelsSync() {
-    return loadModelsSync(validNamespaces);
-}
-exports.loadAllModelsSync = loadAllModelsSync;
 
 
 /***/ }),

@@ -1,12 +1,24 @@
 import * as core from '@actions/core';
 import axios, {AxiosInstance} from 'axios';
-import {loadModelsSync} from 'faros-canonical-models';
+// import {loadModelsSync} from 'faros-canonical-models';
+import fs from 'fs';
 import JSONbigNative from 'json-bigint';
+import path from 'path';
+import VError from 'verror';
 
 JSONbigNative({useNativeBigInt: true});
 
 const REVISION_ORIGIN = 'faros-cicd-github-action';
 const BUILD_SOURCE = 'GitHub';
+
+const RESOURCES_PATH = path.join(
+  path.dirname(require.resolve('faros-canonical-models')),
+  '..',
+  'resources'
+);
+const NAMESPACES_PATH = path.join(RESOURCES_PATH, 'models');
+
+const models = ['cicd', 'cicd-vcs', 'compute', 'vcs'];
 
 export interface Status {
   category: string;
@@ -150,6 +162,28 @@ export class Emit {
    * Creates the graph if it doesn't exist and imports the CI/CD models
    */
   private async uploadModels(): Promise<void> {
+    const scalars = fs.readFileSync(
+      path.join(RESOURCES_PATH, 'scalars.gql'),
+      'utf-8'
+    );
+
+    const namespaces: string[] = [scalars];
+    for (const model of models) {
+      const filepath = path.join(NAMESPACES_PATH, `${model}.gql`);
+      if (!fs.existsSync(filepath)) {
+        throw new VError('Unknown model: %s.', model);
+      }
+      try {
+        namespaces.push(fs.readFileSync(filepath, 'utf8'));
+      } catch (err) {
+        if (err.code !== 'ENOENT') {
+          throw err;
+        }
+        throw new VError(err, 'Failed to read file at %s', filepath);
+      }
+    }
+
+    const data = namespaces.join('\n');
     // Create graph if it doesn't exist
     await this.client.put('/');
     // Create or update models
@@ -157,7 +191,7 @@ export class Emit {
       method: 'post',
       url: '/models',
       headers: {'content-type': 'application/graphql'},
-      data: loadModelsSync(['cicd', 'cicd-vcs', 'compute', 'vcs'])
+      data: data
     });
   }
 }
