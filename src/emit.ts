@@ -9,9 +9,8 @@ JSONbigNative({useNativeBigInt: true});
 
 const REVISION_ORIGIN = 'faros-cicd-github-action';
 const BUILD_SOURCE = 'GitHub';
-const canonicalPath = require.resolve('faros-canonical-models');
-const realPath = path.dirname(canonicalPath);
-const RESOURCES_PATH = path.join(realPath, '..', 'resources');
+const canonicalPath = path.dirname(require.resolve('faros-canonical-models'));
+const RESOURCES_PATH = path.join(canonicalPath, '..', 'resources');
 const scalarspath = path.join(RESOURCES_PATH, '..', 'resources', 'scalars.gql');
 
 const scalars = fs.readFileSync(scalarspath, 'utf-8');

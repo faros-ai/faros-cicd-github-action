@@ -12228,9 +12228,8 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 json_bigint__WEBPACK_IMPORTED_MODULE_3___default()({ useNativeBigInt: true });
 const REVISION_ORIGIN = 'faros-cicd-github-action';
 const BUILD_SOURCE = 'GitHub';
-const canonicalPath = /*require.resolve*/(4865);
-const realPath = path__WEBPACK_IMPORTED_MODULE_4___default().dirname(canonicalPath);
-const RESOURCES_PATH = path__WEBPACK_IMPORTED_MODULE_4___default().join(realPath, '..', 'resources');
+const canonicalPath = path__WEBPACK_IMPORTED_MODULE_4___default().dirname(/*require.resolve*/(4865));
+const RESOURCES_PATH = path__WEBPACK_IMPORTED_MODULE_4___default().join(canonicalPath, '..', 'resources');
 const scalarspath = path__WEBPACK_IMPORTED_MODULE_4___default().join(RESOURCES_PATH, '..', 'resources', 'scalars.gql');
 const scalars = fs_extra__WEBPACK_IMPORTED_MODULE_2___default().readFileSync(scalarspath, 'utf-8');
 const NAMESPACES_PATH = path__WEBPACK_IMPORTED_MODULE_4___default().join(RESOURCES_PATH, 'models');
