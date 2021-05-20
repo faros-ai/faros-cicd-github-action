@@ -13,6 +13,7 @@ async function run(): Promise<void> {
     const startedAt = BigInt(core.getInput('started-at', {required: true}));
     const endedAt = BigInt(core.getInput('ended-at'));
     const status = core.getInput('status', {required: true});
+    const buildId = core.getInput('build-id');
     const pipelineId = core.getInput('build-pipeline-id');
 
     const model = core.getInput('model', {required: true});
@@ -26,7 +27,7 @@ async function run(): Promise<void> {
 
     const emit = new Emit(apiKey, url, graph);
     if (model === BUILD) {
-      const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
+      const build = makeBuildInfo(startedAt, endedAt, status, buildId, pipelineId);
       await emit.build(build);
     } else {
       const deployment = makeDeploymentInfo(startedAt, status, endedAt);
@@ -41,13 +42,17 @@ function makeBuildInfo(
   startedAt: BigInt,
   endedAt: BigInt,
   status: string,
+  buildId?: string,
   pipelineId?: string
 ): Build {
   const repoName = getEnvVar('GITHUB_REPOSITORY');
   const splitRepo = repoName.split('/');
   const org = splitRepo[0];
   const repo = splitRepo[1];
-  const id = getEnvVar('GITHUB_RUN_ID');
+  const id = buildId
+    ? buildId
+    : getEnvVar('GITHUB_RUN_ID');
+
   const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
   const workflowName = getEnvVar('GITHUB_WORKFLOW');
   const pipeline = pipelineId
