@@ -58,6 +58,9 @@ outputs:
     description: 'The pipeline id of the build event when reporting a build event'
   revision-id:
     description: 'The revision the build or deployment event information was upload to in Faros'
+branding:
+  icon: fast-forward
+  color: "blue"
 runs:
   using: 'node12'
   main: 'dist/index.js'

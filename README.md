@@ -1,7 +1,6 @@
 ## Faros CI/CD Github Action
 
-A GitHub Action to report CI/CD information for builds and deployments from a GitHub workflow
-context variables to Faros API.
+A GitHub Action to report CI/CD information for builds and deployments from a GitHub Action workflows to [Faros](https://www.faros.ai).
 
 ## Usage
 
@@ -13,7 +12,7 @@ To report a build event to Faros specify build in the `model` parameter and the 
 
 ```yaml
 - name: Report build info to Faros
-  uses: faros-ai/faros-cicd-github-action@v1
+  uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
@@ -24,15 +23,15 @@ To report a build event to Faros specify build in the `model` parameter and the 
     ended-at: 1594948069000
 ```
 
-> :clipboard: Note: Whilst the build-pipeline-id is optional, it is recommended to provide one to uniquely identify this workflow in Faros since multiple GitHub workflows can have the same name. If the build-pipeline-id is not provided it will be generated from the workflow name in the lowercase format GITHUB_ORG/REPO/GITHUB_WORKFLOW_NAME.
+> :clipboard: Note: Whilst the `build-pipeline-id` is optional, it is recommended to provide one to uniquely identify this workflow in Faros since multiple GitHub workflows can have the same name. If the `build-pipeline-id` is not provided it will be generated from the workflow name in the lowercase format `GITHUB_ORG/REPO/GITHUB_WORKFLOW_NAME`, e.g `my-org/my-repo/deployment`.
 
 ### Report a Deployment Event To Faros CI/CD Deployment Model
 
-To report a build event to Faros specify `deploy` in the `model` parameter and the deployment details. To ensure the build is correctly linked to the build, provide the build model keys, i.e. `build-id, build-pipeline-id, build-org-id, build-source`.
+To report a build event to Faros specify `deploy` in the `model` parameter and the deployment details. To ensure the build is correctly linked to the build, provide the build model keys, i.e. `build-id`, `build-pipeline-id`, `build-org-id`, `build-source`.
 
 ```yaml
 - name: Report deployment info to Faros
-  uses: faros-ai/faros-cicd-github-action@v1
+  uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
@@ -43,7 +42,7 @@ To report a build event to Faros specify `deploy` in the `model` parameter and t
     deploy-platform: CodeDeploy              # system used to orchestrate the deployment
     build-id: build-id
     build-pipeline-id: build-deploy-workflow
-    build-org-id: faros-ai
+    build-org-id: my-org
     build-source: GitHub
     started-at: 1594938057000
     status: Queued                           # possible values - Canceled, Failed, Queued, Running, Success
@@ -53,8 +52,7 @@ To report a build event to Faros specify `deploy` in the `model` parameter and t
 
 ## Authentication
 
-> :clipboard: NOTE: Running the action requires a valid Faros account and
-> API key. To setup Faros see the [getting started guide.](https://docs.faros.ai/#/?id=installation)
+Running the action requires a valid [Faros](https://www.faros.ai) account and [API key](https://docs.faros.ai/#/api).
 
 ## Developing
 
@@ -64,14 +62,14 @@ $ npm i
 
 ## Releasing
 
-Actions are run from GitHub repos so we will checkin the packed dist folder.
+Actions are run from GitHub repos so add the dist folder to the commit:
 
 ```
 $ npm run package
 $ git add dist
 ```
 
-Then commit the changes, and open a PR
+Push the changes to a branch and open a PR.
 
 ## License Summary
 
