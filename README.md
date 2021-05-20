@@ -1,7 +1,6 @@
 ## Faros CI/CD Github Action
 
-A GitHub Action to report CI/CD information for builds and deployments from a GitHub workflow
-context variables to [Faros](https://www.faros.ai).
+A GitHub Action to report CI/CD information for builds and deployments from a GitHub Action workflows to [Faros](https://www.faros.ai).
 
 ## Usage
 
