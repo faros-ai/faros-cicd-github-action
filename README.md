@@ -13,7 +13,7 @@ To report a build event to Faros specify build in the `model` parameter and the 
 
 ```yaml
 - name: Report build info to Faros
-  uses: faros-ai/faros-cicd-github-action@v1
+  uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
@@ -32,7 +32,7 @@ To report a build event to Faros specify `deploy` in the `model` parameter and t
 
 ```yaml
 - name: Report deployment info to Faros
-  uses: faros-ai/faros-cicd-github-action@v1
+  uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
