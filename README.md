@@ -12,6 +12,7 @@ To report a build event to Faros specify build in the `model` parameter and the 
 
 ```yaml
 - name: Report build info to Faros
+  id: emit-build-info
   uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
@@ -31,6 +32,7 @@ To report a build event to Faros specify `deploy` in the `model` parameter and t
 
 ```yaml
 - name: Report deployment info to Faros
+  id: emit-deployment-info
   uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
@@ -48,7 +50,7 @@ To report a build event to Faros specify `deploy` in the `model` parameter and t
     status: Queued                           # possible values - Canceled, Failed, Queued, Running, Success
 ```
 
-> :clipboard: Note: If you have both the report build and report deployment steps in the same workflow you can use the outputs from the report build step as the inputs for the deployment step build parameters.
+> :clipboard: Note: If you have both the report build and report deployment steps in the same workflow you can use the outputs from the report build step as the inputs for the deployment step build parameters, e.g. `${{ steps.emit-build-info.outputs.build-id }}`
 
 ## Authentication
 
