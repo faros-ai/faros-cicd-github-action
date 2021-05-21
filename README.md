@@ -50,7 +50,7 @@ To report a build event to Faros specify `deploy` in the `model` parameter and t
     status: Queued                           # possible values - Canceled, Failed, Queued, Running, Success
 ```
 
-> :clipboard: Note: If you have both the report build and report deployment steps in the same workflow you can use the outputs from the report build step as the inputs for the deployment step build parameters, e.g. `${{ steps.emit-build-info.outputs.build-id }}`
+> :clipboard: Note: If you have both the report build and report deployment steps in the same workflow you can use the outputs from the report build step as the inputs for the deployment step build parameters, e.g. `${{ steps.emit-build-info.outputs.build-id }}`. See [action.yml](action.yml) for all available outputs.
 
 ## Authentication
 
