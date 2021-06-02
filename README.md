@@ -1,4 +1,4 @@
-## Faros CI/CD Github Action
+## Faros CI/CD GitHub Action
 
 A GitHub Action to report CI/CD information for builds and deployments from a GitHub Action workflows to [Faros](https://www.faros.ai).
 
