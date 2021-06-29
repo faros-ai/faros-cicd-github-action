@@ -6,6 +6,8 @@ import * as path from 'path';
 import * as process from 'process';
 import {mocked} from 'ts-jest/utils';
 
+import {makeAxiosInstance} from '../src/client'
+
 JSONbigNative({useNativeBigInt: true});
 
 import {Emit} from '../src/emit';
@@ -13,14 +15,23 @@ import {Emit} from '../src/emit';
 jest.mock('axios');
 jest.mock('@actions/core');
 
+const mockPost = jest.fn();
+mocked(axios.create).mockImplementation(config => {
+  const originalAxios = jest.requireActual('axios');
+  return {
+    ...originalAxios.create(config),
+    post: mockPost
+  };
+});
+
 describe('Emit to Faros action', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    mockPost.mockReset();
   });
 
   test('emits build info to faros', async () => {
-    mocked(axios.request).mockResolvedValue({data: {revision: {uid: 1}}});
-    const emit = new Emit('apiKey', 'apiUrl', 'default');
+    mocked(mockPost).mockResolvedValue({data: {revision: {uid: 1}}});
+    const emit = new Emit('default', makeAxiosInstance());
     await emit.build({
       uid: 'randomId',
       number: 100,
@@ -90,16 +101,12 @@ describe('Emit to Faros action', () => {
         }
       ]
     };
-    expect(axios.request).toBeCalledTimes(1);
-    expect(axios.request).toHaveBeenNthCalledWith(1, {
-      method: 'post',
-      url: `apiUrl/graphs/default/revisions`,
-      headers: {
-        Authorization: 'apiKey',
-        'Content-Type': 'application/json'
-      },
-      data: JSONbigNative.stringify(data)
-    });
+    expect(mockPost).toBeCalledTimes(1);
+    expect(mockPost).toHaveBeenNthCalledWith(
+      1,
+      `/graphs/default/revisions`,
+      JSONbigNative.stringify(data)
+    );
     expect(core.setOutput).toHaveBeenNthCalledWith(
       1,
       'pipeline-id',
@@ -112,8 +119,8 @@ describe('Emit to Faros action', () => {
   });
 
   test('emits deployment info to faros', async () => {
-    mocked(axios.request).mockResolvedValue({data: {revision: {uid: 2}}});
-    const emit = new Emit('apiKey', 'apiUrl', 'default');
+    mocked(mockPost).mockResolvedValue({data: {revision: {uid: 2}}});
+    const emit = new Emit('default', makeAxiosInstance());
     await emit.deployment({
       uid: 'deployment1',
       appName: 'emitter',
@@ -126,7 +133,7 @@ describe('Emit to Faros action', () => {
       status: {category: 'Queued', detail: 'Created'},
       startedAt: BigInt(1594938057000)
     });
-    expect(axios.request).toBeCalledTimes(1);
+    expect(mockPost).toBeCalledTimes(1);
     const data = {
       origin: 'faros-cicd-github-action',
       entries: [
@@ -151,15 +158,11 @@ describe('Emit to Faros action', () => {
         }
       ]
     };
-    expect(axios.request).toHaveBeenNthCalledWith(1, {
-      method: 'post',
-      url: `apiUrl/graphs/default/revisions`,
-      headers: {
-        Authorization: 'apiKey',
-        'Content-Type': 'application/json'
-      },
-      data: JSONbigNative.stringify(data)
-    });
+    expect(mockPost).toHaveBeenNthCalledWith(
+      1,
+      `/graphs/default/revisions`,
+      JSONbigNative.stringify(data)
+    );
     expect(core.setOutput).toHaveBeenNthCalledWith(1, 'revision-id', 2);
   });
 
