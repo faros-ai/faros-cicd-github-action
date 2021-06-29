@@ -9,7 +9,10 @@ const DEPLOYMENT = 'deployment';
 const MODEL_TYPES = [BUILD, DEPLOYMENT];
 
 async function run(): Promise<void> {
-  const logger = pino({name: 'faros-client'});
+  const logger = pino({
+    name: 'faros-client',
+    prettyPrint: {levelFirst: true, translateTime: true, ignore: 'pid,hostname'}
+  });
 
   try {
     const apiKey = core.getInput('api-key', {required: true});

@@ -6,7 +6,10 @@ import {makeAxiosInstanceWithRetry} from '../src/client';
 const apiUrl = 'https://test.faros.ai';
 
 describe('axios', () => {
-const logger = pino({name: 'test', prettyPrint: {levelFirst: true}});
+  const logger = pino({
+    name: 'faros-client',
+    prettyPrint: {levelFirst: true, translateTime: true, ignore: 'pid,hostname'}
+  });
   test('get resource with retry', async () => {
     const mock = nock(apiUrl)
       .get('/hi')
