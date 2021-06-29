@@ -6,8 +6,6 @@ import * as path from 'path';
 import * as process from 'process';
 import {mocked} from 'ts-jest/utils';
 
-import {makeAxiosInstance} from '../src/client'
-
 JSONbigNative({useNativeBigInt: true});
 
 import {Emit} from '../src/emit';
@@ -31,7 +29,7 @@ describe('Emit to Faros action', () => {
 
   test('emits build info to faros', async () => {
     mocked(mockPost).mockResolvedValue({data: {revision: {uid: 1}}});
-    const emit = new Emit('default', makeAxiosInstance());
+    const emit = new Emit('default', axios.create());
     await emit.build({
       uid: 'randomId',
       number: 100,
@@ -120,7 +118,7 @@ describe('Emit to Faros action', () => {
 
   test('emits deployment info to faros', async () => {
     mocked(mockPost).mockResolvedValue({data: {revision: {uid: 2}}});
-    const emit = new Emit('default', makeAxiosInstance());
+    const emit = new Emit('default', axios.create());
     await emit.deployment({
       uid: 'deployment1',
       appName: 'emitter',
