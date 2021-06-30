@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import axios from 'axios';
+import {AxiosInstance} from 'axios';
 import JSONbigNative from 'json-bigint';
 
 JSONbigNative({useNativeBigInt: true});
@@ -43,20 +43,14 @@ export interface Deployment {
 
 export class Emit {
   constructor(
-    private readonly apiKey: string,
-    private readonly apiUrl: string,
-    private readonly graph: string
+    private readonly graph: string,
+    private readonly client: AxiosInstance
   ) {}
   private async emit(data: any): Promise<void> {
-    const {data: result} = await axios.request({
-      method: 'post',
-      url: `${this.apiUrl}/graphs/${this.graph}/revisions`,
-      headers: {
-        Authorization: this.apiKey,
-        'Content-Type': 'application/json'
-      },
-      data: JSONbigNative.stringify(data)
-    });
+    const {data: result} = await this.client.post(
+      `/graphs/${this.graph}/revisions`,
+      JSONbigNative.stringify(data)
+    );
     const revId = result.revision.uid;
     core.info(`Uploaded data in revision ${revId}...`);
     core.setOutput('revision-id', revId);

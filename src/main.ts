@@ -1,5 +1,7 @@
 import * as core from '@actions/core';
+import pino from 'pino';
 
+import {makeAxiosInstanceWithRetry} from './client';
 import {Build, Deployment, Emit, Status} from './emit';
 
 const BUILD = 'build';
@@ -7,6 +9,11 @@ const DEPLOYMENT = 'deployment';
 const MODEL_TYPES = [BUILD, DEPLOYMENT];
 
 async function run(): Promise<void> {
+  const logger = pino({
+    name: 'faros-client',
+    prettyPrint: {levelFirst: true, translateTime: true, ignore: 'pid,hostname'}
+  });
+
   try {
     const apiKey = core.getInput('api-key', {required: true});
     const url = core.getInput('api-url', {required: true});
@@ -24,7 +31,18 @@ async function run(): Promise<void> {
     }
     const graph = core.getInput('graph') || 'default';
 
-    const emit = new Emit(apiKey, url, graph);
+    const client = makeAxiosInstanceWithRetry(
+      {
+        baseURL: url,
+        headers: {
+          Authorization: apiKey,
+          'Content-Type': 'application/json'
+        }
+      },
+      logger
+    );
+
+    const emit = new Emit(graph, client);
     if (model === BUILD) {
       const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
       await emit.build(build);
