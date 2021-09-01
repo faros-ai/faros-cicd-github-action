@@ -158,7 +158,7 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
     BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
   const deploy_end_time =
     BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
-  const deploy_app_platform = core.getInput('deploy-app-platform') || "";
+  const deploy_app_platform = core.getInput('deploy-app-platform') || '';
 
   return {
     ...baseInput,

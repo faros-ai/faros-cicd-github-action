@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as process from 'process';
 
 describe('Emit to Faros action', () => {
-  
   // For local testing only shows how the runner will run a javascript action.
   // Update with correct values for apiKey and apiUrl
   test.skip('test run emit build', () => {
