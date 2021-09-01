@@ -41,7 +41,7 @@ jobs:
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
-          model: CI
+          event: CI
           run-status: ${{ job.status }}
           run-started-at: ${{ steps.set_start_time.outputs.started-at }}
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
@@ -52,7 +52,7 @@ jobs:
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
-          model: CD
+          event: CD
           deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_number) }}
           deploy-status: Success
           deploy-app-platform: ECS
