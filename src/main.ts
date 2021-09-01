@@ -136,7 +136,7 @@ async function sendCIEvent(input: CIEventInput): Promise<void> {
 
 function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deploy_uri = core.getInput('deploy', {required: true});
-  const deployStatus = core.getInput('deployStatus', {required: true});
+  const deployStatus = core.getInput('deploy-status', {required: true});
   const artifact_uri = core.getInput('artifact');
   const deploy_start_time =
     BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
