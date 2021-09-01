@@ -10,13 +10,18 @@ const CI = 'CI';
 const CD = 'CD';
 const EVENT_TYPES = [CI, CD];
 
+interface Status {
+  readonly category: string;
+  readonly detail: string;
+}
+
 interface BaseEventInput {
   readonly apiKey: string;
   readonly url: string;
   readonly graph: string;
   readonly commit_uri: string;
   readonly run_uri: string;
-  readonly run_status: string;
+  readonly run_status: Status;
   readonly run_start_time: bigint;
   readonly run_end_time: bigint;
 }
@@ -31,6 +36,7 @@ interface CDEventInput extends BaseEventInput {
   readonly deployStatus: string;
   readonly deploy_start_time: bigint;
   readonly deploy_end_time: bigint;
+  readonly deploy_app_platform: string;
   readonly artifact_uri?: string;
 }
 
@@ -76,7 +82,7 @@ function resolveInput(): BaseEventInput {
   const run_id = getEnvVar('GITHUB_RUN_ID');
   const workflow = getEnvVar('GITHUB_WORKFLOW');
   const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
-  const run_status = core.getInput('run-status', {required: true});
+  const run_status = toRunStatus(core.getInput('run-status', {required: true}));
   const run_start_time =
     BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
   const run_end_time =
@@ -121,7 +127,8 @@ async function sendCIEvent(input: CIEventInput): Promise<void> {
       --artifact "${input.artifact_uri}" \
       --commit "${input.commit_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
@@ -134,7 +141,8 @@ async function sendCIEvent(input: CIEventInput): Promise<void> {
       -g "${input.graph}" \
       --commit "${input.commit_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
@@ -150,6 +158,7 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
     BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
   const deploy_end_time =
     BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
+  const deploy_app_platform = core.getInput('deploy-app-platform') || "";
 
   return {
     ...baseInput,
@@ -157,6 +166,7 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
     deployStatus,
     deploy_start_time,
     deploy_end_time,
+    deploy_app_platform,
     artifact_uri
   };
 }
@@ -170,9 +180,13 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
       -g "${input.graph}" \
       --deploy "${input.deploy_uri}" \
       --deploy_status "${input.deployStatus}" \
+      --deploy_start_time "${input.deploy_start_time}" \
+      --deploy_end_time "${input.deploy_end_time}" \
+      --deploy_app_platform "${input.deploy_app_platform}" \
       --artifact "${input.artifact_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
@@ -187,13 +201,31 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
       --deploy_status "${input.deployStatus}" \
       --deploy_start_time "${input.deploy_start_time}" \
       --deploy_end_time "${input.deploy_end_time}" \
+      --deploy_app_platform "${input.deploy_app_platform}" \
       --commit "${input.commit_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
     );
+  }
+}
+
+function toRunStatus(status: string): Status {
+  if (!status) {
+    return {category: 'Unknown', detail: 'undefined'};
+  }
+  switch (status.toLowerCase()) {
+    case 'cancelled':
+      return {category: 'Canceled', detail: status};
+    case 'failure':
+      return {category: 'Failed', detail: status};
+    case 'success':
+      return {category: 'Success', detail: status};
+    default:
+      return {category: 'Custom', detail: status};
   }
 }
 

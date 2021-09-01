@@ -43,8 +43,6 @@ jobs:
           api-url: ${{ env.FAROS_API_URL }}
           event: CI
           run-status: ${{ job.status }}
-          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
 
       - uses: ./
         name: Send CD event to Faros
@@ -55,7 +53,4 @@ jobs:
           event: CD
           deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_number) }}
           deploy-status: Success
-          deploy-app-platform: ECS
           run-status: ${{ job.status }}
-          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
