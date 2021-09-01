@@ -119,7 +119,11 @@ async function sendCIEvent(input: CIEventInput): Promise<void> {
       -u "${input.url}" \
       -g "${input.graph}" \
       --artifact "${input.artifact_uri}" \
-      --commit "${input.commit_uri}"`,
+      --commit "${input.commit_uri}" \
+      --run "${input.run_uri}" \
+      --run_status "${input.run_status}" \
+      --run_start_time "${input.run_start_time}" \
+      --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
     );
   } else {
@@ -128,7 +132,11 @@ async function sendCIEvent(input: CIEventInput): Promise<void> {
       -k "${input.apiKey}" \
       -u "${input.url}" \
       -g "${input.graph}" \
-      --commit "${input.commit_uri}"`,
+      --commit "${input.commit_uri}" \
+      --run "${input.run_uri}" \
+      --run_status "${input.run_status}" \
+      --run_start_time "${input.run_start_time}" \
+      --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
     );
   }
@@ -162,7 +170,11 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
       -g "${input.graph}" \
       --deploy "${input.deploy_uri}" \
       --deploy_status "${input.deployStatus}" \
-      --artifact "${input.artifact_uri}"`,
+      --artifact "${input.artifact_uri}" \
+      --run "${input.run_uri}" \
+      --run_status "${input.run_status}" \
+      --run_start_time "${input.run_start_time}" \
+      --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
     );
   } else {
@@ -173,7 +185,13 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
       -g "${input.graph}" \
       --deploy "${input.deploy_uri}" \
       --deploy_status "${input.deployStatus}" \
-      --commit "${input.commit_uri}"`,
+      --deploy_start_time "${input.deploy_start_time}" \
+      --deploy_end_time "${input.deploy_end_time}" \
+      --commit "${input.commit_uri}" \
+      --run "${input.run_uri}" \
+      --run_status "${input.run_status}" \
+      --run_start_time "${input.run_start_time}" \
+      --run_end_time "${input.run_end_time}"`,
       {stdio: 'inherit'}
     );
   }
