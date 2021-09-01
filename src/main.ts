@@ -1,151 +1,181 @@
 import * as core from '@actions/core';
-import pino from 'pino';
+import {execSync} from 'child_process';
 
-import {makeAxiosInstanceWithRetry} from './client';
-import {Build, Deployment, Emit, Status} from './emit';
+const FAROS_CLI_VERSION = 'v0.2.0-rc0';
+const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
+const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
+const FAROS_DEFAULT_GRAPH = 'default';
 
-const BUILD = 'build';
-const DEPLOYMENT = 'deployment';
-const MODEL_TYPES = [BUILD, DEPLOYMENT];
+const CI = 'CI';
+const CD = 'CD';
+const EVENT_TYPES = [CI, CD];
+
+interface BaseEventInput {
+  readonly apiKey: string;
+  readonly url: string;
+  readonly graph: string;
+  readonly commit_uri: string;
+  readonly run_uri: string;
+  readonly run_status: string;
+  readonly run_start_time: bigint;
+  readonly run_end_time: bigint;
+}
+
+interface CIEventInput extends BaseEventInput {
+  readonly artifact_uri?: string;
+  readonly commit_uri: string;
+}
+
+interface CDEventInput extends BaseEventInput {
+  readonly deploy_uri: string;
+  readonly deployStatus: string;
+  readonly deploy_start_time: bigint;
+  readonly deploy_end_time: bigint;
+  readonly artifact_uri?: string;
+}
 
 async function run(): Promise<void> {
-  const logger = pino({
-    name: 'faros-client',
-    prettyPrint: {levelFirst: true, translateTime: true, ignore: 'pid,hostname'}
-  });
-
   try {
-    const apiKey = core.getInput('api-key', {required: true});
-    const url = core.getInput('api-url', {required: true});
-    const startedAt = BigInt(core.getInput('started-at', {required: true}));
-    const endedAt = BigInt(core.getInput('ended-at'));
-    const status = core.getInput('status', {required: true});
-    const pipelineId = core.getInput('build-pipeline-id');
-
-    const model = core.getInput('model', {required: true});
-    if (!MODEL_TYPES.includes(model)) {
+    const event = core.getInput('event', {required: true});
+    if (!EVENT_TYPES.includes(event)) {
       throw new Error(
-        `Unsupported model type: ${model}. Supported models are:
-          ${MODEL_TYPES.join(',')}`
+        `Unsupported event type: ${event}. Supported events are:
+          ${EVENT_TYPES.join(',')}`
       );
     }
-    const graph = core.getInput('graph') || 'default';
 
-    const client = makeAxiosInstanceWithRetry(
-      {
-        baseURL: url,
-        headers: {
-          Authorization: apiKey,
-          'Content-Type': 'application/json'
-        }
-      },
-      logger
-    );
+    const baseInput = resolveInput();
+    downloadCLI();
 
-    const emit = new Emit(graph, client);
-    if (model === BUILD) {
-      const build = makeBuildInfo(startedAt, endedAt, status, pipelineId);
-      await emit.build(build);
+    if (event === CI) {
+      const ciInput = resolveCIEventInput(baseInput);
+      await sendCIEvent(ciInput);
     } else {
-      const deployment = makeDeploymentInfo(startedAt, status, endedAt);
-      await emit.deployment(deployment);
+      const cdInput = resolveCDEventInput(baseInput);
+      await sendCDEvent(cdInput);
     }
   } catch (error) {
     core.setFailed(error.message);
   }
 }
 
-function makeBuildInfo(
-  startedAt: BigInt,
-  endedAt: BigInt,
-  status: string,
-  pipelineId?: string
-): Build {
+function resolveInput(): BaseEventInput {
+  const apiKey = core.getInput('api-key', {required: true});
+  const url = core.getInput('api-url') || FAROS_DEFAULT_URL;
+  const graph = core.getInput('graph') || FAROS_DEFAULT_GRAPH;
+
+  // Construct commit URI
   const repoName = getEnvVar('GITHUB_REPOSITORY');
   const splitRepo = repoName.split('/');
   const org = splitRepo[0];
   const repo = splitRepo[1];
-  const id = getEnvVar('GITHUB_RUN_ID');
-  const number = parseInt(getEnvVar('GITHUB_RUN_NUMBER'));
-  const workflowName = getEnvVar('GITHUB_WORKFLOW');
-  const pipeline = pipelineId
-    ? pipelineId
-    : `${org}/${repo}/${workflowName}`.toLowerCase();
-
-  const serverUrl = getEnvVar('GITHUB_SERVER_URL');
-  const name = `${repoName}_${workflowName}`;
   const sha = getEnvVar('GITHUB_SHA');
+  const commit_uri = `GitHub://${org}/${repo}/${sha}`;
+
+  // Construct run URI
+  const run_id = getEnvVar('GITHUB_RUN_ID');
+  const workflow = getEnvVar('GITHUB_WORKFLOW');
+  const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
+  const run_status = core.getInput('run-status', {required: true});
+  const run_start_time =
+    BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
+  const run_end_time =
+    BigInt(core.getInput('run-ended-at')) || BigInt(Date.now());
 
   return {
-    uid: id,
-    number,
-    name,
-    org,
-    repo,
-    sha,
-    startedAt,
-    endedAt,
-    status: toBuildStatus(status),
-    pipelineName: name,
-    pipelineId: pipeline,
-    serverUrl
+    apiKey,
+    url,
+    graph,
+    commit_uri,
+    run_uri,
+    run_status,
+    run_start_time,
+    run_end_time
   };
 }
 
-function makeDeploymentInfo(
-  startedAt: BigInt,
-  status: string,
-  endedAt?: BigInt
-): Deployment {
-  const deployId = core.getInput('deploy-id', {required: true});
-  const appName = core.getInput('deploy-app-name', {required: true});
-  const appPlatform = core.getInput('deploy-app-platform', {
-    required: true
-  });
-  const deployPlatform = core.getInput('deploy-platform', {
-    required: true
-  });
-  const buildOrgId = core.getInput('build-org-id', {
-    required: true
-  });
-  const pipelineId = core.getInput('build-pipeline-id', {
-    required: true
-  });
+async function downloadCLI(): Promise<void> {
+  execSync(
+    `curl -s ${FAROS_SCRIPT_URL} --output faros_event.sh
+    chmod u+x ./faros_event.sh`,
+    {stdio: 'inherit'}
+  );
+}
 
-  const buildSource = core.getInput('build-source', {
-    required: true
-  });
-  const buildId = core.getInput('build-id', {
-    required: true
-  });
+function resolveCIEventInput(baseInput: BaseEventInput): CIEventInput {
+  const artifact_uri = core.getInput('artifact');
+
   return {
-    uid: deployId,
-    buildOrgId,
-    appName,
-    appPlatform,
-    startedAt,
-    endedAt,
-    status: {category: status, detail: status},
-    buildId,
-    buildPipelineId: pipelineId,
-    buildSource,
-    deployPlatform
+    ...baseInput,
+    artifact_uri
   };
 }
 
-function toBuildStatus(status: string): Status {
-  if (!status) {
-    return {category: 'Unknown', detail: 'undefined'};
+async function sendCIEvent(input: CIEventInput): Promise<void> {
+  if (input.artifact_uri) {
+    execSync(
+      `./faros_event.sh CI \
+      -k "${input.apiKey}" \
+      -u "${input.url}" \
+      -g "${input.graph}" \
+      --artifact "${input.artifact_uri}" \
+      --commit "${input.commit_uri}"`,
+      {stdio: 'inherit'}
+    );
+  } else {
+    execSync(
+      `./faros_event.sh CI \
+      -k "${input.apiKey}" \
+      -u "${input.url}" \
+      -g "${input.graph}" \
+      --commit "${input.commit_uri}"`,
+      {stdio: 'inherit'}
+    );
   }
-  switch (status.toLowerCase()) {
-    case 'cancelled':
-      return {category: 'Canceled', detail: status};
-    case 'failure':
-      return {category: 'Failed', detail: status};
-    case 'success':
-      return {category: 'Success', detail: status};
-    default:
-      return {category: 'Custom', detail: status};
+}
+
+function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
+  const deploy_uri = core.getInput('deploy', {required: true});
+  const deployStatus = core.getInput('deployStatus', {required: true});
+  const artifact_uri = core.getInput('artifact');
+  const deploy_start_time =
+    BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
+  const deploy_end_time =
+    BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
+
+  return {
+    ...baseInput,
+    deploy_uri,
+    deployStatus,
+    deploy_start_time,
+    deploy_end_time,
+    artifact_uri
+  };
+}
+
+async function sendCDEvent(input: CDEventInput): Promise<void> {
+  if (input.artifact_uri) {
+    execSync(
+      `./faros_event.sh CD \
+      -k "${input.apiKey}" \
+      -u "${input.url}" \
+      -g "${input.graph}" \
+      --deploy "${input.deploy_uri}" \
+      --deploy_status "${input.deployStatus}" \
+      --artifact "${input.artifact_uri}"`,
+      {stdio: 'inherit'}
+    );
+  } else {
+    execSync(
+      `./faros_event.sh CD \
+      -k "${input.apiKey}" \
+      -u "${input.url}" \
+      -g "${input.graph}" \
+      --deploy "${input.deploy_uri}" \
+      --deploy_status "${input.deployStatus}" \
+      --commit "${input.commit_uri}"`,
+      {stdio: 'inherit'}
+    );
   }
 }
 
