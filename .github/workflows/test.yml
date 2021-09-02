@@ -40,8 +40,7 @@ jobs:
         name: Send CI event to Faros using commit
         id: send-ci-event-commit
         with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
+          api-key: fake_key
           event: CI
           run-status: ${{ job.status }}
           run-started-at: ${{ steps.set_start_time.outputs.started-at }}
@@ -51,8 +50,7 @@ jobs:
         name: Send CI event to Faros using artifact
         id: send-ci-event-artifact
         with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
+          api-key: fake_key
           event: CI
           artifact: ${{ format('Docker://farosai/emitter/{0}', github.sha) }}
           run-status: ${{ job.status }}
@@ -63,8 +61,7 @@ jobs:
         name: Send CD event to Faros using commit
         id: send-cd-event-commit
         with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
+          api-key: fake_key
           event: CD
           deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
           deploy-status: Success
@@ -76,8 +73,7 @@ jobs:
         name: Send CD event to Faros using artifact
         id: send-cd-event-artifact
         with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
+          api-key: fake_key
           event: CD
           deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
           deploy-status: Success
