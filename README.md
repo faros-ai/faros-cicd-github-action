@@ -26,7 +26,7 @@ To report a code build to Faros specify `CI` in the `event` parameter and the bu
 
 ### Report a CD Event To Faros
 
-To report a deployment to Faros specify `CD` in the `event` parameter and include the `CD` required fields.
+To report an artifact deployment to Faros specify `CD` in the `event` parameter and include the `CD` required fields.
 
 ```yaml
 - name: Report deployment to Faros
@@ -36,6 +36,7 @@ To report a deployment to Faros specify `CD` in the `event` parameter and includ
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
     event: CD
+    artifact: Docker://my-org/my-repo/artifact-id
     deploy: CodeDeploy://MyService/Dev/deploymentId
     deploy-app-platform: ECS                 # platform application is deployed on
     deploy-started-at: 1594938057000

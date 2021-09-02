@@ -45,7 +45,6 @@ jobs:
           run-status: ${{ job.status }}
           run-started-at: ${{ steps.set_start_time.outputs.started-at }}
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          pipeline-id: emitter-build-test
 
       - uses: ./
         name: Send CI event to Faros using artifact
@@ -73,7 +72,6 @@ jobs:
           run-status: ${{ job.status }}
           run-started-at: ${{ steps.set_start_time.outputs.started-at }}
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          pipeline-id: emitter-deploy-test
 
       - uses: ./
         name: Send CD event to Faros using artifact
