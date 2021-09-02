@@ -19,7 +19,7 @@ describe('Emit to Faros action', () => {
     process.env['GITHUB_WORKFLOW'] = 'CI-CD';
     process.env['GITHUB_SERVER_URL'] = 'https://github.com';
     process.env['GITHUB_SHA'] = 'f4c36eb0687e45f22b1e8b3044bf0cae7b8349fe';
-    process.env['FAROS_DRY_RUN'] = "1";
+    process.env['FAROS_DRY_RUN'] = '1';
 
     const np = process.execPath;
     const ip = path.join(__dirname, '..', 'lib', 'main.js');
@@ -45,13 +45,13 @@ describe('Emit to Faros action', () => {
     process.env['GITHUB_REPOSITORY'] = 'faros-ai/faros-cicd-github-action';
     process.env['GITHUB_WORKFLOW'] = 'CI-CD';
     process.env['GITHUB_SHA'] = 'f4c36eb0687e45f22b1e8b3044bf0cae7b8349fe';
-    process.env['FAROS_DRY_RUN'] = "1";
+    process.env['FAROS_DRY_RUN'] = '1';
 
     const np = process.execPath;
     const ip = path.join(__dirname, '..', 'lib', 'main.js');
     const options: cp.ExecFileSyncOptions = {
       env: process.env,
-      stdio: "inherit"
+      stdio: 'inherit'
     };
     cp.execFileSync(np, [ip], options);
   });
