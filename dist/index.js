@@ -85,7 +85,7 @@ function resolveInput() {
     const run_id = getEnvVar('GITHUB_RUN_ID');
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
-    const run_status = core.getInput('run-status', { required: true });
+    const run_status = toRunStatus(core.getInput('run-status', { required: true }));
     const run_start_time = BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
     const run_end_time = BigInt(core.getInput('run-ended-at')) || BigInt(Date.now());
     return {
@@ -119,7 +119,8 @@ function sendCIEvent(input) {
       --artifact "${input.artifact_uri}" \
       --commit "${input.commit_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`, { stdio: 'inherit' });
         }
@@ -130,7 +131,8 @@ function sendCIEvent(input) {
       -g "${input.graph}" \
       --commit "${input.commit_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`, { stdio: 'inherit' });
         }
@@ -142,7 +144,7 @@ function resolveCDEventInput(baseInput) {
     const artifact_uri = core.getInput('artifact');
     const deploy_start_time = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
     const deploy_end_time = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
-    const deploy_app_platform = core.getInput('deploy-app-platform') || "";
+    const deploy_app_platform = core.getInput('deploy-app-platform') || '';
     return Object.assign(Object.assign({}, baseInput), { deploy_uri,
         deployStatus,
         deploy_start_time,
@@ -164,7 +166,8 @@ function sendCDEvent(input) {
       --deploy_app_platform "${input.deploy_app_platform}" \
       --artifact "${input.artifact_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`, { stdio: 'inherit' });
         }
@@ -180,11 +183,27 @@ function sendCDEvent(input) {
       --deploy_app_platform "${input.deploy_app_platform}" \
       --commit "${input.commit_uri}" \
       --run "${input.run_uri}" \
-      --run_status "${input.run_status}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
       --run_start_time "${input.run_start_time}" \
       --run_end_time "${input.run_end_time}"`, { stdio: 'inherit' });
         }
     });
+}
+function toRunStatus(status) {
+    if (!status) {
+        return { category: 'Unknown', detail: 'undefined' };
+    }
+    switch (status.toLowerCase()) {
+        case 'cancelled':
+            return { category: 'Canceled', detail: status };
+        case 'failure':
+            return { category: 'Failed', detail: status };
+        case 'success':
+            return { category: 'Success', detail: status };
+        default:
+            return { category: 'Custom', detail: status };
+    }
 }
 function getEnvVar(name) {
     const val = process.env[name];
