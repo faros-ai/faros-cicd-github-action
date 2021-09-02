@@ -86,7 +86,7 @@ function makeBuildInfo(
     startedAt,
     endedAt,
     status: toBuildStatus(status),
-    pipelineName: workflowName,
+    pipelineName: name,
     pipelineId: pipeline,
     serverUrl
   };

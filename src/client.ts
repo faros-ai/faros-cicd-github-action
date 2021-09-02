@@ -1,5 +1,5 @@
 import axios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-import axiosRetry, {IAxiosRetryConfig} from 'axios-retry';
+import axiosRetry, {IAxiosRetryConfig, isRetryableError} from 'axios-retry';
 import pino from 'pino';
 
 export const DEFAULT_RETRIES = 3;
@@ -31,6 +31,7 @@ export function makeAxiosInstanceWithRetry(
 ): AxiosInstance {
   return makeAxiosInstance(config, {
     retries,
+    retryCondition: isRetryableError,
     retryDelay: (retryNumber, error) => {
       if (logger) {
         logger.warn(error, `Retry attempt ${retryNumber} of ${retries}`);
