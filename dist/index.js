@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getEnvVar = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const child_process_1 = __nccwpck_require__(129);
-const FAROS_CLI_VERSION = 'v0.2.0-rc0';
+const FAROS_CLI_VERSION = 'v0.2.0';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -85,7 +85,7 @@ function resolveInput() {
     const run_id = getEnvVar('GITHUB_RUN_ID');
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
-    const run_status = toRunStatus(core.getInput('run-status'));
+    const run_status = toRunStatus(core.getInput('run-status', { required: true }));
     const run_start_time = BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
     const run_end_time = BigInt(core.getInput('run-ended-at')) || BigInt(Date.now());
     return {
@@ -115,18 +115,15 @@ function sendCIEvent(input) {
     -k "${input.apiKey}" \
     -u "${input.url}" \
     -g "${input.graph}" \
-    --commit "${input.commit_uri}"`;
+    --commit "${input.commit_uri}" \
+    --run "${input.run_uri}" \
+    --run_status "${input.run_status.category}" \
+    --run_status_details "${input.run_status.detail}" \
+    --run_start_time "${input.run_start_time}" \
+    --run_end_time "${input.run_end_time}"`;
         if (input.artifact_uri) {
             command += ` \
     --artifact "${input.artifact_uri}"`;
-        }
-        if (input.run_status) {
-            command += ` \
-      --run "${input.run_uri}" \
-      --run_status "${input.run_status.category}" \
-      --run_status_details "${input.run_status.detail}" \
-      --run_start_time "${input.run_start_time}" \
-      --run_end_time "${input.run_end_time}"`;
         }
         child_process_1.execSync(command, { stdio: 'inherit' });
     });
@@ -155,7 +152,12 @@ function sendCDEvent(input) {
     --deploy_status "${input.deployStatus}" \
     --deploy_start_time "${input.deploy_start_time}" \
     --deploy_end_time "${input.deploy_end_time}" \
-    --deploy_app_platform "${input.deploy_app_platform}"`;
+    --deploy_app_platform "${input.deploy_app_platform}" \
+    --run "${input.run_uri}" \
+    --run_status "${input.run_status.category}" \
+    --run_status_details "${input.run_status.detail}" \
+    --run_start_time "${input.run_start_time}" \
+    --run_end_time "${input.run_end_time}"`;
         if (input.artifact_uri) {
             command += ` \
       --artifact "${input.artifact_uri}"`;
@@ -164,20 +166,12 @@ function sendCDEvent(input) {
             command += ` \
       --commit "${input.commit_uri}"`;
         }
-        if (input.run_status) {
-            command += ` \
-    --run "${input.run_uri}" \
-    --run_status "${input.run_status.category}" \
-    --run_status_details "${input.run_status.detail}" \
-    --run_start_time "${input.run_start_time}" \
-    --run_end_time "${input.run_end_time}"`;
-        }
         child_process_1.execSync(command, { stdio: 'inherit' });
     });
 }
 function toRunStatus(status) {
     if (!status) {
-        return undefined;
+        return { category: 'Unknown', detail: "undefined" };
     }
     switch (status.toLowerCase()) {
         case 'cancelled':

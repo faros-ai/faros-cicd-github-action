@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import {execSync} from 'child_process';
 
-const FAROS_CLI_VERSION = 'v0.2.0-rc0';
+const FAROS_CLI_VERSION = 'v0.2.0';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -21,7 +21,7 @@ interface BaseEventInput {
   readonly graph: string;
   readonly commit_uri: string;
   readonly run_uri: string;
-  readonly run_status?: Status;
+  readonly run_status: Status;
   readonly run_start_time: bigint;
   readonly run_end_time: bigint;
   readonly pipelineId?: string;
@@ -83,7 +83,7 @@ function resolveInput(): BaseEventInput {
   const run_id = getEnvVar('GITHUB_RUN_ID');
   const workflow = getEnvVar('GITHUB_WORKFLOW');
   const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
-  const run_status = toRunStatus(core.getInput('run-status'));
+  const run_status = toRunStatus(core.getInput('run-status', {required: true}));
   const run_start_time =
     BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
   const run_end_time =
@@ -123,20 +123,16 @@ async function sendCIEvent(input: CIEventInput): Promise<void> {
     -k "${input.apiKey}" \
     -u "${input.url}" \
     -g "${input.graph}" \
-    --commit "${input.commit_uri}"`;
+    --commit "${input.commit_uri}" \
+    --run "${input.run_uri}" \
+    --run_status "${input.run_status.category}" \
+    --run_status_details "${input.run_status.detail}" \
+    --run_start_time "${input.run_start_time}" \
+    --run_end_time "${input.run_end_time}"`;
 
   if (input.artifact_uri) {
     command += ` \
     --artifact "${input.artifact_uri}"`;
-  }
-
-  if (input.run_status) {
-    command += ` \
-      --run "${input.run_uri}" \
-      --run_status "${input.run_status.category}" \
-      --run_status_details "${input.run_status.detail}" \
-      --run_start_time "${input.run_start_time}" \
-      --run_end_time "${input.run_end_time}"`;
   }
 
   execSync(command, {stdio: 'inherit'});
@@ -172,7 +168,12 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
     --deploy_status "${input.deployStatus}" \
     --deploy_start_time "${input.deploy_start_time}" \
     --deploy_end_time "${input.deploy_end_time}" \
-    --deploy_app_platform "${input.deploy_app_platform}"`;
+    --deploy_app_platform "${input.deploy_app_platform}" \
+    --run "${input.run_uri}" \
+    --run_status "${input.run_status.category}" \
+    --run_status_details "${input.run_status.detail}" \
+    --run_start_time "${input.run_start_time}" \
+    --run_end_time "${input.run_end_time}"`;
 
   if (input.artifact_uri) {
     command += ` \
@@ -182,21 +183,12 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
       --commit "${input.commit_uri}"`;
   }
 
-  if (input.run_status) {
-    command += ` \
-    --run "${input.run_uri}" \
-    --run_status "${input.run_status.category}" \
-    --run_status_details "${input.run_status.detail}" \
-    --run_start_time "${input.run_start_time}" \
-    --run_end_time "${input.run_end_time}"`;
-  }
-
   execSync(command, {stdio: 'inherit'});
 }
 
-function toRunStatus(status: string): Status | undefined {
+function toRunStatus(status: string): Status {
   if (!status) {
-    return undefined;
+    return {category: 'Unknown', detail: "undefined"};
   }
   switch (status.toLowerCase()) {
     case 'cancelled':

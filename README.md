@@ -8,7 +8,7 @@ See [action.yml](action.yml) for the full documentation for this action's inputs
 
 ### Report a CI Event To Faros
 
-To report a code build to Faros specify `CI` in the `event` parameter and the build details.
+To report a code build to Faros specify `CI` in the `event` parameter and include the `CI` required fields.
 
 ```yaml
 - name: Report code build to Faros
@@ -19,7 +19,7 @@ To report a code build to Faros specify `CI` in the `event` parameter and the bu
     api-url: ${{ env.FAROS_API_URL }}
     event: CI
     artifact: Docker://my-org/my-repo/artifact-id
-    run-status: Success                          # possible values - Success, Failure, Cancelled otherwise defaults to Custom
+    run-status: Success               # possible values - Success, Failure, Cancelled otherwise defaults to Custom
     run-started-at: 1594938057000
     run-ended-at: 1594948069000
 ```
@@ -38,9 +38,13 @@ To report an artifact deployment to Faros specify `CD` in the `event` parameter 
     event: CD
     artifact: Docker://my-org/my-repo/artifact-id
     deploy: CodeDeploy://MyService/Dev/deploymentId
-    deploy-app-platform: ECS                 # platform application is deployed on
+    deploy-app-platform: ECS          # platform application is deployed on
+    deploy-status: Success            # possible values - Canceled, Failed, Queued, Running, Success
     deploy-started-at: 1594938057000
-    deploy-status: Queued                    # possible values - Canceled, Failed, Queued, Running, Success
+    deploy-ended-at: 1594938059000
+    run-status: Success               # possible values - Success, Failure, Cancelled otherwise defaults to Custom
+    run-started-at: 1594938057000
+    run-ended-at: 1594948069000
 ```
 
 ## Authentication

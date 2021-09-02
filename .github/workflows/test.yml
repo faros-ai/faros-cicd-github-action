@@ -5,7 +5,7 @@ on: # rebuild any PRs and main branch changes
     branches:
       - main
       - 'releases/*'
-      - 'wm/FAI-288'
+      - 'wm/FAI-288' #TODO: Remove
 
 jobs:
   build: # make sure build/ci work properly
@@ -59,15 +59,6 @@ jobs:
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
 
       - uses: ./
-        name: Send CI event to Faros without run info
-        id: send-ci-event-no-run-info
-        with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
-          event: CI
-          artifact: ${{ format('Docker://farosai/emitter/{0}', github.sha) }}
-
-      - uses: ./
         name: Send CD event to Faros using commit
         id: send-cd-event-commit
         with:
@@ -97,15 +88,3 @@ jobs:
           run-status: ${{ job.status }}
           run-started-at: ${{ steps.set_start_time.outputs.started-at }}
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-
-      - uses: ./
-        name: Send CD event to Faros without run info
-        id: send-cd-event-no-run-info
-        with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
-          event: CD
-          deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_number) }}
-          deploy-status: Success
-          deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
