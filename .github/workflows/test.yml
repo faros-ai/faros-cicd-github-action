@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FAROS_API_URL: https://dev.api.faros.ai
+      FAROS_DRY_RUN: 1
     steps:
       - uses: actions/checkout@v2
 
@@ -65,7 +66,7 @@ jobs:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
           event: CD
-          deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_number) }}
+          deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
           deploy-status: Success
           deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
           deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
@@ -78,7 +79,7 @@ jobs:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
           event: CD
-          deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_number) }}
+          deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
           deploy-status: Success
           deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
           deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
