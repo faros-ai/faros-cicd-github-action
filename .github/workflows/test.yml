@@ -37,7 +37,7 @@ jobs:
 
       - uses: ./
         name: Send CI event to Faros using commit
-        id: send-ci-event
+        id: send-ci-event-commit
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
@@ -48,7 +48,7 @@ jobs:
 
       - uses: ./
         name: Send CI event to Faros using artifact
-        id: send-ci-event
+        id: send-ci-event-artifact
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
@@ -60,7 +60,7 @@ jobs:
 
       - uses: ./
         name: Send CD event to Faros using commit
-        id: send-cd-event
+        id: send-cd-event-commit
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
@@ -72,10 +72,10 @@ jobs:
           run-status: ${{ job.status }}
           run-started-at: ${{ steps.set_start_time.outputs.started-at }}
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-        
+
       - uses: ./
         name: Send CD event to Faros using artifact
-        id: send-cd-event
+        id: send-cd-event-artifact
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
