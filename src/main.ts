@@ -82,12 +82,7 @@ function resolveInput(): BaseEventInput {
   // Construct run URI
   const run_id = getEnvVar('GITHUB_RUN_ID');
   const workflow = getEnvVar('GITHUB_WORKFLOW');
-  const pipelineId = core.getInput('pipeline-id');
-  const pipeline = pipelineId
-    ? pipelineId
-    : `${org}_${repo}_${workflow}`.toLowerCase();
-  const run_uri = `GitHub://${org}/${pipeline}/${run_id}`;
-
+  const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
   const run_status = toRunStatus(core.getInput('run-status'));
   const run_start_time =
     BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
