@@ -70,8 +70,6 @@ jobs:
           deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
           deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
           run-status: ${{ job.status }}
-          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
 
       - uses: ./
         name: Send CD event to Faros using artifact
@@ -86,5 +84,3 @@ jobs:
           deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
           artifact: ${{ format('Docker://farosai/emitter/{0}', github.sha) }}
           run-status: ${{ job.status }}
-          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}

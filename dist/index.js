@@ -82,12 +82,12 @@ function resolveInput() {
     const sha = getEnvVar('GITHUB_SHA');
     const commit_uri = `GitHub://${org}/${repo}/${sha}`;
     // Construct run URI
-    const run_id = getEnvVar('GITHUB_RUN_ID');
+    const run_id = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
     const run_status = toRunStatus(core.getInput('run-status', { required: true }));
-    const run_start_time = BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
-    const run_end_time = BigInt(core.getInput('run-ended-at')) || BigInt(Date.now());
+    const run_start_time = BigInt(core.getInput('run-started-at'));
+    const run_end_time = BigInt(core.getInput('run-ended-at'));
     return {
         apiKey,
         url,
@@ -107,7 +107,12 @@ function downloadCLI() {
 }
 function resolveCIEventInput(baseInput) {
     const artifact_uri = core.getInput('artifact');
-    return Object.assign(Object.assign({}, baseInput), { artifact_uri });
+    // Defualt run start/end to NOW if not provided
+    const run_start_time = baseInput.run_start_time || BigInt(Date.now());
+    const run_end_time = baseInput.run_end_time || BigInt(Date.now());
+    return Object.assign(Object.assign({}, baseInput), { artifact_uri,
+        run_start_time,
+        run_end_time });
 }
 function sendCIEvent(input) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -132,15 +137,21 @@ function resolveCDEventInput(baseInput) {
     const deploy_uri = core.getInput('deploy', { required: true });
     const deployStatus = core.getInput('deploy-status', { required: true });
     const artifact_uri = core.getInput('artifact');
+    const deploy_app_platform = core.getInput('deploy-app-platform') || '';
+    // Default deploy start/end to NOW if not provided
     const deploy_start_time = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
     const deploy_end_time = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
-    const deploy_app_platform = core.getInput('deploy-app-platform') || '';
+    // Defualt run start/end to deploy start/end if not provided
+    const run_start_time = baseInput.run_start_time || deploy_start_time;
+    const run_end_time = baseInput.run_end_time || deploy_end_time;
     return Object.assign(Object.assign({}, baseInput), { deploy_uri,
         deployStatus,
         deploy_start_time,
         deploy_end_time,
         deploy_app_platform,
-        artifact_uri });
+        artifact_uri,
+        run_start_time,
+        run_end_time });
 }
 function sendCDEvent(input) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -171,7 +182,7 @@ function sendCDEvent(input) {
 }
 function toRunStatus(status) {
     if (!status) {
-        return { category: 'Unknown', detail: "undefined" };
+        return { category: 'Unknown', detail: 'undefined' };
     }
     switch (status.toLowerCase()) {
         case 'cancelled':

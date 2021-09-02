@@ -8,9 +8,12 @@ inputs:
   event:
     required: true
     description: 'Which CI/CD event the data is for. Can be either CI or CD'
+  run-id:
+    required: false
+    description: 'Unique identifier of the job executing the CI or CD process. Defualt: GITHUB_RUN_ID'
   run-status:
     required: true
-    description: 'CI or CD process's job run status'
+    description: 'CI or CD process job run status.'
   deploy:
     required: false
     description: 'The URI of the deployment. Required for CD events'
