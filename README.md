@@ -1,56 +1,50 @@
-## Faros CI/CD GitHub Action
+# Faros CI/CD GitHub Action
 
-A GitHub Action to report CI/CD information for builds and deployments from a GitHub Action workflows to [Faros](https://www.faros.ai).
+A GitHub Action to report CI/CD information for code builds and deployments from a GitHub Action workflows to [Faros](https://www.faros.ai).
 
 ## Usage
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
 
-### Report a Build Event To Faros CI/CD Build Model
+### Report a CI Event To Faros
 
-To report a build event to Faros specify build in the `model` parameter and the build details.
+To report a code build to Faros specify `CI` in the `event` parameter and the build details.
 
 ```yaml
-- name: Report build info to Faros
-  id: emit-build-info
+- name: Report code build to Faros
+  id: send-ci-event
   uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
-    model: build
-    build-pipeline-id: build-deploy-workflow # unique id to identify the workflow running the build
-    status: Success                          # possible values - Success, Failure, Cancelled otherwise defaults to Custom
-    started-at: 1594938057000
-    ended-at: 1594948069000
+    event: CI
+    pipeline-id: MyService-build
+    artifact: Docker://my-org/my-repo/artifact-id
+    run-status: Success                          # possible values - Success, Failure, Cancelled otherwise defaults to Custom
+    run-started-at: 1594938057000
+    run-ended-at: 1594948069000
 ```
 
-> :clipboard: Note: Whilst the `build-pipeline-id` is optional, it is recommended to provide one to uniquely identify this workflow in Faros since multiple GitHub workflows can have the same name. If the `build-pipeline-id` is not provided it will be generated from the workflow name in the lowercase format `GITHUB_ORG/REPO/GITHUB_WORKFLOW_NAME`, e.g `my-org/my-repo/deployment`.
+> :clipboard: Note: Whilst the `pipeline-id` is optional, it is recommended to provide one to uniquely identify this workflow in Faros since multiple GitHub workflows can have the same name. If the `pipeline-id` is not provided it will be generated from the workflow name in lowercase format `<GITHUB_ORG>_<REPO>_<GITHUB_WORKFLOW_NAME>`, e.g `my-org_my-repo_deployment`.
 
-### Report a Deployment Event To Faros CI/CD Deployment Model
+### Report a CD Event To Faros
 
-To report a build event to Faros specify `deploy` in the `model` parameter and the deployment details. To ensure the build is correctly linked to the build, provide the build model keys, i.e. `build-id`, `build-pipeline-id`, `build-org-id`, `build-source`.
+To report a deployment to Faros specify `CD` in the `event` parameter and include the `CD` required fields.
 
 ```yaml
-- name: Report deployment info to Faros
-  id: emit-deployment-info
+- name: Report deployment to Faros
+  id: send-cd-event
   uses: faros-ai/faros-cicd-github-action@main
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
-    model: deploy
-    deploy-id: deploymentId
-    deploy-app-name: MyService               # name of the application being deployed
+    event: CD
+    deploy: CodeDeploy://MyService/Dev/deploymentId
     deploy-app-platform: ECS                 # platform application is deployed on
-    deploy-platform: CodeDeploy              # system used to orchestrate the deployment
-    build-id: build-id
-    build-pipeline-id: build-deploy-workflow
-    build-org-id: my-org
-    build-source: GitHub
-    started-at: 1594938057000
-    status: Queued                           # possible values - Canceled, Failed, Queued, Running, Success
+    pipeline-id: MyService-deploy-dev
+    deploy-started-at: 1594938057000
+    deploy-status: Queued                           # possible values - Canceled, Failed, Queued, Running, Success
 ```
-
-> :clipboard: Note: If you have both the report build and report deployment steps in the same workflow you can use the outputs from the report build step as the inputs for the deployment step build parameters, e.g. `${{ steps.emit-build-info.outputs.build-id }}`. See [action.yml](action.yml) for all available outputs.
 
 ## Authentication
 

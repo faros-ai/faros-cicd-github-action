@@ -21,9 +21,10 @@ interface BaseEventInput {
   readonly graph: string;
   readonly commit_uri: string;
   readonly run_uri: string;
-  readonly run_status: Status;
+  readonly run_status?: Status;
   readonly run_start_time: bigint;
   readonly run_end_time: bigint;
+  readonly pipelineId?: string;
 }
 
 interface CIEventInput extends BaseEventInput {
@@ -81,8 +82,13 @@ function resolveInput(): BaseEventInput {
   // Construct run URI
   const run_id = getEnvVar('GITHUB_RUN_ID');
   const workflow = getEnvVar('GITHUB_WORKFLOW');
-  const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
-  const run_status = toRunStatus(core.getInput('run-status', {required: true}));
+  const pipelineId = core.getInput('pipeline-id');
+  const pipeline = pipelineId
+    ? pipelineId
+    : `${org}_${repo}_${workflow}`.toLowerCase();
+  const run_uri = `GitHub://${org}/${pipeline}/${run_id}`;
+
+  const run_status = toRunStatus(core.getInput('run-status'));
   const run_start_time =
     BigInt(core.getInput('run-started-at')) || BigInt(Date.now());
   const run_end_time =
@@ -118,36 +124,27 @@ function resolveCIEventInput(baseInput: BaseEventInput): CIEventInput {
 }
 
 async function sendCIEvent(input: CIEventInput): Promise<void> {
+  let command = `./faros_event.sh CI \
+    -k "${input.apiKey}" \
+    -u "${input.url}" \
+    -g "${input.graph}" \
+    --commit "${input.commit_uri}"`;
+
   if (input.artifact_uri) {
-    execSync(
-      `./faros_event.sh CI \
-      -k "${input.apiKey}" \
-      -u "${input.url}" \
-      -g "${input.graph}" \
-      --artifact "${input.artifact_uri}" \
-      --commit "${input.commit_uri}" \
-      --run "${input.run_uri}" \
-      --run_status "${input.run_status.category}" \
-      --run_status_details "${input.run_status.detail}" \
-      --run_start_time "${input.run_start_time}" \
-      --run_end_time "${input.run_end_time}"`,
-      {stdio: 'inherit'}
-    );
-  } else {
-    execSync(
-      `./faros_event.sh CI \
-      -k "${input.apiKey}" \
-      -u "${input.url}" \
-      -g "${input.graph}" \
-      --commit "${input.commit_uri}" \
-      --run "${input.run_uri}" \
-      --run_status "${input.run_status.category}" \
-      --run_status_details "${input.run_status.detail}" \
-      --run_start_time "${input.run_start_time}" \
-      --run_end_time "${input.run_end_time}"`,
-      {stdio: 'inherit'}
-    );
+    command += ` \
+    --artifact "${input.artifact_uri}"`;
   }
+
+  if (input.run_status) {
+    command += ` \
+      --run "${input.run_uri}" \
+      --run_status "${input.run_status.category}" \
+      --run_status_details "${input.run_status.detail}" \
+      --run_start_time "${input.run_start_time}" \
+      --run_end_time "${input.run_end_time}"`;
+  }
+
+  execSync(command, {stdio: 'inherit'});
 }
 
 function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
@@ -172,50 +169,39 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
 }
 
 async function sendCDEvent(input: CDEventInput): Promise<void> {
+  let command = `./faros_event.sh CD \
+    -k "${input.apiKey}" \
+    -u "${input.url}" \
+    -g "${input.graph}" \
+    --deploy "${input.deploy_uri}" \
+    --deploy_status "${input.deployStatus}" \
+    --deploy_start_time "${input.deploy_start_time}" \
+    --deploy_end_time "${input.deploy_end_time}" \
+    --deploy_app_platform "${input.deploy_app_platform}"`;
+
   if (input.artifact_uri) {
-    execSync(
-      `./faros_event.sh CD \
-      -k "${input.apiKey}" \
-      -u "${input.url}" \
-      -g "${input.graph}" \
-      --deploy "${input.deploy_uri}" \
-      --deploy_status "${input.deployStatus}" \
-      --deploy_start_time "${input.deploy_start_time}" \
-      --deploy_end_time "${input.deploy_end_time}" \
-      --deploy_app_platform "${input.deploy_app_platform}" \
-      --artifact "${input.artifact_uri}" \
-      --run "${input.run_uri}" \
-      --run_status "${input.run_status.category}" \
-      --run_status_details "${input.run_status.detail}" \
-      --run_start_time "${input.run_start_time}" \
-      --run_end_time "${input.run_end_time}"`,
-      {stdio: 'inherit'}
-    );
+    command += ` \
+      --artifact "${input.artifact_uri}"`;
   } else {
-    execSync(
-      `./faros_event.sh CD \
-      -k "${input.apiKey}" \
-      -u "${input.url}" \
-      -g "${input.graph}" \
-      --deploy "${input.deploy_uri}" \
-      --deploy_status "${input.deployStatus}" \
-      --deploy_start_time "${input.deploy_start_time}" \
-      --deploy_end_time "${input.deploy_end_time}" \
-      --deploy_app_platform "${input.deploy_app_platform}" \
-      --commit "${input.commit_uri}" \
-      --run "${input.run_uri}" \
-      --run_status "${input.run_status.category}" \
-      --run_status_details "${input.run_status.detail}" \
-      --run_start_time "${input.run_start_time}" \
-      --run_end_time "${input.run_end_time}"`,
-      {stdio: 'inherit'}
-    );
+    command += ` \
+      --commit "${input.commit_uri}"`;
   }
+
+  if (input.run_status) {
+    command += ` \
+    --run "${input.run_uri}" \
+    --run_status "${input.run_status.category}" \
+    --run_status_details "${input.run_status.detail}" \
+    --run_start_time "${input.run_start_time}" \
+    --run_end_time "${input.run_end_time}"`;
+  }
+
+  execSync(command, {stdio: 'inherit'});
 }
 
-function toRunStatus(status: string): Status {
+function toRunStatus(status: string): Status | undefined {
   if (!status) {
-    return {category: 'Unknown', detail: 'undefined'};
+    return undefined;
   }
   switch (status.toLowerCase()) {
     case 'cancelled':

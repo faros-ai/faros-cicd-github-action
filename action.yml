@@ -8,15 +8,6 @@ inputs:
   event:
     required: true
     description: 'Which CI/CD event the data is for. Can be either CI or CD'
-  run-status:
-    required: true
-    description: 'CI/CD build/deployment status'
-  run-started-at:
-    required: false
-    description: 'CI/CD process start time'
-  run-ended-at:
-    required: false
-    description: 'CI/CD process end time'
   artifact:
     required: false
     description: 'The URI of the artifact that was built or deployed'
@@ -35,6 +26,15 @@ inputs:
   deploy-ended-at:
     required: false
     description: 'Deployment process end time'
+  run-status:
+    required: false
+    description: 'Job run status. Required for associating code builds and deployments to the job that executed them.'
+  run-started-at:
+    required: false
+    description: 'Job run start time'
+  run-ended-at:
+    required: false
+    description: 'Job run end time'
   api-url:
     required: false
     description: 'Faros API URL, e.g. https://api.faros.ai'
