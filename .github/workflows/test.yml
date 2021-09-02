@@ -59,8 +59,8 @@ jobs:
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
 
       - uses: ./
-        name: Send CI event to Faros without build
-        id: send-ci-event-artifact
+        name: Send CI event to Faros without run info
+        id: send-ci-event-no-run-info
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
@@ -99,8 +99,8 @@ jobs:
           run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
 
       - uses: ./
-        name: Send CD event to Faros without build
-        id: send-cd-event-commit
+        name: Send CD event to Faros without run info
+        id: send-cd-event-no-run-info
         with:
           api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
           api-url: ${{ env.FAROS_API_URL }}
