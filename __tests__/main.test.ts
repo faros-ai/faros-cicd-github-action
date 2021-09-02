@@ -5,7 +5,7 @@ import * as process from 'process';
 describe('Emit to Faros action', () => {
   // For local testing only shows how the runner will run a javascript action.
   // Update with correct values for apiKey and apiUrl
-  test('test run emit build', () => {
+  test('test run CI event', () => {
     process.env['INPUT_API-KEY'] = 'apiKey';
     process.env['INPUT_API-URL'] = 'http://localhost:8080';
     process.env['INPUT_RUN-STARTED-AT'] = '1594938057000';
@@ -32,7 +32,7 @@ describe('Emit to Faros action', () => {
 
   // For local testing only shows how the runner will run a javascript action.
   // Update with correct values for apiKey and apiUrl
-  test('test run emit deployment', () => {
+  test('test run CD event', () => {
     process.env['INPUT_API-KEY'] = 'apiKey';
     process.env['INPUT_API-URL'] = 'http://localhost:8080';
     process.env['INPUT_DEPLOY'] = 'Spinnaker://emitter/Dev/deployId';
