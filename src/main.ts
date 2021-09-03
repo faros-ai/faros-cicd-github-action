@@ -24,7 +24,6 @@ interface BaseEventInput {
   readonly runStatus: Status;
   readonly runStartTime?: bigint;
   readonly runEndTime?: bigint;
-  readonly pipelineId?: string;
   readonly artifactUri?: string;
 }
 
@@ -47,7 +46,7 @@ async function run(): Promise<void> {
     }
 
     const baseInput = resolveInput();
-    downloadCLI();
+    await downloadCLI();
 
     if (event === CI) {
       const ciInput = resolveCIEventInput(baseInput);
@@ -78,10 +77,10 @@ function resolveInput(): BaseEventInput {
   const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
   const workflow = getEnvVar('GITHUB_WORKFLOW');
   const runUri = `GitHub://${org}/${repo}_${workflow}/${runId}`;
+
   const runStatus = toRunStatus(core.getInput('run-status', {required: true}));
   const runStartTime = BigInt(core.getInput('run-started-at'));
   const runEndTime = BigInt(core.getInput('run-ended-at'));
-
   const artifactUri = core.getInput('artifact');
 
   return {
@@ -117,26 +116,6 @@ function resolveCIEventInput(baseInput: BaseEventInput): BaseEventInput {
   };
 }
 
-async function sendCIEvent(input: BaseEventInput): Promise<void> {
-  let command = `./faros_event.sh CI \
-    -k "${input.apiKey}" \
-    -u "${input.url}" \
-    -g "${input.graph}" \
-    --commit "${input.commitUri}" \
-    --run "${input.runUri}" \
-    --run_status "${input.runStatus.category}" \
-    --run_status_details "${input.runStatus.detail}" \
-    --run_start_time "${input.runStartTime}" \
-    --run_end_time "${input.runEndTime}"`;
-
-  if (input.artifactUri) {
-    command += ` \
-    --artifact "${input.artifactUri}"`;
-  }
-
-  execSync(command, {stdio: 'inherit'});
-}
-
 function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deployUri = core.getInput('deploy', {required: true});
   const deployStatus = core.getInput('deploy-status', {required: true});
@@ -162,6 +141,26 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
     runStartTime,
     runEndTime
   };
+}
+
+async function sendCIEvent(input: BaseEventInput): Promise<void> {
+  let command = `./faros_event.sh CI \
+    -k "${input.apiKey}" \
+    -u "${input.url}" \
+    -g "${input.graph}" \
+    --commit "${input.commitUri}" \
+    --run "${input.runUri}" \
+    --run_status "${input.runStatus.category}" \
+    --run_status_details "${input.runStatus.detail}" \
+    --run_start_time "${input.runStartTime}" \
+    --run_end_time "${input.runEndTime}"`;
+
+  if (input.artifactUri) {
+    command += ` \
+    --artifact "${input.artifactUri}"`;
+  }
+
+  execSync(command, {stdio: 'inherit'});
 }
 
 async function sendCDEvent(input: CDEventInput): Promise<void> {

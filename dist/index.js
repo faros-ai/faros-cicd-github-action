@@ -54,7 +54,7 @@ function run() {
           ${EVENT_TYPES.join(',')}`);
             }
             const baseInput = resolveInput();
-            downloadCLI();
+            yield downloadCLI();
             if (event === CI) {
                 const ciInput = resolveCIEventInput(baseInput);
                 yield sendCIEvent(ciInput);
@@ -113,6 +113,24 @@ function resolveCIEventInput(baseInput) {
     return Object.assign(Object.assign({}, baseInput), { runStartTime,
         runEndTime });
 }
+function resolveCDEventInput(baseInput) {
+    const deployUri = core.getInput('deploy', { required: true });
+    const deployStatus = core.getInput('deploy-status', { required: true });
+    const deployAppPlatform = core.getInput('deploy-app-platform') || '';
+    // Default deploy start/end to NOW if not provided
+    const deployStartTime = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
+    const deployEndTime = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
+    // Defualt run start/end to deploy start/end if not provided
+    const runStartTime = baseInput.runStartTime || deployStartTime;
+    const runEndTime = baseInput.runEndTime || deployEndTime;
+    return Object.assign(Object.assign({}, baseInput), { deployUri,
+        deployStatus,
+        deployStartTime,
+        deployEndTime,
+        deployAppPlatform,
+        runStartTime,
+        runEndTime });
+}
 function sendCIEvent(input) {
     return __awaiter(this, void 0, void 0, function* () {
         let command = `./faros_event.sh CI \
@@ -131,24 +149,6 @@ function sendCIEvent(input) {
         }
         (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });
-}
-function resolveCDEventInput(baseInput) {
-    const deployUri = core.getInput('deploy', { required: true });
-    const deployStatus = core.getInput('deploy-status', { required: true });
-    const deployAppPlatform = core.getInput('deploy-app-platform') || '';
-    // Default deploy start/end to NOW if not provided
-    const deployStartTime = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
-    const deployEndTime = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
-    // Defualt run start/end to deploy start/end if not provided
-    const runStartTime = baseInput.runStartTime || deployStartTime;
-    const runEndTime = baseInput.runEndTime || deployEndTime;
-    return Object.assign(Object.assign({}, baseInput), { deployUri,
-        deployStatus,
-        deployStartTime,
-        deployEndTime,
-        deployAppPlatform,
-        runStartTime,
-        runEndTime });
 }
 function sendCDEvent(input) {
     return __awaiter(this, void 0, void 0, function* () {
