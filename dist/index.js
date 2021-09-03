@@ -1,5 +1,4 @@
-require('./sourcemap-register.js');module.exports =
-/******/ (() => { // webpackBootstrap
+require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
@@ -66,7 +65,7 @@ function run() {
             }
         }
         catch (error) {
-            core.setFailed(error.message);
+            core.setFailed(error);
         }
     });
 }
@@ -80,39 +79,39 @@ function resolveInput() {
     const org = splitRepo[0];
     const repo = splitRepo[1];
     const sha = getEnvVar('GITHUB_SHA');
-    const commit_uri = `GitHub://${org}/${repo}/${sha}`;
+    const commitUri = `GitHub://${org}/${repo}/${sha}`;
     // Construct run URI
-    const run_id = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
+    const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
     const workflow = getEnvVar('GITHUB_WORKFLOW');
-    const run_uri = `GitHub://${org}/${repo}_${workflow}/${run_id}`;
-    const run_status = toRunStatus(core.getInput('run-status', { required: true }));
-    const run_start_time = BigInt(core.getInput('run-started-at'));
-    const run_end_time = BigInt(core.getInput('run-ended-at'));
+    const runUri = `GitHub://${org}/${repo}_${workflow}/${runId}`;
+    const runStatus = toRunStatus(core.getInput('run-status', { required: true }));
+    const runStartTime = BigInt(core.getInput('run-started-at'));
+    const runEndTime = BigInt(core.getInput('run-ended-at'));
+    const artifactUri = core.getInput('artifact');
     return {
         apiKey,
         url,
         graph,
-        commit_uri,
-        run_uri,
-        run_status,
-        run_start_time,
-        run_end_time
+        commitUri,
+        runUri,
+        runStatus,
+        runStartTime,
+        runEndTime,
+        artifactUri
     };
 }
 function downloadCLI() {
     return __awaiter(this, void 0, void 0, function* () {
-        child_process_1.execSync(`curl -s ${FAROS_SCRIPT_URL} --output faros_event.sh
+        (0, child_process_1.execSync)(`curl -s ${FAROS_SCRIPT_URL} --output faros_event.sh
     chmod u+x ./faros_event.sh`, { stdio: 'inherit' });
     });
 }
 function resolveCIEventInput(baseInput) {
-    const artifact_uri = core.getInput('artifact');
     // Defualt run start/end to NOW if not provided
-    const run_start_time = baseInput.run_start_time || BigInt(Date.now());
-    const run_end_time = baseInput.run_end_time || BigInt(Date.now());
-    return Object.assign(Object.assign({}, baseInput), { artifact_uri,
-        run_start_time,
-        run_end_time });
+    const runStartTime = baseInput.runStartTime || BigInt(Date.now());
+    const runEndTime = baseInput.runEndTime || BigInt(Date.now());
+    return Object.assign(Object.assign({}, baseInput), { runStartTime,
+        runEndTime });
 }
 function sendCIEvent(input) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -120,38 +119,36 @@ function sendCIEvent(input) {
     -k "${input.apiKey}" \
     -u "${input.url}" \
     -g "${input.graph}" \
-    --commit "${input.commit_uri}" \
-    --run "${input.run_uri}" \
-    --run_status "${input.run_status.category}" \
-    --run_status_details "${input.run_status.detail}" \
-    --run_start_time "${input.run_start_time}" \
-    --run_end_time "${input.run_end_time}"`;
-        if (input.artifact_uri) {
+    --commit "${input.commitUri}" \
+    --run "${input.runUri}" \
+    --run_status "${input.runStatus.category}" \
+    --run_status_details "${input.runStatus.detail}" \
+    --run_start_time "${input.runStartTime}" \
+    --run_end_time "${input.runEndTime}"`;
+        if (input.artifactUri) {
             command += ` \
-    --artifact "${input.artifact_uri}"`;
+    --artifact "${input.artifactUri}"`;
         }
-        child_process_1.execSync(command, { stdio: 'inherit' });
+        (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });
 }
 function resolveCDEventInput(baseInput) {
-    const deploy_uri = core.getInput('deploy', { required: true });
+    const deployUri = core.getInput('deploy', { required: true });
     const deployStatus = core.getInput('deploy-status', { required: true });
-    const artifact_uri = core.getInput('artifact');
-    const deploy_app_platform = core.getInput('deploy-app-platform') || '';
+    const deployAppPlatform = core.getInput('deploy-app-platform') || '';
     // Default deploy start/end to NOW if not provided
-    const deploy_start_time = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
-    const deploy_end_time = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
+    const deployStartTime = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
+    const deployEndTime = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
     // Defualt run start/end to deploy start/end if not provided
-    const run_start_time = baseInput.run_start_time || deploy_start_time;
-    const run_end_time = baseInput.run_end_time || deploy_end_time;
-    return Object.assign(Object.assign({}, baseInput), { deploy_uri,
+    const runStartTime = baseInput.runStartTime || deployStartTime;
+    const runEndTime = baseInput.runEndTime || deployEndTime;
+    return Object.assign(Object.assign({}, baseInput), { deployUri,
         deployStatus,
-        deploy_start_time,
-        deploy_end_time,
-        deploy_app_platform,
-        artifact_uri,
-        run_start_time,
-        run_end_time });
+        deployStartTime,
+        deployEndTime,
+        deployAppPlatform,
+        runStartTime,
+        runEndTime });
 }
 function sendCDEvent(input) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -159,25 +156,25 @@ function sendCDEvent(input) {
     -k "${input.apiKey}" \
     -u "${input.url}" \
     -g "${input.graph}" \
-    --deploy "${input.deploy_uri}" \
+    --deploy "${input.deployUri}" \
     --deploy_status "${input.deployStatus}" \
-    --deploy_start_time "${input.deploy_start_time}" \
-    --deploy_end_time "${input.deploy_end_time}" \
-    --deploy_app_platform "${input.deploy_app_platform}" \
-    --run "${input.run_uri}" \
-    --run_status "${input.run_status.category}" \
-    --run_status_details "${input.run_status.detail}" \
-    --run_start_time "${input.run_start_time}" \
-    --run_end_time "${input.run_end_time}"`;
-        if (input.artifact_uri) {
+    --deploy_start_time "${input.deployStartTime}" \
+    --deploy_end_time "${input.deployEndTime}" \
+    --deploy_app_platform "${input.deployAppPlatform}" \
+    --run "${input.runUri}" \
+    --run_status "${input.runStatus.category}" \
+    --run_status_details "${input.runStatus.detail}" \
+    --run_start_time "${input.runStartTime}" \
+    --run_end_time "${input.runEndTime}"`;
+        if (input.artifactUri) {
             command += ` \
-      --artifact "${input.artifact_uri}"`;
+      --artifact "${input.artifactUri}"`;
         }
         else {
             command += ` \
-      --commit "${input.commit_uri}"`;
+      --commit "${input.commitUri}"`;
         }
-        child_process_1.execSync(command, { stdio: 'inherit' });
+        (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });
 }
 function toRunStatus(status) {
@@ -600,28 +597,28 @@ exports.toCommandValue = toCommandValue;
 /***/ 129:
 /***/ ((module) => {
 
-module.exports = require("child_process");;
+module.exports = require("child_process");
 
 /***/ }),
 
 /***/ 747:
 /***/ ((module) => {
 
-module.exports = require("fs");;
+module.exports = require("fs");
 
 /***/ }),
 
 /***/ 87:
 /***/ ((module) => {
 
-module.exports = require("os");;
+module.exports = require("os");
 
 /***/ }),
 
 /***/ 622:
 /***/ ((module) => {
 
-module.exports = require("path");;
+module.exports = require("path");
 
 /***/ })
 
@@ -633,8 +630,9 @@ module.exports = require("path");;
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		if(__webpack_module_cache__[moduleId]) {
-/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -659,11 +657,16 @@ module.exports = require("path");;
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ 	__nccwpck_require__.ab = __dirname + "/";/************************************************************************/
-/******/ 	// module exports must be returned from runtime so entry inlining is disabled
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
+/******/ 	
+/************************************************************************/
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __nccwpck_require__(109);
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(109);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map

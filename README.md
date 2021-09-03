@@ -6,7 +6,7 @@ A GitHub Action to report CI/CD information for code builds and deployments from
 
 See [action.yml](action.yml) for the full documentation for this action's inputs and outputs.
 
-### Report a CI Event To Faros
+### Report a code build (CI Event) To Faros
 
 To report a code build to Faros specify `CI` in the `event` parameter and include the `CI` required fields.
 
@@ -18,13 +18,13 @@ To report a code build to Faros specify `CI` in the `event` parameter and includ
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
     event: CI
-    artifact: Docker://my-org/my-repo/artifact-id
-    run-status: Success               # possible values - Success, Failure, Cancelled otherwise defaults to Custom
+    artifact: Docker://my-org/my-repo/artifactId
+    run-status: success                               # possible values - success, failure, cancelled
     run-started-at: 1594938057000
     run-ended-at: 1594948069000
 ```
 
-### Report a CD Event To Faros
+### Report a code deployment (CD Event) To Faros
 
 To report an artifact deployment to Faros specify `CD` in the `event` parameter and include the `CD` required fields.
 
@@ -36,13 +36,13 @@ To report an artifact deployment to Faros specify `CD` in the `event` parameter 
     api-key: ${{ secrets.FAROS_API_KEY }}
     api-url: ${{ env.FAROS_API_URL }}
     event: CD
-    artifact: Docker://my-org/my-repo/artifact-id
+    artifact: Docker://my-org/my-repo/artifactId
     deploy: CodeDeploy://MyService/<env>/deploymentId # possible env values - Dev, Prod, Staging, QA
     deploy-app-platform: ECS                          # platform application is deployed on
     deploy-status: Success                            # possible values - Success, Failed, Canceled
     deploy-started-at: 1594938057000
     deploy-ended-at: 1594938059000
-    run-status: Success                               # possible values - Success, Failure, Cancelled otherwise defaults to Custom
+    run-status: Success                               # possible values - success, failure, cancelled
     run-started-at: 1594938057000
     run-ended-at: 1594948069000
 ```
