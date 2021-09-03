@@ -42,6 +42,7 @@ describe('Emit to Faros action', () => {
     process.env['INPUT_GRAPH'] = 'unit-test';
     process.env['INPUT_EVENT'] = 'CD';
     process.env['INPUT_DEPLOY-STATUS'] = 'Success';
+    process.env['INPUT_PIPELINE-ID'] = 'test-pipeline';
     process.env['GITHUB_REPOSITORY'] = 'faros-ai/faros-cicd-github-action';
     process.env['GITHUB_WORKFLOW'] = 'CI-CD';
     process.env['GITHUB_SHA'] = 'f4c36eb0687e45f22b1e8b3044bf0cae7b8349fe';
