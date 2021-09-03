@@ -10,40 +10,40 @@ inputs:
     description: 'Which CI/CD event the data is for. Can be either CI or CD'
   run-id:
     required: false
-    description: 'Unique identifier of the job executing the CI or CD process. Defualt: GITHUB_RUN_ID'
+    description: 'Unique identifier of the job executing the CI or CD process. (Defualt: GITHUB_RUN_ID)'
   run-status:
     required: true
-    description: 'CI or CD process job run status.'
+    description: 'CI or CD step's job run status. (Success, Failed, Canceled)'
   deploy:
     required: false
-    description: 'The URI of the deployment. Required for CD events'
+    description: 'The URI of the deployment. Required for CD events. (source://app/env/deploy)'
   deploy-status:
     required: false
-    description: 'The status of the deployment. Required for CD events'
+    description: 'The status of the deployment. Required for CD events. (Success, Failed, Canceled)'
   deploy-app-platform:
     required: false
-    description: 'The platform the application is being deployed on, e.g. ECS, K8s'
+    description: 'The platform the application is being deployed on. (e.g. ECS, K8s)'
   deploy-started-at:
     required: false
-    description: 'Deployment process start time'
+    description: 'Deployment process start time in millis. (e.g. 1626804346019)'
   deploy-ended-at:
     required: false
-    description: 'Deployment process end time'
+    description: 'Deployment process end time in millis. (e.g. 1626804346019)'
   artifact:
     required: false
-    description: 'The URI of the artifact that was built or deployed'
+    description: 'The URI of the artifact that was built or deployed. (source://org/repo/artifact)'
   run-started-at:
     required: false
-    description: 'Job run start time'
+    description: 'Job run start time in millis. (e.g. 1626804346019)'
   run-ended-at:
     required: false
-    description: 'Job run end time'
+    description: 'Job run end time in millis. (e.g. 1626804346019)'
   api-url:
     required: false
-    description: 'Faros API URL, e.g. https://api.faros.ai'
+    description: 'Faros API URL.'
   graph:
     required: false
-    description: "Graph name to use when invoking Faros API. Uses 'default' graph if no name is provided"
+    description: "Graph name to use when invoking Faros API. (Default: 'default')"
 branding:
   icon: fast-forward
   color: 'blue'

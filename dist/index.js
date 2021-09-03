@@ -188,6 +188,10 @@ function toRunStatus(status) {
             return { category: 'Failed', detail: status };
         case 'success':
             return { category: 'Success', detail: status };
+        case 'canceled':
+            return { category: 'Canceled', detail: "" };
+        case 'failed':
+            return { category: 'Failed', detail: "" };
         default:
             return { category: 'Custom', detail: status };
     }
