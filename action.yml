@@ -13,7 +13,7 @@ inputs:
     description: 'Unique identifier of the job executing the CI or CD process. (Defualt: GITHUB_RUN_ID)'
   run-status:
     required: true
-    description: 'CI or CD step's job run status. (Success, Failed, Canceled)'
+    description: "CI or CD step's job run status. (Success, Failed, Canceled)"
   deploy:
     required: false
     description: 'The URI of the deployment. Required for CD events. (source://app/env/deploy)'
