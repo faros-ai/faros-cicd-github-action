@@ -36,7 +36,6 @@ To report an artifact deployment to Faros specify `CD` in the `event` parameter 
     event: CD
     artifact: Docker://my-org/my-repo/artifactId
     deploy: CodeDeploy://MyService/<env>/deploymentId # possible env values - Dev, Prod, Staging, QA
-    deploy-app-platform: ECS                          # the platform your application is deployed on
     deploy-status: Success                            # possible values - Success, Failed, Canceled
     deploy-started-at: 1594938057000
     deploy-ended-at: 1594938059000
