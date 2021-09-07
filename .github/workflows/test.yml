@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FAROS_API_URL: https://dev.api.faros.ai
+      FAROS_DRY_RUN: 1
     steps:
       - uses: actions/checkout@v2
 
@@ -35,34 +36,47 @@ jobs:
           echo "::set-output name=ended-at::$(date +%s%N | cut -b1-13)"
 
       - uses: ./
-        name: Emit build info to Faros
-        id: emit-build-info
+        name: Send CI event to Faros using commit
+        id: send-ci-event-commit
         with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
-          graph: faros-cicd-github-action
-          model: build
-          status: ${{ job.status }}
-          started-at: ${{ steps.set_start_time.outputs.started-at }}
-          ended-at: ${{ steps.set_end_time.outputs.ended-at }}
-          build-pipeline-id: 'faros-cicd-github-action-test-workflow'
+          api-key: fake_key
+          event: CI
+          run-status: ${{ job.status }}
+          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
+          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
 
       - uses: ./
-        id: emit-deployment-info
-        name: Emit deployment info to Faros
+        name: Send CI event to Faros using artifact
+        id: send-ci-event-artifact
         with:
-          api-key: ${{ secrets.HEPHAESTUS_DEV_FAROS_API_KEY }}
-          api-url: ${{ env.FAROS_API_URL }}
-          graph: faros-cicd-github-action
-          model: deployment
-          status: Success
-          deploy-id: ${{ format('emitter-deployment-{0}', github.run_number) }}
-          deploy-app-name: Emitter
-          deploy-app-platform: ECS
-          deploy-platform: CodeDeploy
-          build-id: ${{ steps.emit-build-info.outputs.build-id }}
-          build-pipeline-id: ${{ steps.emit-build-info.outputs.pipeline-id }}
-          build-org-id: ${{ steps.emit-build-info.outputs.org-id }}
-          build-source: ${{ steps.emit-build-info.outputs.org-source }}
-          started-at: ${{ steps.set_start_time.outputs.started-at }}
-          ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          api-key: fake_key
+          event: CI
+          artifact: ${{ format('Docker://farosai/emitter/{0}', github.sha) }}
+          run-status: ${{ job.status }}
+          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
+          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+
+      - uses: ./
+        name: Send CD event to Faros using commit
+        id: send-cd-event-commit
+        with:
+          api-key: fake_key
+          event: CD
+          deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
+          deploy-status: Success
+          deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
+          deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          run-status: ${{ job.status }}
+
+      - uses: ./
+        name: Send CD event to Faros using artifact
+        id: send-cd-event-artifact
+        with:
+          api-key: fake_key
+          event: CD
+          deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
+          deploy-status: Success
+          deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
+          deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          artifact: ${{ format('Docker://farosai/emitter/{0}', github.sha) }}
+          run-status: ${{ job.status }}

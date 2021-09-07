@@ -2,65 +2,51 @@ name: 'faros-cicd-github-action'
 description: 'Faros CI/CD Github Action'
 author: 'Faros AI, Inc.'
 inputs:
-  api-url:
-    required: true
-    description: 'Faros API URL, e.g. https://api.faros.ai'
   api-key:
     required: true
     description: 'Faros API Key'
-  model:
+  event:
     required: true
-    description: 'Which CI/CD model the data is for. Can be either build or deployment'
-  started-at:
+    description: 'Which CI/CD event the data is for. Can be either CI or CD'
+  run-id:
+    required: false
+    description: 'Unique identifier of the job executing the CI or CD process. (Defualt: GITHUB_RUN_ID)'
+  run-status:
     required: true
-    description: 'CI/CD process start time'
-  status:
-    required: true
-    description: 'CI/CD build/deployment status'
-  ended-at:
+    description: "CI or CD step's job run status. (Success, Failed, Canceled)"
+  deploy:
     required: false
-    description: 'CI/CD process end time'
-  deploy-id:
+    description: 'The URI of the deployment. Required for CD events. (source://app/env/deploy)'
+  deploy-status:
     required: false
-    description: 'The deployment id of the deployment from the source system. Required for deployment events'
-  deploy-platform:
-    required: false
-    description: 'The deployment platform, e.g. CodeDeploy, Spinnaker'
-  deploy-app-name:
-    required: false
-    description: 'The name of the application being deployed'
+    description: 'The status of the deployment. Required for CD events. (Success, Failed, Canceled)'
   deploy-app-platform:
     required: false
-    description: 'The platform the application is being deployed on, e.g. ECS, K8s'
-  build-id:
+    description: 'The platform the application is being deployed on. (e.g. ECS, K8s)'
+  deploy-started-at:
     required: false
-    description: 'The build id of build used to trigger the deployment from the source system'
-  build-pipeline-id:
+    description: 'Deployment process start time in millis. (e.g. 1626804346019)'
+  deploy-ended-at:
     required: false
-    description: 'The pipeline id of the build system pipeline from the source system. For build events, uses GITHUB_ORG/REPO/GITHUB_WORKFLOW_NAME if not supplied'
-  build-org-id:
+    description: 'Deployment process end time in millis. (e.g. 1626804346019)'
+  artifact:
     required: false
-    description: 'The organization id of the build system pipeline from the source system'
-  build-source:
+    description: 'The URI of the artifact that was built or deployed. (source://org/repo/artifact)'
+  run-started-at:
     required: false
-    description: 'The build source system used, e.g GitHub, Jenkins'
+    description: 'Job run start time in millis. (e.g. 1626804346019)'
+  run-ended-at:
+    required: false
+    description: 'Job run end time in millis. (e.g. 1626804346019)'
+  api-url:
+    required: false
+    description: 'Faros API URL.'
   graph:
     required: false
-    description: "Graph name to use when invoking Faros API. Uses 'default' graph if no name is provided"
-outputs:
-  build-id:
-    description: 'The build id for the build event'
-  org-id:
-    description: 'The organization id of the build system pipeline when reporting a build event'
-  org-source:
-    description: 'The build source system when reporting a build event'
-  pipeline-id:
-    description: 'The pipeline id of the build event when reporting a build event'
-  revision-id:
-    description: 'The revision the build or deployment event information was upload to in Faros'
+    description: "Graph name to use when invoking Faros API. (Default: 'default')"
 branding:
   icon: fast-forward
-  color: "blue"
+  color: 'blue'
 runs:
   using: 'node12'
   main: 'dist/index.js'
