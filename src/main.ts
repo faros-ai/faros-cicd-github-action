@@ -106,7 +106,7 @@ async function downloadCLI(): Promise<void> {
 }
 
 function resolveCIEventInput(baseInput: BaseEventInput): BaseEventInput {
-  // Defualt run start/end to NOW if not provided
+  // Default run start/end to NOW if not provided
   const runStartTime = baseInput.runStartTime || BigInt(Date.now());
   const runEndTime = baseInput.runEndTime || BigInt(Date.now());
 
@@ -128,7 +128,7 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deployEndTime =
     BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
 
-  // Defualt run start/end to deploy start/end if not provided
+  // Default run start/end to deploy start/end if not provided
   const runStartTime = baseInput.runStartTime || deployStartTime;
   const runEndTime = baseInput.runEndTime || deployEndTime;
 
