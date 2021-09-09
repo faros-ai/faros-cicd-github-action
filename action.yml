@@ -10,7 +10,7 @@ inputs:
     description: 'Which CI/CD event the data is for. Can be either CI or CD'
   run-id:
     required: false
-    description: 'Unique identifier of the job executing the CI or CD process. (Defualt: GITHUB_RUN_ID)'
+    description: 'Unique identifier of the job executing the CI or CD process. (Default: GITHUB_RUN_ID)'
   run-status:
     required: true
     description: "CI or CD step's job run status. (Success, Failed, Canceled)"
@@ -38,6 +38,9 @@ inputs:
   run-ended-at:
     required: false
     description: 'Job run end time in millis. (e.g. 1626804346019)'
+  pipeline-id:
+    required: false
+    description: 'Unique identifier of the pipeline.'
   api-url:
     required: false
     description: 'Faros API URL.'

@@ -108,7 +108,7 @@ function downloadCLI() {
     });
 }
 function resolveCIEventInput(baseInput) {
-    // Defualt run start/end to NOW if not provided
+    // Default run start/end to NOW if not provided
     const runStartTime = baseInput.runStartTime || BigInt(Date.now());
     const runEndTime = baseInput.runEndTime || BigInt(Date.now());
     return Object.assign(Object.assign({}, baseInput), { runStartTime,
@@ -121,7 +121,7 @@ function resolveCDEventInput(baseInput) {
     // Default deploy start/end to NOW if not provided
     const deployStartTime = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
     const deployEndTime = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
-    // Defualt run start/end to deploy start/end if not provided
+    // Default run start/end to deploy start/end if not provided
     const runStartTime = baseInput.runStartTime || deployStartTime;
     const runEndTime = baseInput.runEndTime || deployEndTime;
     return Object.assign(Object.assign({}, baseInput), { deployUri,
