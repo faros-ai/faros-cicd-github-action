@@ -119,7 +119,9 @@ function resolveCIEventInput(baseInput: BaseEventInput): BaseEventInput {
 
 function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deployUri = core.getInput('deploy', {required: true});
-  const deployStatus = toDeployStatus(core.getInput('deploy-status', {required: true}));
+  const deployStatus = toDeployStatus(
+    core.getInput('deploy-status', {required: true})
+  );
   const deployAppPlatform = core.getInput('deploy-app-platform') || '';
 
   // Default deploy start/end to NOW if not provided
