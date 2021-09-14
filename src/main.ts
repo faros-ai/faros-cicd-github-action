@@ -29,7 +29,7 @@ interface BaseEventInput {
 
 interface CDEventInput extends BaseEventInput {
   readonly deployUri: string;
-  readonly deployStatus: string;
+  readonly deployStatus: Status;
   readonly deployStartTime: bigint;
   readonly deployEndTime: bigint;
   readonly deployAppPlatform: string;
@@ -119,7 +119,7 @@ function resolveCIEventInput(baseInput: BaseEventInput): BaseEventInput {
 
 function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deployUri = core.getInput('deploy', {required: true});
-  const deployStatus = core.getInput('deploy-status', {required: true});
+  const deployStatus = toDeployStatus(core.getInput('deploy-status', {required: true}));
   const deployAppPlatform = core.getInput('deploy-app-platform') || '';
 
   // Default deploy start/end to NOW if not provided
@@ -170,7 +170,8 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
     -u "${input.url}" \
     -g "${input.graph}" \
     --deploy "${input.deployUri}" \
-    --deploy_status "${input.deployStatus}" \
+    --deploy_status "${input.deployStatus.category}" \
+    --deploy_status_details "${input.deployStatus.detail}" \
     --deploy_start_time "${input.deployStartTime}" \
     --deploy_end_time "${input.deployEndTime}" \
     --deploy_app_platform "${input.deployAppPlatform}" \
@@ -206,6 +207,26 @@ function toRunStatus(status: string): Status {
       return {category: 'Canceled', detail: ''};
     case 'failed':
       return {category: 'Failed', detail: ''};
+    default:
+      return {category: 'Custom', detail: status};
+  }
+}
+
+function toDeployStatus(status: string): Status {
+  if (!status) {
+    return {category: 'Custom', detail: 'undefined'};
+  }
+  switch (status.toLowerCase()) {
+    case 'cancelled':
+      return {category: 'Canceled', detail: status};
+    case 'failure':
+      return {category: 'Failed', detail: status};
+    case 'success':
+      return {category: 'Success', detail: status};
+    case 'canceled':
+      return {category: 'Canceled', detail: 'canceled'};
+    case 'failed':
+      return {category: 'Failed', detail: 'canceled'};
     default:
       return {category: 'Custom', detail: status};
   }
