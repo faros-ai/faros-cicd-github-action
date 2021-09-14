@@ -204,9 +204,9 @@ function toRunStatus(status: string): Status {
     case 'success':
       return {category: 'Success', detail: status};
     case 'canceled':
-      return {category: 'Canceled', detail: ''};
+      return {category: 'Canceled', detail: status};
     case 'failed':
-      return {category: 'Failed', detail: ''};
+      return {category: 'Failed', detail: status};
     default:
       return {category: 'Custom', detail: status};
   }
@@ -224,9 +224,9 @@ function toDeployStatus(status: string): Status {
     case 'success':
       return {category: 'Success', detail: status};
     case 'canceled':
-      return {category: 'Canceled', detail: 'canceled'};
+      return {category: 'Canceled', detail: status};
     case 'failed':
-      return {category: 'Failed', detail: 'canceled'};
+      return {category: 'Failed', detail: status};
     default:
       return {category: 'Custom', detail: status};
   }
