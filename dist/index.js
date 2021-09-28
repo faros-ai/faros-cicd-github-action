@@ -108,7 +108,7 @@ function downloadCLI() {
     });
 }
 function resolveCIEventInput(baseInput) {
-    // Defualt run start/end to NOW if not provided
+    // Default run start/end to NOW if not provided
     const runStartTime = baseInput.runStartTime || BigInt(Date.now());
     const runEndTime = baseInput.runEndTime || BigInt(Date.now());
     return Object.assign(Object.assign({}, baseInput), { runStartTime,
@@ -116,12 +116,12 @@ function resolveCIEventInput(baseInput) {
 }
 function resolveCDEventInput(baseInput) {
     const deployUri = core.getInput('deploy', { required: true });
-    const deployStatus = core.getInput('deploy-status', { required: true });
+    const deployStatus = toDeployStatus(core.getInput('deploy-status', { required: true }));
     const deployAppPlatform = core.getInput('deploy-app-platform') || '';
     // Default deploy start/end to NOW if not provided
     const deployStartTime = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
     const deployEndTime = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
-    // Defualt run start/end to deploy start/end if not provided
+    // Default run start/end to deploy start/end if not provided
     const runStartTime = baseInput.runStartTime || deployStartTime;
     const runEndTime = baseInput.runEndTime || deployEndTime;
     return Object.assign(Object.assign({}, baseInput), { deployUri,
@@ -158,7 +158,8 @@ function sendCDEvent(input) {
     -u "${input.url}" \
     -g "${input.graph}" \
     --deploy "${input.deployUri}" \
-    --deploy_status "${input.deployStatus}" \
+    --deploy_status "${input.deployStatus.category}" \
+    --deploy_status_details "${input.deployStatus.detail}" \
     --deploy_start_time "${input.deployStartTime}" \
     --deploy_end_time "${input.deployEndTime}" \
     --deploy_app_platform "${input.deployAppPlatform}" \
@@ -190,9 +191,28 @@ function toRunStatus(status) {
         case 'success':
             return { category: 'Success', detail: status };
         case 'canceled':
-            return { category: 'Canceled', detail: '' };
+            return { category: 'Canceled', detail: status };
         case 'failed':
-            return { category: 'Failed', detail: '' };
+            return { category: 'Failed', detail: status };
+        default:
+            return { category: 'Custom', detail: status };
+    }
+}
+function toDeployStatus(status) {
+    if (!status) {
+        return { category: 'Custom', detail: 'undefined' };
+    }
+    switch (status.toLowerCase()) {
+        case 'cancelled':
+            return { category: 'Canceled', detail: status };
+        case 'failure':
+            return { category: 'Failed', detail: status };
+        case 'success':
+            return { category: 'Success', detail: status };
+        case 'canceled':
+            return { category: 'Canceled', detail: status };
+        case 'failed':
+            return { category: 'Failed', detail: status };
         default:
             return { category: 'Custom', detail: status };
     }
