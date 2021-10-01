@@ -33,7 +33,7 @@
     "jest-circus": "^27.1.0",
     "ts-jest": "^26.4.4",
     "eslint": "^7.23.0",
-    "eslint-plugin-github": "^4.2.0",
+    "eslint-plugin-github": "^4.3.0",
     "eslint-plugin-jest": "^24.4.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "2.3.2",
