@@ -59,6 +59,7 @@ $ npm i
 Actions are run from GitHub repos so add the dist folder to the commit:
 
 ```
+$ npm run build
 $ npm run package
 $ git add dist
 ```
