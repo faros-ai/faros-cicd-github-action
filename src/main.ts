@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import {execSync} from 'child_process';
 
-const FAROS_CLI_VERSION = 'v0.3.1';
+const FAROS_CLI_VERSION = 'v0.3.2';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
