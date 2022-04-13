@@ -13,14 +13,14 @@ To report a code build to Faros specify `CI` in the `event` parameter and includ
 ```yaml
 - name: Report code build to Faros
   id: send-ci-event
-  uses: faros-ai/faros-cicd-github-action@v3.0.2
+  uses: faros-ai/faros-cicd-github-action@v3.0.3
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CI
     artifact: Docker://my-org/my-repo/artifactId
     run-status: ${{ job.status }}                     # possible values - Success, Failed, Canceled
-    run-started-at: 1594938057000
-    run-ended-at: 1594948069000
+    run-started-at: 1594938057000                     # millis since epoch, ISO-8601 string or 'Now'
+    run-ended-at: 1594948069000                       # millis since epoch, ISO-8601 string or 'Now'
 ```
 
 ### Report a code deployment (CD Event) To Faros
@@ -30,18 +30,18 @@ To report an artifact deployment to Faros specify `CD` in the `event` parameter 
 ```yaml
 - name: Report deployment to Faros
   id: send-cd-event
-  uses: faros-ai/faros-cicd-github-action@v3.0.2
+  uses: faros-ai/faros-cicd-github-action@v3.0.3
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CD
     artifact: Docker://my-org/my-repo/artifactId
     deploy: CodeDeploy://MyService/<env>/deploymentId # possible env values - Dev, Prod, Staging, QA
     deploy-status: Success                            # possible values - Success, Failed, Canceled
-    deploy-started-at: 1594938057000
-    deploy-ended-at: 1594938059000
+    deploy-started-at: 1594938057000                  # millis since epoch, ISO-8601 string or 'Now'
+    deploy-ended-at: 1594938059000                    # millis since epoch, ISO-8601 string or 'Now'
     run-status: ${{ job.status }}                     # possible values - Success, Failed, Canceled
-    run-started-at: 1594938057000
-    run-ended-at: 1594948069000
+    run-started-at: 1594938057000                     # millis since epoch, ISO-8601 string or 'Now'
+    run-ended-at: 1594948069000                       # millis since epoch, ISO-8601 string or 'Now'
 ```
 
 ## Authentication

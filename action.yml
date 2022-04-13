@@ -14,6 +14,9 @@ inputs:
   run-status:
     required: true
     description: "CI or CD step's job run status. (Success, Failed, Canceled)"
+  pull-request-number:
+    required: false
+    description: "Manually associate the commit to a specific pull request number"
   deploy:
     required: false
     description: 'The URI of the deployment. Required for CD events. (source://app/env/deploy)'
