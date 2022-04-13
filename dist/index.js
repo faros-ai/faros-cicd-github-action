@@ -38,7 +38,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getEnvVar = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const child_process_1 = __nccwpck_require__(129);
-const FAROS_CLI_VERSION = 'v0.3.2';
+const FAROS_CLI_VERSION = 'v0.4.2';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -80,20 +80,22 @@ function resolveInput() {
     const repo = splitRepo[1];
     const sha = getEnvVar('GITHUB_SHA');
     const commitUri = `GitHub://${org}/${repo}/${sha}`;
+    const pullRequestNumber = core.getInput('pull-request-number');
     // Construct run URI
     const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const pipelineId = core.getInput('pipeline-id') || `${repo}_${workflow}`;
     const runUri = `GitHub://${org}/${pipelineId}/${runId}`;
     const runStatus = toRunStatus(core.getInput('run-status', { required: true }));
-    const runStartTime = BigInt(core.getInput('run-started-at'));
-    const runEndTime = BigInt(core.getInput('run-ended-at'));
+    const runStartTime = core.getInput('run-started-at');
+    const runEndTime = core.getInput('run-ended-at');
     const artifactUri = core.getInput('artifact');
     return {
         apiKey,
         url,
         graph,
         commitUri,
+        pullRequestNumber,
         runUri,
         runStatus,
         runStartTime,
@@ -109,8 +111,8 @@ function downloadCLI() {
 }
 function resolveCIEventInput(baseInput) {
     // Default run start/end to NOW if not provided
-    const runStartTime = baseInput.runStartTime || BigInt(Date.now());
-    const runEndTime = baseInput.runEndTime || BigInt(Date.now());
+    const runStartTime = baseInput.runStartTime || 'Now';
+    const runEndTime = baseInput.runEndTime || 'Now';
     return Object.assign(Object.assign({}, baseInput), { runStartTime,
         runEndTime });
 }
@@ -119,8 +121,8 @@ function resolveCDEventInput(baseInput) {
     const deployStatus = toDeployStatus(core.getInput('deploy-status', { required: true }));
     const deployAppPlatform = core.getInput('deploy-app-platform') || '';
     // Default deploy start/end to NOW if not provided
-    const deployStartTime = BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
-    const deployEndTime = BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
+    const deployStartTime = core.getInput('deploy-started-at') || 'Now';
+    const deployEndTime = core.getInput('deploy-ended-at') || 'Now';
     // Default run start/end to deploy start/end if not provided
     const runStartTime = baseInput.runStartTime || deployStartTime;
     const runEndTime = baseInput.runEndTime || deployEndTime;
@@ -147,6 +149,10 @@ function sendCIEvent(input) {
         if (input.artifactUri) {
             command += ` \
     --artifact "${input.artifactUri}"`;
+        }
+        if (input.pullRequestNumber) {
+            command += ` \
+      --pull_request_number "${input.pullRequestNumber}"`;
         }
         (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });
@@ -175,6 +181,10 @@ function sendCDEvent(input) {
         else {
             command += ` \
       --commit "${input.commitUri}"`;
+        }
+        if (input.pullRequestNumber) {
+            command += ` \
+      --pull_request_number "${input.pullRequestNumber}"`;
         }
         (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });

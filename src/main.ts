@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import {execSync} from 'child_process';
 
-const FAROS_CLI_VERSION = 'v0.3.2';
+const FAROS_CLI_VERSION = 'v0.4.2';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -20,18 +20,19 @@ interface BaseEventInput {
   readonly url: string;
   readonly graph: string;
   readonly commitUri: string;
+  readonly pullRequestNumber?: string;
   readonly runUri: string;
   readonly runStatus: Status;
-  readonly runStartTime?: bigint;
-  readonly runEndTime?: bigint;
+  readonly runStartTime?: string;
+  readonly runEndTime?: string;
   readonly artifactUri?: string;
 }
 
 interface CDEventInput extends BaseEventInput {
   readonly deployUri: string;
   readonly deployStatus: Status;
-  readonly deployStartTime: bigint;
-  readonly deployEndTime: bigint;
+  readonly deployStartTime: string;
+  readonly deployEndTime: string;
   readonly deployAppPlatform: string;
 }
 
@@ -72,6 +73,7 @@ function resolveInput(): BaseEventInput {
   const repo = splitRepo[1];
   const sha = getEnvVar('GITHUB_SHA');
   const commitUri = `GitHub://${org}/${repo}/${sha}`;
+  const pullRequestNumber = core.getInput('pull-request-number');
 
   // Construct run URI
   const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
@@ -80,8 +82,8 @@ function resolveInput(): BaseEventInput {
   const runUri = `GitHub://${org}/${pipelineId}/${runId}`;
 
   const runStatus = toRunStatus(core.getInput('run-status', {required: true}));
-  const runStartTime = BigInt(core.getInput('run-started-at'));
-  const runEndTime = BigInt(core.getInput('run-ended-at'));
+  const runStartTime = core.getInput('run-started-at');
+  const runEndTime = core.getInput('run-ended-at');
   const artifactUri = core.getInput('artifact');
 
   return {
@@ -89,6 +91,7 @@ function resolveInput(): BaseEventInput {
     url,
     graph,
     commitUri,
+    pullRequestNumber,
     runUri,
     runStatus,
     runStartTime,
@@ -107,8 +110,8 @@ async function downloadCLI(): Promise<void> {
 
 function resolveCIEventInput(baseInput: BaseEventInput): BaseEventInput {
   // Default run start/end to NOW if not provided
-  const runStartTime = baseInput.runStartTime || BigInt(Date.now());
-  const runEndTime = baseInput.runEndTime || BigInt(Date.now());
+  const runStartTime = baseInput.runStartTime || 'Now';
+  const runEndTime = baseInput.runEndTime || 'Now';
 
   return {
     ...baseInput,
@@ -125,10 +128,8 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deployAppPlatform = core.getInput('deploy-app-platform') || '';
 
   // Default deploy start/end to NOW if not provided
-  const deployStartTime =
-    BigInt(core.getInput('deploy-started-at')) || BigInt(Date.now());
-  const deployEndTime =
-    BigInt(core.getInput('deploy-ended-at')) || BigInt(Date.now());
+  const deployStartTime = core.getInput('deploy-started-at') || 'Now';
+  const deployEndTime = core.getInput('deploy-ended-at') || 'Now';
 
   // Default run start/end to deploy start/end if not provided
   const runStartTime = baseInput.runStartTime || deployStartTime;
@@ -163,6 +164,11 @@ async function sendCIEvent(input: BaseEventInput): Promise<void> {
     --artifact "${input.artifactUri}"`;
   }
 
+  if (input.pullRequestNumber) {
+    command += ` \
+      --pull_request_number "${input.pullRequestNumber}"`;
+  }
+
   execSync(command, {stdio: 'inherit'});
 }
 
@@ -189,6 +195,11 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
   } else {
     command += ` \
       --commit "${input.commitUri}"`;
+  }
+
+  if (input.pullRequestNumber) {
+    command += ` \
+      --pull_request_number "${input.pullRequestNumber}"`;
   }
 
   execSync(command, {stdio: 'inherit'});
