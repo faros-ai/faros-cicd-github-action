@@ -148,7 +148,7 @@ function sendCIEvent(input) {
     --run_end_time "${input.runEndTime}"`;
         if (input.artifactUri) {
             command += ` \
-    --artifact "${input.artifactUri}"`;
+      --artifact "${input.artifactUri}"`;
         }
         if (input.pullRequestNumber) {
             command += ` \

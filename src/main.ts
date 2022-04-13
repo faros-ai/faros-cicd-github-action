@@ -161,7 +161,7 @@ async function sendCIEvent(input: BaseEventInput): Promise<void> {
 
   if (input.artifactUri) {
     command += ` \
-    --artifact "${input.artifactUri}"`;
+      --artifact "${input.artifactUri}"`;
   }
 
   if (input.pullRequestNumber) {
