@@ -46,7 +46,7 @@ To report an artifact deployment to Faros specify `CD` in the `event` parameter 
 
 ## Authentication
 
-Running the action requires a valid [Faros](https://www.faros.ai) account and [API key](https://docs.faros.ai/#/api).
+Running the action requires a valid [Faros](https://www.faros.ai) account and [API key](https://docs.faros.ai/reference/getting-api-access).
 
 ## Developing
 
