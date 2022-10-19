@@ -85,7 +85,9 @@ function resolveInput() {
     const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
     const workflow = getEnvVar('GITHUB_WORKFLOW');
     const pipelineId = core.getInput('pipeline-id') || `${repo}_${workflow}`;
-    const runUri = `GitHub://${org}/${pipelineId}/${runId}`;
+    const runSource = 'Github';
+    const runOrg = org;
+    const runPipeline = pipelineId;
     const runStatus = toRunStatus(core.getInput('run-status', { required: true }));
     const runStartTime = core.getInput('run-started-at');
     const runEndTime = core.getInput('run-ended-at');
@@ -96,7 +98,10 @@ function resolveInput() {
         graph,
         commitUri,
         pullRequestNumber,
-        runUri,
+        runSource,
+        runOrg,
+        runPipeline,
+        runId,
         runStatus,
         runStartTime,
         runEndTime,
@@ -141,7 +146,10 @@ function sendCIEvent(input) {
     -u "${input.url}" \
     -g "${input.graph}" \
     --commit "${input.commitUri}" \
-    --run "${input.runUri}" \
+    --run_id "${input.runId}" \
+    --run_pipeline "${input.runPipeline}" \
+    --run_org "${input.runOrg}" \
+    --run_source "${input.runSource}" \
     --run_status "${input.runStatus.category}" \
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \
@@ -169,7 +177,10 @@ function sendCDEvent(input) {
     --deploy_start_time "${input.deployStartTime}" \
     --deploy_end_time "${input.deployEndTime}" \
     --deploy_app_platform "${input.deployAppPlatform}" \
-    --run "${input.runUri}" \
+    --run_id "${input.runId}" \
+    --run_pipeline "${input.runPipeline}" \
+    --run_org "${input.runOrg}" \
+    --run_source "${input.runSource}" \
     --run_status "${input.runStatus.category}" \
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \
