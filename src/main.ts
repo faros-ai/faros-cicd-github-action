@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import {execSync} from 'child_process';
 
-const FAROS_CLI_VERSION = 'v0.4.2';
+const FAROS_CLI_VERSION = 'v0.6.3';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -21,7 +21,10 @@ interface BaseEventInput {
   readonly graph: string;
   readonly commitUri: string;
   readonly pullRequestNumber?: string;
-  readonly runUri: string;
+  readonly runSource: string;
+  readonly runOrg: string;
+  readonly runPipeline: string;
+  readonly runId: string;
   readonly runStatus: Status;
   readonly runStartTime?: string;
   readonly runEndTime?: string;
@@ -76,10 +79,11 @@ function resolveInput(): BaseEventInput {
   const pullRequestNumber = core.getInput('pull-request-number');
 
   // Construct run URI
-  const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
   const workflow = getEnvVar('GITHUB_WORKFLOW');
-  const pipelineId = core.getInput('pipeline-id') || `${repo}_${workflow}`;
-  const runUri = `GitHub://${org}/${pipelineId}/${runId}`;
+  const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
+  const runOrg = org;
+  const runPipeline = core.getInput('pipeline-id') || `${repo}_${workflow}`;
+  const runSource = 'GitHub';
 
   const runStatus = toRunStatus(core.getInput('run-status', {required: true}));
   const runStartTime = core.getInput('run-started-at');
@@ -92,7 +96,10 @@ function resolveInput(): BaseEventInput {
     graph,
     commitUri,
     pullRequestNumber,
-    runUri,
+    runSource,
+    runOrg,
+    runPipeline,
+    runId,
     runStatus,
     runStartTime,
     runEndTime,
@@ -153,7 +160,10 @@ async function sendCIEvent(input: BaseEventInput): Promise<void> {
     -u "${input.url}" \
     -g "${input.graph}" \
     --commit "${input.commitUri}" \
-    --run "${input.runUri}" \
+    --run_id "${input.runId}" \
+    --run_pipeline "${input.runPipeline}" \
+    --run_org "${input.runOrg}" \
+    --run_source "${input.runSource}" \
     --run_status "${input.runStatus.category}" \
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \
@@ -183,7 +193,10 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
     --deploy_start_time "${input.deployStartTime}" \
     --deploy_end_time "${input.deployEndTime}" \
     --deploy_app_platform "${input.deployAppPlatform}" \
-    --run "${input.runUri}" \
+    --run_id "${input.runId}" \
+    --run_pipeline "${input.runPipeline}" \
+    --run_org "${input.runOrg}" \
+    --run_source "${input.runSource}" \
     --run_status "${input.runStatus.category}" \
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \

@@ -23,18 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set build start time
-        id: set_start_time
-        run: |
-          # Set the current time in milliseconds: https://serverfault.com/a/151112
-          echo "::set-output name=started-at::$(date +%s%N | cut -b1-13)"
-
-      - name: Set build end time
-        id: set_end_time
-        run: |
-          # Set the current time in milliseconds: https://serverfault.com/a/151112
-          echo "::set-output name=ended-at::$(date +%s%N | cut -b1-13)"
-
       - uses: ./
         name: Send CI event to Faros using commit
         id: send-ci-event-commit
@@ -42,8 +30,8 @@ jobs:
           api-key: fake_key
           event: CI
           run-status: ${{ job.status }}
-          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          run-started-at: Now
+          run-ended-at: Now
 
       - uses: ./
         name: Send CI event to Faros using artifact
@@ -53,8 +41,8 @@ jobs:
           event: CI
           artifact: ${{ format('Docker://farosai/emitter/{0}', github.sha) }}
           run-status: ${{ job.status }}
-          run-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          run-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          run-started-at: Now
+          run-ended-at: Now
 
       - uses: ./
         name: Send CD event to Faros using commit
@@ -64,8 +52,8 @@ jobs:
           event: CD
           deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
           deploy-status: Success
-          deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          deploy-started-at: Now
+          deploy-ended-at: Now
           run-status: ${{ job.status }}
 
       - uses: ./
@@ -76,7 +64,7 @@ jobs:
           event: CD
           deploy: ${{ format('CodeDeploy://Emitter/Prod/{0}', github.run_id) }}
           deploy-status: Success
-          deploy-started-at: ${{ steps.set_start_time.outputs.started-at }}
-          deploy-ended-at: ${{ steps.set_end_time.outputs.ended-at }}
+          deploy-started-at: Now
+          deploy-ended-at: Now
           artifact: ${{ format('Docker://farosai/emitter/{0}', github.sha) }}
           run-status: ${{ job.status }}
