@@ -79,12 +79,11 @@ function resolveInput(): BaseEventInput {
   const pullRequestNumber = core.getInput('pull-request-number');
 
   // Construct run URI
-  const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
   const workflow = getEnvVar('GITHUB_WORKFLOW');
-  const pipelineId = core.getInput('pipeline-id') || `${repo}_${workflow}`;
-  const runSource = 'Github';
+  const runId = core.getInput('run-id') || getEnvVar('GITHUB_RUN_ID');
   const runOrg = org;
-  const runPipeline = pipelineId;
+  const runPipeline = core.getInput('pipeline-id') || `${repo}_${workflow}`;
+  const runSource = 'Github';
 
   const runStatus = toRunStatus(core.getInput('run-status', {required: true}));
   const runStartTime = core.getInput('run-started-at');
