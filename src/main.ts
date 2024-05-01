@@ -34,6 +34,7 @@ interface BaseEventInput {
 interface CDEventInput extends BaseEventInput {
   readonly deployUri: string;
   readonly deployStatus: Status;
+  readonly deployEnvDetails: string;
   readonly deployStartTime: string;
   readonly deployEndTime: string;
   readonly deployAppPlatform: string;
@@ -85,7 +86,10 @@ function resolveInput(): BaseEventInput {
   const runPipeline = core.getInput('pipeline-id') || `${repo}_${workflow}`;
   const runSource = 'GitHub';
 
-  const runStatus = toRunStatus(core.getInput('run-status', {required: true}));
+  const runStatus = toRunStatus(
+    core.getInput('run-status', {required: true}),
+    core.getInput('run-status-details')
+  );
   const runStartTime = core.getInput('run-started-at');
   const runEndTime = core.getInput('run-ended-at');
   const artifactUri = core.getInput('artifact');
@@ -130,9 +134,11 @@ function resolveCIEventInput(baseInput: BaseEventInput): BaseEventInput {
 function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deployUri = core.getInput('deploy', {required: true});
   const deployStatus = toDeployStatus(
-    core.getInput('deploy-status', {required: true})
+    core.getInput('deploy-status', {required: true}),
+    core.getInput('deploy-status-details')
   );
-  const deployAppPlatform = core.getInput('deploy-app-platform') || '';
+  const deployAppPlatform = core.getInput('deploy-app-platform');
+  const deployEnvDetails = core.getInput('deploy-env-details');
 
   // Default deploy start/end to NOW if not provided
   const deployStartTime = core.getInput('deploy-started-at') || 'Now';
@@ -149,6 +155,7 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
     deployStartTime,
     deployEndTime,
     deployAppPlatform,
+    deployEnvDetails,
     runStartTime,
     runEndTime
   };
@@ -193,6 +200,7 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
     --deploy_start_time "${input.deployStartTime}" \
     --deploy_end_time "${input.deployEndTime}" \
     --deploy_app_platform "${input.deployAppPlatform}" \
+    --deploy_env_details "${input.deployEnvDetails}" \
     --run_id "${input.runId}" \
     --run_pipeline "${input.runPipeline}" \
     --run_org "${input.runOrg}" \
@@ -218,43 +226,43 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
   execSync(command, {stdio: 'inherit'});
 }
 
-function toRunStatus(status: string): Status {
+function toRunStatus(status: string, detail: string): Status {
   if (!status) {
-    return {category: 'Unknown', detail: 'undefined'};
+    return {category: 'Unknown', detail: detail || 'undefined'};
   }
   switch (status.toLowerCase()) {
     case 'cancelled':
-      return {category: 'Canceled', detail: status};
+      return {category: 'Canceled', detail: detail || status};
     case 'failure':
-      return {category: 'Failed', detail: status};
+      return {category: 'Failed', detail: detail || status};
     case 'success':
-      return {category: 'Success', detail: status};
+      return {category: 'Success', detail: detail || status};
     case 'canceled':
-      return {category: 'Canceled', detail: status};
+      return {category: 'Canceled', detail: detail || status};
     case 'failed':
-      return {category: 'Failed', detail: status};
+      return {category: 'Failed', detail: detail || status};
     default:
-      return {category: 'Custom', detail: status};
+      return {category: 'Custom', detail: detail || status};
   }
 }
 
-function toDeployStatus(status: string): Status {
+function toDeployStatus(status: string, detail: string): Status {
   if (!status) {
-    return {category: 'Custom', detail: 'undefined'};
+    return {category: 'Custom', detail: detail || 'undefined'};
   }
   switch (status.toLowerCase()) {
     case 'cancelled':
-      return {category: 'Canceled', detail: status};
+      return {category: 'Canceled', detail: detail || status};
     case 'failure':
-      return {category: 'Failed', detail: status};
+      return {category: 'Failed', detail: detail || status};
     case 'success':
-      return {category: 'Success', detail: status};
+      return {category: 'Success', detail: detail || status};
     case 'canceled':
-      return {category: 'Canceled', detail: status};
+      return {category: 'Canceled', detail: detail || status};
     case 'failed':
-      return {category: 'Failed', detail: status};
+      return {category: 'Failed', detail: detail || status};
     default:
-      return {category: 'Custom', detail: status};
+      return {category: 'Custom', detail: detail || status};
   }
 }
 

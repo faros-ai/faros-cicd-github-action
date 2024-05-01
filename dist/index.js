@@ -87,7 +87,7 @@ function resolveInput() {
     const runOrg = org;
     const runPipeline = core.getInput('pipeline-id') || `${repo}_${workflow}`;
     const runSource = 'GitHub';
-    const runStatus = toRunStatus(core.getInput('run-status', { required: true }));
+    const runStatus = toRunStatus(core.getInput('run-status', { required: true }), core.getInput('run-status-details'));
     const runStartTime = core.getInput('run-started-at');
     const runEndTime = core.getInput('run-ended-at');
     const artifactUri = core.getInput('artifact');
@@ -122,8 +122,9 @@ function resolveCIEventInput(baseInput) {
 }
 function resolveCDEventInput(baseInput) {
     const deployUri = core.getInput('deploy', { required: true });
-    const deployStatus = toDeployStatus(core.getInput('deploy-status', { required: true }));
-    const deployAppPlatform = core.getInput('deploy-app-platform') || '';
+    const deployStatus = toDeployStatus(core.getInput('deploy-status', { required: true }), core.getInput('deploy-status-details'));
+    const deployAppPlatform = core.getInput('deploy-app-platform');
+    const deployEnvDetails = core.getInput('deploy-env-details');
     // Default deploy start/end to NOW if not provided
     const deployStartTime = core.getInput('deploy-started-at') || 'Now';
     const deployEndTime = core.getInput('deploy-ended-at') || 'Now';
@@ -135,6 +136,7 @@ function resolveCDEventInput(baseInput) {
         deployStartTime,
         deployEndTime,
         deployAppPlatform,
+        deployEnvDetails,
         runStartTime,
         runEndTime });
 }
@@ -176,6 +178,7 @@ function sendCDEvent(input) {
     --deploy_start_time "${input.deployStartTime}" \
     --deploy_end_time "${input.deployEndTime}" \
     --deploy_app_platform "${input.deployAppPlatform}" \
+    --deploy_env_details "${input.deployEnvDetails}" \
     --run_id "${input.runId}" \
     --run_pipeline "${input.runPipeline}" \
     --run_org "${input.runOrg}" \
@@ -199,42 +202,42 @@ function sendCDEvent(input) {
         (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });
 }
-function toRunStatus(status) {
+function toRunStatus(status, detail) {
     if (!status) {
-        return { category: 'Unknown', detail: 'undefined' };
+        return { category: 'Unknown', detail: detail || 'undefined' };
     }
     switch (status.toLowerCase()) {
         case 'cancelled':
-            return { category: 'Canceled', detail: status };
+            return { category: 'Canceled', detail: detail || status };
         case 'failure':
-            return { category: 'Failed', detail: status };
+            return { category: 'Failed', detail: detail || status };
         case 'success':
-            return { category: 'Success', detail: status };
+            return { category: 'Success', detail: detail || status };
         case 'canceled':
-            return { category: 'Canceled', detail: status };
+            return { category: 'Canceled', detail: detail || status };
         case 'failed':
-            return { category: 'Failed', detail: status };
+            return { category: 'Failed', detail: detail || status };
         default:
-            return { category: 'Custom', detail: status };
+            return { category: 'Custom', detail: detail || status };
     }
 }
-function toDeployStatus(status) {
+function toDeployStatus(status, detail) {
     if (!status) {
-        return { category: 'Custom', detail: 'undefined' };
+        return { category: 'Custom', detail: detail || 'undefined' };
     }
     switch (status.toLowerCase()) {
         case 'cancelled':
-            return { category: 'Canceled', detail: status };
+            return { category: 'Canceled', detail: detail || status };
         case 'failure':
-            return { category: 'Failed', detail: status };
+            return { category: 'Failed', detail: detail || status };
         case 'success':
-            return { category: 'Success', detail: status };
+            return { category: 'Success', detail: detail || status };
         case 'canceled':
-            return { category: 'Canceled', detail: status };
+            return { category: 'Canceled', detail: detail || status };
         case 'failed':
-            return { category: 'Failed', detail: status };
+            return { category: 'Failed', detail: detail || status };
         default:
-            return { category: 'Custom', detail: status };
+            return { category: 'Custom', detail: detail || status };
     }
 }
 function getEnvVar(name) {
