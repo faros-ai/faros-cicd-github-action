@@ -26,6 +26,7 @@ interface BaseEventInput {
   readonly runPipeline: string;
   readonly runId: string;
   readonly runStatus: Status;
+  readonly runStatusDetails: string;
   readonly runStartTime?: string;
   readonly runEndTime?: string;
   readonly artifactUri?: string;
@@ -34,6 +35,8 @@ interface BaseEventInput {
 interface CDEventInput extends BaseEventInput {
   readonly deployUri: string;
   readonly deployStatus: Status;
+  readonly deployStatusDetails: string;
+  readonly deployEnvDetails: string;
   readonly deployStartTime: string;
   readonly deployEndTime: string;
   readonly deployAppPlatform: string;
@@ -86,6 +89,8 @@ function resolveInput(): BaseEventInput {
   const runSource = 'GitHub';
 
   const runStatus = toRunStatus(core.getInput('run-status', {required: true}));
+  const runStatusDetails =
+    core.getInput('run-status-details') || runStatus.detail;
   const runStartTime = core.getInput('run-started-at');
   const runEndTime = core.getInput('run-ended-at');
   const artifactUri = core.getInput('artifact');
@@ -101,6 +106,7 @@ function resolveInput(): BaseEventInput {
     runPipeline,
     runId,
     runStatus,
+    runStatusDetails,
     runStartTime,
     runEndTime,
     artifactUri
@@ -132,7 +138,10 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   const deployStatus = toDeployStatus(
     core.getInput('deploy-status', {required: true})
   );
+  const deployStatusDetails =
+    core.getInput('deploy-status-details') || deployStatus.detail;
   const deployAppPlatform = core.getInput('deploy-app-platform') || '';
+  const deployEnvDetails = core.getInput('deploy-env-details') || '';
 
   // Default deploy start/end to NOW if not provided
   const deployStartTime = core.getInput('deploy-started-at') || 'Now';
@@ -146,9 +155,11 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
     ...baseInput,
     deployUri,
     deployStatus,
+    deployStatusDetails,
     deployStartTime,
     deployEndTime,
     deployAppPlatform,
+    deployEnvDetails,
     runStartTime,
     runEndTime
   };
@@ -165,7 +176,7 @@ async function sendCIEvent(input: BaseEventInput): Promise<void> {
     --run_org "${input.runOrg}" \
     --run_source "${input.runSource}" \
     --run_status "${input.runStatus.category}" \
-    --run_status_details "${input.runStatus.detail}" \
+    --run_status_details "${input.runStatusDetails}" \
     --run_start_time "${input.runStartTime}" \
     --run_end_time "${input.runEndTime}"`;
 
@@ -189,16 +200,17 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
     -g "${input.graph}" \
     --deploy "${input.deployUri}" \
     --deploy_status "${input.deployStatus.category}" \
-    --deploy_status_details "${input.deployStatus.detail}" \
+    --deploy_status_details "${input.deployStatusDetails}" \
     --deploy_start_time "${input.deployStartTime}" \
     --deploy_end_time "${input.deployEndTime}" \
     --deploy_app_platform "${input.deployAppPlatform}" \
+    --deploy_env_details "${input.deployEnvDetails}" \
     --run_id "${input.runId}" \
     --run_pipeline "${input.runPipeline}" \
     --run_org "${input.runOrg}" \
     --run_source "${input.runSource}" \
     --run_status "${input.runStatus.category}" \
-    --run_status_details "${input.runStatus.detail}" \
+    --run_status_details "${input.runStatusDetails}" \
     --run_start_time "${input.runStartTime}" \
     --run_end_time "${input.runEndTime}"`;
 

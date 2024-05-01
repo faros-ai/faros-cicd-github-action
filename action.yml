@@ -13,7 +13,10 @@ inputs:
     description: 'Unique identifier of the job executing the CI or CD process. (Default: GITHUB_RUN_ID)'
   run-status:
     required: true
-    description: "CI or CD step's job run status. (Success, Failed, Canceled)"
+    description: "CI or CD step's job run status. (Success, Failed, Canceled, Queued, Running, Unknown, Custom)"
+  run-status-details:
+    required: false
+    description: "Any extra details about the status of the job run."
   pull-request-number:
     required: false
     description: "Manually associate the commit to a specific pull request number"
@@ -22,10 +25,16 @@ inputs:
     description: 'The URI of the deployment. Required for CD events. (source://app/env/deploy)'
   deploy-status:
     required: false
-    description: 'The status of the deployment. Required for CD events. (Success, Failed, Canceled)'
+    description: 'The status of the deployment. Required for CD events. (Success, Failed, Canceled, Queued, Running, RolledBack, Custom)'
+  deploy-status-details:
+    required: false
+    description: "Any extra details about the status of the deployment."
   deploy-app-platform:
     required: false
     description: 'The platform the application is being deployed on. (e.g. ECS, K8s)'
+  deploy-env-details:
+    required: false
+    description: 'Any extra details about the deployment environment.'
   deploy-started-at:
     required: false
     description: 'Deployment process start time in millis. (e.g. 1626804346019)'
