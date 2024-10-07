@@ -13,7 +13,7 @@ To report a code build to Faros specify `CI` in the `event` parameter and includ
 ```yaml
 - name: Report code build to Faros
   id: send-ci-event
-  uses: faros-ai/faros-cicd-github-action@v3.0.9
+  uses: faros-ai/faros-cicd-github-action@v3.0.10
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CI
@@ -30,11 +30,32 @@ To report an artifact deployment to Faros specify `CD` in the `event` parameter 
 ```yaml
 - name: Report deployment to Faros
   id: send-cd-event
-  uses: faros-ai/faros-cicd-github-action@v3.0.9
+  uses: faros-ai/faros-cicd-github-action@v3.0.10
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CD
     artifact: Docker://my-org/my-repo/artifactId
+    deploy: CodeDeploy://MyService/<env>/deploymentId # possible env values - Dev, Prod, Staging, QA
+    deploy-status: Success # possible values - Success, Failed, Canceled
+    deploy-started-at: 1594938057000 # millis since epoch, ISO-8601 string or 'Now'
+    deploy-ended-at: 1594938059000 # millis since epoch, ISO-8601 string or 'Now'
+    run-status: ${{ job.status }} # possible values - Success, Failed, Canceled
+    run-started-at: 1594938057000 # millis since epoch, ISO-8601 string or 'Now'
+    run-ended-at: 1594948069000 # millis since epoch, ISO-8601 string or 'Now'
+```
+
+### Report a code deployment (CD Event) To Faros with commit
+
+To report the deployment of a commit to Faros specify `CD` in the `event` parameter and include the `CD` required fields.
+
+```yaml
+- name: Report deployment to Faros
+  id: send-cd-event
+  uses: faros-ai/faros-cicd-github-action@v3.0.10
+  with:
+    api-key: ${{ secrets.FAROS_API_KEY }}
+    event: CD
+    commit: Docker://my-org/my-repo/sha
     deploy: CodeDeploy://MyService/<env>/deploymentId # possible env values - Dev, Prod, Staging, QA
     deploy-status: Success # possible values - Success, Failed, Canceled
     deploy-started-at: 1594938057000 # millis since epoch, ISO-8601 string or 'Now'
