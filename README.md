@@ -55,7 +55,7 @@ To report the deployment of a commit to Faros specify `CD` in the `event` parame
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CD
-    commit: Docker://my-org/my-repo/sha
+    commit: GitHub://my-org/my-repo/sha
     deploy: CodeDeploy://MyService/<env>/deploymentId # possible env values - Dev, Prod, Staging, QA
     deploy-status: Success # possible values - Success, Failed, Canceled
     deploy-started-at: 1594938057000 # millis since epoch, ISO-8601 string or 'Now'
