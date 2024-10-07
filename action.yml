@@ -41,6 +41,9 @@ inputs:
   deploy-ended-at:
     required: false
     description: 'Deployment process end time in millis. (e.g. 1626804346019)'
+  commit-uri: 
+    required: false
+    description: 'The URI of the commit that was built or deployed. (source://org/repo/sha)'
   artifact:
     required: false
     description: 'The URI of the artifact that was built or deployed. (source://org/repo/artifact)'

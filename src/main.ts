@@ -76,7 +76,7 @@ function resolveInput(): BaseEventInput {
   const org = splitRepo[0];
   const repo = splitRepo[1];
   const sha = getEnvVar('GITHUB_SHA');
-  const commitUri = `GitHub://${org}/${repo}/${sha}`;
+  const commitUri = core.getInput('commit-uri') || `GitHub://${org}/${repo}/${sha}`;
   const pullRequestNumber = core.getInput('pull-request-number');
 
   // Construct run URI
