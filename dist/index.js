@@ -38,7 +38,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getEnvVar = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const child_process_1 = __nccwpck_require__(81);
-const FAROS_CLI_VERSION = 'v0.6.3';
+const FAROS_CLI_VERSION = 'v0.6.11';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -73,6 +73,8 @@ function resolveInput() {
     const apiKey = core.getInput('api-key', { required: true });
     const url = core.getInput('api-url') || FAROS_DEFAULT_URL;
     const graph = core.getInput('graph') || FAROS_DEFAULT_GRAPH;
+    const noArtifact = core.getInput('no-artifact') || 'false';
+    const debug = core.getInput('debug') || 'false';
     // Construct commit URI
     const repoName = getEnvVar('GITHUB_REPOSITORY');
     const splitRepo = repoName.split('/');
@@ -104,7 +106,9 @@ function resolveInput() {
         runStatus,
         runStartTime,
         runEndTime,
-        artifactUri
+        artifactUri,
+        noArtifact,
+        debug
     };
 }
 function downloadCLI() {
@@ -163,6 +167,14 @@ function sendCIEvent(input) {
             command += ` \
       --pull_request_number "${input.pullRequestNumber}"`;
         }
+        if (input.noArtifact === 'true') {
+            command += ` \
+      --no_artifact`;
+        }
+        if (input.debug === 'true') {
+            command += ` \
+      --debug`;
+        }
         (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });
 }
@@ -198,6 +210,14 @@ function sendCDEvent(input) {
         if (input.pullRequestNumber) {
             command += ` \
       --pull_request_number "${input.pullRequestNumber}"`;
+        }
+        if (input.noArtifact === 'true') {
+            command += ` \
+      --no_artifact`;
+        }
+        if (input.debug === 'true') {
+            command += ` \
+      --debug`;
         }
         (0, child_process_1.execSync)(command, { stdio: 'inherit' });
     });

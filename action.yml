@@ -62,6 +62,12 @@ inputs:
   graph:
     required: false
     description: "Graph name to use when invoking Faros API. (Default: 'default')"
+  no-artifact:
+    required: false
+    description: 'Do not create an artifact in Faros. (Default: false)'
+  debug:
+    required: false
+    description: 'Enable debug mode. (Default: false)'
 branding:
   icon: fast-forward
   color: 'blue'
