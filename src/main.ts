@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import {execSync} from 'child_process';
 
-const FAROS_CLI_VERSION = 'v0.6.3';
+const FAROS_CLI_VERSION = 'v0.6.11';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -29,6 +29,8 @@ interface BaseEventInput {
   readonly runStartTime?: string;
   readonly runEndTime?: string;
   readonly artifactUri?: string;
+  readonly noArtifact?: string;
+  readonly debug?: string;
 }
 
 interface CDEventInput extends BaseEventInput {
@@ -69,6 +71,8 @@ function resolveInput(): BaseEventInput {
   const apiKey = core.getInput('api-key', {required: true});
   const url = core.getInput('api-url') || FAROS_DEFAULT_URL;
   const graph = core.getInput('graph') || FAROS_DEFAULT_GRAPH;
+  const noArtifact = core.getInput('no-artifact') || 'false';
+  const debug = core.getInput('debug') || 'false';
 
   // Construct commit URI
   const repoName = getEnvVar('GITHUB_REPOSITORY');
@@ -107,7 +111,9 @@ function resolveInput(): BaseEventInput {
     runStatus,
     runStartTime,
     runEndTime,
-    artifactUri
+    artifactUri,
+    noArtifact,
+    debug
   };
 }
 
@@ -175,15 +181,22 @@ async function sendCIEvent(input: BaseEventInput): Promise<void> {
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \
     --run_end_time "${input.runEndTime}"`;
-
+    
   if (input.artifactUri) {
     command += ` \
       --artifact "${input.artifactUri}"`;
   }
-
   if (input.pullRequestNumber) {
     command += ` \
       --pull_request_number "${input.pullRequestNumber}"`;
+  }
+  if (input.noArtifact === 'true') {
+    command += ` \
+      --no_artifact`;
+  }
+  if (input.debug === 'true') {
+    command += ` \
+      --debug`;
   }
 
   execSync(command, {stdio: 'inherit'});
@@ -217,10 +230,17 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
     command += ` \
       --commit "${input.commitUri}"`;
   }
-
   if (input.pullRequestNumber) {
     command += ` \
       --pull_request_number "${input.pullRequestNumber}"`;
+  }
+  if (input.noArtifact === 'true') {
+    command += ` \
+      --no_artifact`;
+  }
+  if (input.debug === 'true') {
+    command += ` \
+      --debug`;
   }
 
   execSync(command, {stdio: 'inherit'});
