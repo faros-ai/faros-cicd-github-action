@@ -69,7 +69,7 @@ To report the deployment of a commit to Faros specify `CD` in the `event` parame
 
 Running the action requires a valid [Faros](https://www.faros.ai) account and [API key](https://docs.faros.ai/reference/getting-api-access).
 
-## Additinal Arguments
+## Additional Arguments
 
 ```yaml
 with:
