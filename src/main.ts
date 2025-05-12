@@ -81,7 +81,8 @@ function resolveInput(): BaseEventInput {
   const org = splitRepo[0];
   const repo = splitRepo[1];
   const sha = getEnvVar('GITHUB_SHA');
-  const commitUri = core.getInput('commit-uri') || `GitHub://${org}/${repo}/${sha}`;
+  const commitUri =
+    core.getInput('commit-uri') || `GitHub://${org}/${repo}/${sha}`;
   const pullRequestNumber = core.getInput('pull-request-number');
 
   // Construct run URI
@@ -184,7 +185,7 @@ async function sendCIEvent(input: BaseEventInput): Promise<void> {
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \
     --run_end_time "${input.runEndTime}"`;
-    
+
   if (input.artifactUri) {
     command += ` \
       --artifact "${input.artifactUri}"`;
