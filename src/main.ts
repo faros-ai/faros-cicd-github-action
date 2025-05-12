@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import {execSync} from 'child_process';
 
-const FAROS_CLI_VERSION = 'v0.6.11';
+const FAROS_CLI_VERSION = 'v0.6.12';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -40,6 +40,7 @@ interface CDEventInput extends BaseEventInput {
   readonly deployStartTime: string;
   readonly deployEndTime: string;
   readonly deployAppPlatform: string;
+  readonly deployTags?: string;
 }
 
 async function run(): Promise<void> {
@@ -80,7 +81,8 @@ function resolveInput(): BaseEventInput {
   const org = splitRepo[0];
   const repo = splitRepo[1];
   const sha = getEnvVar('GITHUB_SHA');
-  const commitUri = core.getInput('commit-uri') || `GitHub://${org}/${repo}/${sha}`;
+  const commitUri =
+    core.getInput('commit-uri') || `GitHub://${org}/${repo}/${sha}`;
   const pullRequestNumber = core.getInput('pull-request-number');
 
   // Construct run URI
@@ -145,6 +147,7 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
   );
   const deployAppPlatform = core.getInput('deploy-app-platform');
   const deployEnvDetails = core.getInput('deploy-env-details');
+  const deployTags = core.getInput('deploy-tags');
 
   // Default deploy start/end to NOW if not provided
   const deployStartTime = core.getInput('deploy-started-at') || 'Now';
@@ -162,6 +165,7 @@ function resolveCDEventInput(baseInput: BaseEventInput): CDEventInput {
     deployEndTime,
     deployAppPlatform,
     deployEnvDetails,
+    deployTags,
     runStartTime,
     runEndTime
   };
@@ -181,7 +185,7 @@ async function sendCIEvent(input: BaseEventInput): Promise<void> {
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \
     --run_end_time "${input.runEndTime}"`;
-    
+
   if (input.artifactUri) {
     command += ` \
       --artifact "${input.artifactUri}"`;
@@ -223,6 +227,10 @@ async function sendCDEvent(input: CDEventInput): Promise<void> {
     --run_start_time "${input.runStartTime}" \
     --run_end_time "${input.runEndTime}"`;
 
+  if (input.deployTags) {
+    command += ` \
+      --deploy_tags "${input.deployTags}"`;
+  }
   if (input.artifactUri) {
     command += ` \
       --artifact "${input.artifactUri}"`;

@@ -41,6 +41,9 @@ inputs:
   deploy-ended-at:
     required: false
     description: 'Deployment process end time in millis. (e.g. 1626804346019)'
+  deploy-tags:
+    required: false
+    description: 'Tags associated with the deployment of the form: "key1:value1,key2:value2"'
   commit-uri: 
     required: false
     description: 'The URI of the commit that was built or deployed. (source://org/repo/sha)'

@@ -13,7 +13,7 @@ To report a code build to Faros specify `CI` in the `event` parameter and includ
 ```yaml
 - name: Report code build to Faros
   id: send-ci-event
-  uses: faros-ai/faros-cicd-github-action@v3.0.11
+  uses: faros-ai/faros-cicd-github-action@v3.0.12
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CI
@@ -30,7 +30,7 @@ To report an artifact deployment to Faros specify `CD` in the `event` parameter 
 ```yaml
 - name: Report deployment to Faros
   id: send-cd-event
-  uses: faros-ai/faros-cicd-github-action@v3.0.11
+  uses: faros-ai/faros-cicd-github-action@v3.0.12
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CD
@@ -51,7 +51,7 @@ To report the deployment of a commit to Faros specify `CD` in the `event` parame
 ```yaml
 - name: Report deployment to Faros
   id: send-cd-event
-  uses: faros-ai/faros-cicd-github-action@v3.0.11
+  uses: faros-ai/faros-cicd-github-action@v3.0.12
   with:
     api-key: ${{ secrets.FAROS_API_KEY }}
     event: CD
@@ -69,7 +69,7 @@ To report the deployment of a commit to Faros specify `CD` in the `event` parame
 
 Running the action requires a valid [Faros](https://www.faros.ai) account and [API key](https://docs.faros.ai/reference/getting-api-access).
 
-## Additinal Arguments
+## Additional Arguments
 
 ```yaml
 with:
