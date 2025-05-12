@@ -44,6 +44,7 @@ describe('Emit to Faros action', () => {
     process.env['INPUT_DEPLOY-STATUS-DETAILS'] = 'Everything is fine';
     process.env['INPUT_DEPLOY_STARTED-AT'] = '1594938057000';
     process.env['INPUT_DEPLOY_ENDED-AT'] = '1605748281000';
+    process.env['INPUT_DEPLOY_TAGS'] = 'tag1:value1,tag2:value2';
     process.env['INPUT_GRAPH'] = 'unit-test';
     process.env['INPUT_EVENT'] = 'CD';
     process.env['INPUT_DEPLOY-STATUS'] = 'Success';

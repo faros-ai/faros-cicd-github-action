@@ -38,7 +38,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getEnvVar = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const child_process_1 = __nccwpck_require__(81);
-const FAROS_CLI_VERSION = 'v0.6.11';
+const FAROS_CLI_VERSION = 'v0.6.12';
 const FAROS_SCRIPT_URL = `https://raw.githubusercontent.com/faros-ai/faros-events-cli/${FAROS_CLI_VERSION}/faros_event.sh`;
 const FAROS_DEFAULT_URL = 'https://prod.api.faros.ai';
 const FAROS_DEFAULT_GRAPH = 'default';
@@ -129,6 +129,7 @@ function resolveCDEventInput(baseInput) {
     const deployStatus = toDeployStatus(core.getInput('deploy-status', { required: true }), core.getInput('deploy-status-details'));
     const deployAppPlatform = core.getInput('deploy-app-platform');
     const deployEnvDetails = core.getInput('deploy-env-details');
+    const deployTags = core.getInput('deploy-tags');
     // Default deploy start/end to NOW if not provided
     const deployStartTime = core.getInput('deploy-started-at') || 'Now';
     const deployEndTime = core.getInput('deploy-ended-at') || 'Now';
@@ -141,6 +142,7 @@ function resolveCDEventInput(baseInput) {
         deployEndTime,
         deployAppPlatform,
         deployEnvDetails,
+        deployTags,
         runStartTime,
         runEndTime });
 }
@@ -199,6 +201,10 @@ function sendCDEvent(input) {
     --run_status_details "${input.runStatus.detail}" \
     --run_start_time "${input.runStartTime}" \
     --run_end_time "${input.runEndTime}"`;
+        if (input.deployTags) {
+            command += ` \
+      --deploy_tags "${input.deployTags}"`;
+        }
         if (input.artifactUri) {
             command += ` \
       --artifact "${input.artifactUri}"`;
