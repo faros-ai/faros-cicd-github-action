@@ -75,5 +75,5 @@ branding:
   icon: fast-forward
   color: 'blue'
 runs:
-  using: 'node20'
+  using: 'node22'
   main: 'dist/index.js'
