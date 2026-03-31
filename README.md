@@ -84,7 +84,7 @@ with:
 ## Developing
 
 ```sh
-$ npm i
+$ pnpm install
 ```
 
 ## Releasing
@@ -92,8 +92,8 @@ $ npm i
 Actions are run from GitHub repos so add the dist folder to the commit:
 
 ```
-$ npm run build
-$ npm run package
+$ pnpm run build
+$ pnpm run package
 $ git add dist
 ```
 

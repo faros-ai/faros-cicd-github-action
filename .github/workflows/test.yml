@@ -11,10 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          npm install
-      - run: |
-          npm run all
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run all
 
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
